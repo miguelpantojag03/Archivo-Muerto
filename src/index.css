@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  background: #14142B;
+  color: #E8E8F0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #2A2A48; border-radius: 999px; }
+
+/* Input placeholder */
+::placeholder { color: #4A4A6A; }
+
+/* Focus ring for keyboard nav */
+:focus-visible {
+  outline: 2px solid #5B4BFF;
+  outline-offset: 2px;
+}
