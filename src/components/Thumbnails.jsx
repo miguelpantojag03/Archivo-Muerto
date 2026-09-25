@@ -91,7 +91,24 @@ export function ParchmentImage() {
   )
 }
 
-export function getThumbnail(type) {
+// Custom image thumbnail — shown when the user has uploaded a cover image
+export function CustomThumbnail({ src }) {
+  return (
+    <img
+      src={src}
+      alt="Cover"
+      style={{
+        width: '100%', height: '100%',
+        objectFit: 'cover', objectPosition: 'center',
+        display: 'block',
+      }}
+    />
+  )
+}
+
+export function getThumbnail(type, coverImage) {
+  // Custom image always takes priority
+  if (coverImage) return <CustomThumbnail src={coverImage} />
   switch (type) {
     case 'sketch':   return <SketchThumbnail />
     case 'copy':     return <CopyThumbnail />

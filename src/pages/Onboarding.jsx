@@ -8,18 +8,17 @@ import { Field, Input, PrimaryButton, GlobalError } from '../components/FormFiel
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useToast } from '../components/Toast.jsx'
 import { onboardingSchema } from '../lib/validators.js'
-import MockAuthService from '../auth/MockAuthService.js'
-
-function makeInitials(name) {
-  return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
-}
 
 export default function Onboarding() {
-  const { signIn, setActiveProject } = useAuth()
-  const { push }   = useToast()
-  const navigate   = useNavigate()
-  const location   = useLocation()
-  const { userId, email, password } = location.state || {}
+  // Register now signs in BEFORE navigating here, so user is authenticated.
+  // We only need userId to setActiveProject — no password needed.
+  const { user, setActiveProject } = useAuth()
+  const { push }                   = useToast()
+  const navigate                   = useNavigate()
+  const location                   = useLocation()
+
+  // userId from state (fallback to user from context for resilience)
+  const userId = location.state?.userId ?? user?.id
 
   const [loading, setLoading]         = useState(false)
   const [globalError, setGlobalError] = useState('')
@@ -33,10 +32,8 @@ export default function Onboarding() {
     setGlobalError('')
     setLoading(true)
     try {
-      // Set project then sign in to create the session
-      if (userId) await MockAuthService.setActiveProject(userId, data.projectName)
-      await signIn(email, password, true)
-      push(`Welcome! Your archive is ready.`, 'success')
+      await setActiveProject(data.projectName)
+      push('Welcome! Your archive is ready.', 'success')
       navigate('/app', { replace: true })
     } catch (err) {
       setGlobalError(err.message)
@@ -48,7 +45,6 @@ export default function Onboarding() {
   return (
     <AuthLayout>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
-        {/* Icon */}
         <div style={{
           width: 56, height: 56, borderRadius: 16,
           background: 'rgba(91,75,255,0.15)', border: '1px solid rgba(91,75,255,0.3)',
@@ -66,19 +62,11 @@ export default function Onboarding() {
           </p>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          noValidate
-          style={{ display: 'flex', flexDirection: 'column', gap: 14, width: '100%' }}
-        >
+        <form onSubmit={handleSubmit(onSubmit)} noValidate
+          style={{ display: 'flex', flexDirection: 'column', gap: 14, width: '100%' }}>
           <Field label="Project name" error={errors.projectName?.message}>
-            <Input
-              register={register('projectName')}
-              type="text"
-              placeholder="e.g. Nebula System"
-              autoComplete="off"
-              error={errors.projectName}
-            />
+            <Input register={register('projectName')} type="text"
+              placeholder="e.g. Nebula System" autoComplete="off" error={errors.projectName} />
           </Field>
 
           <GlobalError message={globalError} />

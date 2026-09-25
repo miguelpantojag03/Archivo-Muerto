@@ -19,19 +19,16 @@ function PasswordStrengthMeter({ password }) {
     <div style={{ marginTop: 6 }}>
       <div style={{ display: 'flex', gap: 4 }}>
         {[0, 1, 2, 3].map(i => (
-          <div
-            key={i}
-            style={{
-              flex: 1, height: 3, borderRadius: 99,
-              background: i < score ? STRENGTH_COLORS[score - 1] : '#2A2A48',
-              transition: 'background 0.2s',
-            }}
-          />
+          <div key={i} style={{
+            flex: 1, height: 3, borderRadius: 99,
+            background: i < score ? STRENGTH_COLORS[score - 1] : '#2A2A48',
+            transition: 'background 0.2s',
+          }} />
         ))}
       </div>
-      {password && (
-        <span style={{ fontSize: 10, color: STRENGTH_COLORS[score - 1] || '#7E7EA0', marginTop: 3, display: 'block' }}>
-          {score > 0 ? STRENGTH_LABELS[score - 1] : ''}
+      {password && score > 0 && (
+        <span style={{ fontSize: 10, color: STRENGTH_COLORS[score - 1], marginTop: 3, display: 'block' }}>
+          {STRENGTH_LABELS[score - 1]}
         </span>
       )}
     </div>
@@ -39,9 +36,9 @@ function PasswordStrengthMeter({ password }) {
 }
 
 export default function Register() {
-  const { signUp }   = useAuth()
-  const { push }     = useToast()
-  const navigate     = useNavigate()
+  const { signUp, signIn }    = useAuth()
+  const { push }              = useToast()
+  const navigate              = useNavigate()
   const [globalError, setGlobalError] = useState('')
   const [loading, setLoading]         = useState(false)
 
@@ -56,10 +53,13 @@ export default function Register() {
     setGlobalError('')
     setLoading(true)
     try {
+      // 1. Create account
       const user = await signUp(data.email, data.password, data.fullName)
-      push('Account created! Set up your first project.', 'success')
-      // Pass newUser via state so Onboarding can create the session
-      navigate('/onboarding', { state: { userId: user.id, email: data.email, password: data.password } })
+      // 2. Sign in immediately — no password travels through navigation state
+      await signIn(data.email, data.password, true)
+      push('Account created!', 'success')
+      // 3. Pass only the non-sensitive userId to onboarding
+      navigate('/onboarding', { state: { userId: user.id } })
     } catch (err) {
       setGlobalError(err.message)
     } finally {
@@ -81,60 +81,36 @@ export default function Register() {
       <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
         <Field label="Full name" error={errors.fullName?.message}>
-          <Input
-            register={register('fullName')}
-            type="text"
-            placeholder="Your full name"
-            autoComplete="name"
-            error={errors.fullName}
-          />
+          <Input register={register('fullName')} type="text" placeholder="Your full name"
+            autoComplete="name" error={errors.fullName} />
         </Field>
 
         <Field label="Email" error={errors.email?.message}>
-          <Input
-            register={register('email')}
-            type="email"
-            placeholder="you@example.com"
-            autoComplete="email"
-            error={errors.email}
-          />
+          <Input register={register('email')} type="email" placeholder="you@example.com"
+            autoComplete="email" error={errors.email} />
         </Field>
 
         <Field label="Password" error={errors.password?.message}>
-          <PasswordInput
-            register={register('password')}
-            placeholder="Create a strong password"
-            autoComplete="new-password"
-            error={errors.password}
-          />
+          <PasswordInput register={register('password')} placeholder="Create a strong password"
+            autoComplete="new-password" error={errors.password} />
           <PasswordStrengthMeter password={password} />
         </Field>
 
         <Field label="Confirm password" error={errors.confirmPassword?.message}>
-          <PasswordInput
-            register={register('confirmPassword')}
-            placeholder="Repeat your password"
-            autoComplete="new-password"
-            error={errors.confirmPassword}
-          />
+          <PasswordInput register={register('confirmPassword')} placeholder="Repeat your password"
+            autoComplete="new-password" error={errors.confirmPassword} />
         </Field>
 
         <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', fontSize: 12, color: '#A0A0CC' }}>
-          <input
-            type="checkbox"
-            {...register('terms')}
-            style={{ accentColor: '#5B4BFF', width: 14, height: 14, marginTop: 1 }}
-          />
+          <input type="checkbox" {...register('terms')}
+            style={{ accentColor: '#5B4BFF', width: 14, height: 14, marginTop: 1 }} />
           <span>
-            I agree to the{' '}
-            <span style={{ color: '#7B6FFF' }}>Terms of Service</span> and{' '}
+            I agree to the <span style={{ color: '#7B6FFF' }}>Terms of Service</span> and{' '}
             <span style={{ color: '#7B6FFF' }}>Privacy Policy</span>
           </span>
         </label>
         {errors.terms && (
-          <span style={{ fontSize: 11, color: '#E05555', marginTop: -8 }}>
-            {errors.terms.message}
-          </span>
+          <span style={{ fontSize: 11, color: '#E05555', marginTop: -8 }}>{errors.terms.message}</span>
         )}
 
         <GlobalError message={globalError} />

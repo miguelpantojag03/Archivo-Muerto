@@ -32,7 +32,7 @@ export default function RelicCard({ relic, isSelected, onSelect, onDragStart }) 
     >
       {/* Thumbnail */}
       <div style={{ height: 100, borderRadius: 8, overflow: 'hidden', position: 'relative', marginBottom: 9 }}>
-        {getThumbnail(relic.thumbnail)}
+        {getThumbnail(relic.thumbnail, relic.coverImage)}
 
         {relic.revived && (
           <div style={{

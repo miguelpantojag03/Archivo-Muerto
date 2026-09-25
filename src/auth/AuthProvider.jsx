@@ -1,5 +1,7 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import MockAuthService from './MockAuthService.js'
+import { SESSION_KEY } from '../constants/storageKeys.js'
 
 // Swap MockAuthService for SupabaseAuthService / FirebaseAuthService here
 const authService = MockAuthService
@@ -7,8 +9,26 @@ const authService = MockAuthService
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [user, setUser]     = useState(null)
-  const [status, setStatus] = useState('loading') // 'loading' | 'authenticated' | 'unauthenticated'
+  const [user,   setUser]   = useState(null)
+  const [status, setStatus] = useState('loading') // 'loading'|'authenticated'|'unauthenticated'
+  const timerRef            = useRef(null)
+
+  // Schedule automatic sign-out when the session expires
+  function scheduleExpiry(session, signOutFn) {
+    clearTimeout(timerRef.current)
+    const msLeft = session.expiresAt - Date.now()
+    if (msLeft <= 0) { signOutFn(); return }
+    timerRef.current = setTimeout(() => {
+      signOutFn()
+      // The toast message is emitted from a custom event so any component can listen
+      window.dispatchEvent(new CustomEvent('am:session-expired'))
+    }, msLeft)
+  }
+
+  const doSignOut = useCallback(async () => {
+    clearTimeout(timerRef.current)
+    await authService.signOut()
+  }, [])
 
   // Restore session on mount
   useEffect(() => {
@@ -16,6 +36,7 @@ export function AuthProvider({ children }) {
       if (session) {
         setUser(session.user)
         setStatus('authenticated')
+        scheduleExpiry(session, doSignOut)
       } else {
         setStatus('unauthenticated')
       }
@@ -25,13 +46,16 @@ export function AuthProvider({ children }) {
       if (session) {
         setUser(session.user)
         setStatus('authenticated')
+        scheduleExpiry(session, doSignOut)
       } else {
         setUser(null)
         setStatus('unauthenticated')
+        clearTimeout(timerRef.current)
       }
     })
-    return unsub
-  }, [])
+
+    return () => { unsub(); clearTimeout(timerRef.current) }
+  }, [doSignOut])
 
   const signIn = useCallback((email, password, remember) =>
     authService.signIn(email, password, remember), [])
@@ -39,10 +63,8 @@ export function AuthProvider({ children }) {
   const signUp = useCallback((email, password, fullName) =>
     authService.signUp(email, password, fullName), [])
 
-  const signOut = useCallback(() => authService.signOut(), [])
-
-  const resetPassword = useCallback(email =>
-    authService.resetPassword(email), [])
+  const signOut      = doSignOut
+  const resetPassword = useCallback(email => authService.resetPassword(email), [])
 
   const setActiveProject = useCallback((projectName) => {
     if (!user) return

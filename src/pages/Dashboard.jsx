@@ -1,66 +1,47 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { useAuth } from '../auth/AuthProvider.jsx'
-import { useToast } from '../components/Toast.jsx'
-import Sidebar from '../components/Sidebar.jsx'
-import TopBar from '../components/TopBar.jsx'
-import RelicCard from '../components/RelicCard.jsx'
-import RelicDetails from '../components/RelicDetails.jsx'
-import RevivalZone from '../components/RevivalZone.jsx'
-import NewRelicModal from '../components/NewRelicModal.jsx'
-import { getRelics, addRelic, updateRelic, deleteRelic } from '../lib/relicStorage.js'
-
-// Check and notify about expired sessions on mount
-const SESSION_KEY = 'am_session'
+import { useNavigate } from 'react-router-dom'
+import { useAuth }    from '../auth/AuthProvider.jsx'
+import { useToast }   from '../components/Toast.jsx'
+import { useRelics }  from '../hooks/useRelics.js'
+import { useConfirm } from '../components/ConfirmModal.jsx'
+import Sidebar         from '../components/Sidebar.jsx'
+import TopBar          from '../components/TopBar.jsx'
+import RelicCard       from '../components/RelicCard.jsx'
+import RelicDetails    from '../components/RelicDetails.jsx'
+import RevivalZone     from '../components/RevivalZone.jsx'
+import NewRelicModal   from '../components/NewRelicModal.jsx'
+import EditRelicModal  from '../components/EditRelicModal.jsx'
 
 export default function Dashboard() {
-  const { user } = useAuth()
-  const { push } = useToast()
+  const { user, signOut }  = useAuth()
+  const { push }           = useToast()
+  const navigate           = useNavigate()
+  const { confirm, ConfirmModalUI } = useConfirm()
 
-  const [relics, setRelics]         = useState([])
-  const [selectedId, setSelectedId] = useState(null)
-  const [filter, setFilter]         = useState('all')
-  const [search, setSearch]         = useState('')
-  const [dragOver, setDragOver]     = useState(false)
-  const [showModal, setShowModal]   = useState(false)
-  const dragIdRef                   = useRef(null)
+  const {
+    visible, selected, selectedId, setSelectedId,
+    filter, setFilter, search, setSearch,
+    add, update, remove, revive,
+  } = useRelics(user?.id)
 
-  // Load relics for this user
+  const [dragOver,    setDragOver]    = useState(false)
+  const [showNew,     setShowNew]     = useState(false)
+  const [editRelic,   setEditRelic]   = useState(null)  // relic being edited
+  const dragIdRef                     = useRef(null)
+
+  // ── Session expired event from AuthProvider ───────────────────
   useEffect(() => {
-    if (!user) return
-    const data = getRelics(user.id)
-    setRelics(data)
-    // Pre-select first revived relic or first relic
-    const revived = data.find(r => r.revived)
-    setSelectedId(revived?.id ?? data[0]?.id ?? null)
-  }, [user])
+    async function handleExpired() {
+      push('Your session expired. Please sign in again.', 'error', 6000)
+      await signOut()
+      navigate('/login', { replace: true })
+    }
+    window.addEventListener('am:session-expired', handleExpired)
+    return () => window.removeEventListener('am:session-expired', handleExpired)
+  }, [signOut, navigate, push])
 
-  // Session expiry check
-  useEffect(() => {
-    const raw = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY)
-    if (!raw) return
-    try {
-      const session = JSON.parse(raw)
-      if (Date.now() > session.expiresAt) {
-        push('Your session expired. Please sign in again.', 'error', 6000)
-      }
-    } catch {}
-  }, [])
-
-  // Derived list
-  const visible = relics.filter(r => {
-    const okFilter =
-      filter === 'all' ||
-      (filter === 'visuals' && r.filter === 'visuals') ||
-      (filter === 'drafts'  && r.filter === 'drafts')
-    const q = search.toLowerCase()
-    const okSearch = !q || r.title.toLowerCase().includes(q) || r.description.toLowerCase().includes(q)
-    return okFilter && okSearch
-  })
-
-  const selected = relics.find(r => r.id === selectedId) ?? null
-
-  // Handlers
+  // ── Drag handlers ─────────────────────────────────────────────
   function handleDragStart(e, id) {
     dragIdRef.current = id
     e.dataTransfer.effectAllowed = 'move'
@@ -69,40 +50,49 @@ export default function Dashboard() {
   function handleDrop(e) {
     e.preventDefault()
     setDragOver(false)
-    if (!dragIdRef.current || !user) return
-    const updated = updateRelic(user.id, dragIdRef.current, { revived: true })
-    setRelics(updated)
+    if (!dragIdRef.current) return
+    revive(dragIdRef.current)
     setSelectedId(dragIdRef.current)
     push('Relic revived! 🎉', 'success')
     dragIdRef.current = null
   }
 
+  // ── Relic actions ─────────────────────────────────────────────
   function handleRevive(id) {
-    if (!user) return
-    const updated = updateRelic(user.id, id, { revived: true })
-    setRelics(updated)
+    revive(id)
     push('Relic revived!', 'success')
   }
 
-  function handleDelete(id) {
-    if (!user) return
-    if (!window.confirm('Delete this relic forever? This cannot be undone.')) return
-    const updated = deleteRelic(user.id, id)
-    setRelics(updated)
-    if (selectedId === id) setSelectedId(updated[0]?.id ?? null)
+  async function handleDelete(id) {
+    const relic = visible.find(r => r.id === id) ??
+                  (selected?.id === id ? selected : null)
+    const ok = await confirm({
+      title:        'Delete relic forever?',
+      message:      relic
+        ? `"${relic.title}" and all its attachments will be permanently removed. This cannot be undone.`
+        : 'This relic and all its attachments will be permanently removed.',
+      danger:       true,
+      confirmLabel: 'Delete Forever',
+    })
+    if (!ok) return
+    await remove(id)
     push('Relic deleted forever.', 'info')
   }
 
   function handleAddRelic(relic) {
-    if (!user) return
-    const updated = addRelic(user.id, relic)
-    setRelics(updated)
-    setSelectedId(relic.id)
+    add(relic)
     push('New relic added to the archive.', 'success')
+  }
+
+  function handleSaveEdit(id, patch) {
+    update(id, patch)
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#0A0A1E', overflow: 'hidden' }}>
+
+      {/* Confirm dialog (portal-like, rendered via hook) */}
+      <ConfirmModalUI />
 
       {/* macOS chrome */}
       <div style={{
@@ -118,19 +108,19 @@ export default function Dashboard() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         <Sidebar user={user} />
 
-        {/* Center */}
+        {/* Center column */}
         <main style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#14142B' }}>
           <TopBar
             search={search} setSearch={setSearch}
             filter={filter} setFilter={setFilter}
-            onNewRelic={() => setShowModal(true)}
+            onNewRelic={() => setShowNew(true)}
           />
 
           {/* Scrollable content */}
           <div style={{ flex: 1, overflowY: 'auto', position: 'relative' }}>
             <div style={{ padding: '20px 20px 110px' }}>
 
-              {/* Header */}
+              {/* Header row */}
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 4 }}>
                 <div>
                   <h1 style={{ fontSize: 26, fontWeight: 800, color: '#E8E8F0', letterSpacing: '-0.02em', lineHeight: 1.1, margin: 0 }}>
@@ -153,17 +143,7 @@ export default function Dashboard() {
 
               {/* Grid */}
               {visible.length === 0 ? (
-                <div style={{
-                  marginTop: 32, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', gap: 14,
-                  height: 200, borderRadius: 12, border: '1px dashed #2A2A48',
-                  color: '#3A3A5C', fontSize: 13,
-                }}>
-                  {relics.length === 0
-                    ? <>Your archive is empty. Add your first relic.</>
-                    : <>No relics match your search.</>
-                  }
-                </div>
+                <EmptyState onNew={() => setShowNew(true)} hasSearch={!!search} />
               ) : (
                 <div style={{
                   display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
@@ -192,18 +172,56 @@ export default function Dashboard() {
           </div>
         </main>
 
+        {/* Right panel */}
         <RelicDetails
           relic={selected}
           onRevive={handleRevive}
           onDelete={handleDelete}
+          onEdit={relic => setEditRelic(relic)}
         />
       </div>
 
-      {showModal && (
+      {/* Modals */}
+      {showNew && (
         <NewRelicModal
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowNew(false)}
           onAdd={handleAddRelic}
         />
+      )}
+      {editRelic && (
+        <EditRelicModal
+          relic={editRelic}
+          onClose={() => setEditRelic(null)}
+          onSave={handleSaveEdit}
+        />
+      )}
+    </div>
+  )
+}
+
+// ── Empty state ────────────────────────────────────────────────────
+function EmptyState({ onNew, hasSearch }) {
+  return (
+    <div style={{
+      marginTop: 32, display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center', gap: 14,
+      minHeight: 200, borderRadius: 12, border: '1px dashed #2A2A48',
+      color: '#3A3A5C', padding: 32,
+    }}>
+      <div style={{ fontSize: 13 }}>
+        {hasSearch ? 'No relics match your search.' : 'Your archive is empty.'}
+      </div>
+      {!hasSearch && (
+        <button
+          onClick={onNew}
+          style={{
+            padding: '8px 20px', borderRadius: 8, border: 'none',
+            background: '#5B4BFF', color: 'white',
+            fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+          }}
+        >
+          + Add your first relic
+        </button>
       )}
     </div>
   )

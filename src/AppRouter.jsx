@@ -9,19 +9,19 @@ import Dashboard      from './pages/Dashboard.jsx'
 export default function AppRouter() {
   return (
     <Routes>
-      {/* Public / guest-only routes */}
-      <Route path="/login"          element={<GuestRoute><Login /></GuestRoute>} />
-      <Route path="/register"       element={<GuestRoute><Register /></GuestRoute>} />
-      <Route path="/forgot-password"element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+      {/* Guest-only: redirect to /app if already authenticated */}
+      <Route path="/login"           element={<GuestRoute><Login /></GuestRoute>} />
+      <Route path="/register"        element={<GuestRoute><Register /></GuestRoute>} />
+      <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
 
-      {/* Onboarding — accessible only after register (no session yet) */}
-      <Route path="/onboarding"     element={<Onboarding />} />
+      {/* Onboarding — requires auth (Register now signs in before navigating here) */}
+      <Route path="/onboarding"      element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
 
       {/* Protected app */}
-      <Route path="/app"            element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/app"             element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
 
-      {/* Default redirect */}
-      <Route path="*"               element={<Navigate to="/login" replace />} />
+      {/* Default */}
+      <Route path="*"                element={<Navigate to="/login" replace />} />
     </Routes>
   )
 }
