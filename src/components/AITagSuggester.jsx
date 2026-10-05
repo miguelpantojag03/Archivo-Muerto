@@ -2,7 +2,7 @@
 // Inline button that calls AI to suggest tags for a relic.
 // Used inside NewRelicModal and EditRelicModal.
 
-import { useState }  from 'lucide-react'
+import { useState }  from 'react'
 import { Sparkles }  from 'lucide-react'
 import { useAI }     from '../hooks/useAI.js'
 
