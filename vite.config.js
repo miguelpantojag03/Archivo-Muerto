@@ -7,9 +7,10 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  base: './',    // rutas relativas: necesario para que el build cargue bajo file:// (Tauri empaquetado)
   server: {
     port: 5173,
-    strictPort: false,   // si 5173 está ocupado, sube al siguiente disponible
-    open: true,          // abre el browser automáticamente al correr npm run dev
+    strictPort: true,   // Tauri apunta a este puerto fijo (devUrl); no debe cambiar si está ocupado
+    open: false,         // la ventana de Tauri es la que muestra la app, no un tab de navegador
   },
 })
