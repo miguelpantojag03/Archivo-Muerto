@@ -1,34 +1,45 @@
 import { z } from 'zod'
 
-export const loginSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Enter a valid email'),
-  password: z.string().min(1, 'Password is required'),
-  remember: z.boolean().optional(),
-})
+// Schemas are factories so their error messages can be built from t()
+// (translation keys resolve to the active language at call time).
 
-export const registerSchema = z.object({
-  fullName: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().min(1, 'Email is required').email('Enter a valid email'),
-  password: z
-    .string()
-    .min(8, 'At least 8 characters')
-    .regex(/[A-Z]/, 'Include at least one uppercase letter')
-    .regex(/[0-9]/, 'Include at least one number')
-    .regex(/[^A-Za-z0-9]/, 'Include at least one special character'),
-  confirmPassword: z.string().min(1, 'Please confirm your password'),
-  terms: z.literal(true, { errorMap: () => ({ message: 'You must accept the terms' }) }),
-}).refine(d => d.password === d.confirmPassword, {
-  message: "Passwords don't match",
-  path: ['confirmPassword'],
-})
+export function getLoginSchema(t) {
+  return z.object({
+    email: z.string().min(1, t('auth.validation.emailRequired')).email(t('auth.validation.emailInvalid')),
+    password: z.string().min(1, t('auth.validation.passwordRequired')),
+    remember: z.boolean().optional(),
+  })
+}
 
-export const forgotSchema = z.object({
-  email: z.string().min(1, 'Email is required').email('Enter a valid email'),
-})
+export function getRegisterSchema(t) {
+  return z.object({
+    fullName: z.string().min(2, t('auth.validation.nameMin')),
+    email: z.string().min(1, t('auth.validation.emailRequired')).email(t('auth.validation.emailInvalid')),
+    password: z
+      .string()
+      .min(8, t('auth.validation.passwordMin'))
+      .regex(/[A-Z]/, t('auth.validation.passwordUppercase'))
+      .regex(/[0-9]/, t('auth.validation.passwordNumber'))
+      .regex(/[^A-Za-z0-9]/, t('auth.validation.passwordSpecial')),
+    confirmPassword: z.string().min(1, t('auth.validation.confirmRequired')),
+    terms: z.literal(true, { errorMap: () => ({ message: t('auth.validation.termsRequired') }) }),
+  }).refine(d => d.password === d.confirmPassword, {
+    message: t('auth.validation.passwordsMismatch'),
+    path: ['confirmPassword'],
+  })
+}
 
-export const onboardingSchema = z.object({
-  projectName: z.string().min(1, 'Project name is required').max(40),
-})
+export function getForgotSchema(t) {
+  return z.object({
+    email: z.string().min(1, t('auth.validation.emailRequired')).email(t('auth.validation.emailInvalid')),
+  })
+}
+
+export function getOnboardingSchema(t) {
+  return z.object({
+    projectName: z.string().min(1, t('auth.validation.projectNameRequired')).max(40),
+  })
+}
 
 export function passwordStrength(password) {
   if (!password) return 0

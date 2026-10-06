@@ -7,9 +7,13 @@
 
 import { useEffect, useState } from 'react'
 import { X, Download, ZoomIn, ZoomOut, RotateCw } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { isImage, isPDF, isText } from '../constants/fileTypes.js'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 export default function ImagePreviewModal({ attachment, url, onClose, onDownload }) {
+  const { t } = useTranslation()
+  const { color } = useTheme()
   const { originalName, extension } = attachment
   const [textContent, setTextContent] = useState(null)
   const [zoom,        setZoom]        = useState(1)
@@ -21,7 +25,7 @@ export default function ImagePreviewModal({ attachment, url, onClose, onDownload
     fetch(url)
       .then(r => r.text())
       .then(setTextContent)
-      .catch(() => setTextContent('Could not read file content.'))
+      .catch(() => setTextContent(t('modals.imagePreview.couldNotRead')))
   }, [url, extension])
 
   // Close on Escape
@@ -37,7 +41,7 @@ export default function ImagePreviewModal({ attachment, url, onClose, onDownload
 
   const TB_BTN = {
     background: 'none', border: 'none', cursor: 'pointer',
-    color: '#C8C8E0', padding: 6, borderRadius: 6,
+    color: color.textPrimary, padding: 6, borderRadius: 6,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     transition: 'background 0.12s, color 0.12s',
   }
@@ -59,7 +63,7 @@ export default function ImagePreviewModal({ attachment, url, onClose, onDownload
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', marginBottom: 12,
       }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: '#E8E8F0',
+        <span style={{ fontSize: 13, fontWeight: 600, color: '#ECEEF0',
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           maxWidth: '60%' }}>
           {originalName}
@@ -68,37 +72,37 @@ export default function ImagePreviewModal({ attachment, url, onClose, onDownload
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {/* Zoom controls — images only */}
           {img && (<>
-            <button style={TB_BTN} title="Zoom out"
+            <button style={TB_BTN} title={t('modals.imagePreview.zoomOut')}
               onClick={() => setZoom(z => Math.max(0.25, +(z - 0.25).toFixed(2)))}>
               <ZoomOut size={16} />
             </button>
-            <span style={{ fontSize: 11, color: '#7E7EA0', minWidth: 38, textAlign: 'center' }}>
+            <span style={{ fontSize: 11, color: '#949CA6', minWidth: 38, textAlign: 'center' }}>
               {Math.round(zoom * 100)}%
             </span>
-            <button style={TB_BTN} title="Zoom in"
+            <button style={TB_BTN} title={t('modals.imagePreview.zoomIn')}
               onClick={() => setZoom(z => Math.min(4, +(z + 0.25).toFixed(2)))}>
               <ZoomIn size={16} />
             </button>
-            <button style={TB_BTN} title="Rotate 90°"
+            <button style={TB_BTN} title={t('modals.imagePreview.rotate')}
               onClick={() => setRotation(r => (r + 90) % 360)}>
               <RotateCw size={16} />
             </button>
-            <div style={{ width: 1, height: 20, background: '#2A2A48', margin: '0 4px' }} />
+            <div style={{ width: 1, height: 20, background: '#26323C', margin: '0 4px' }} />
           </>)}
 
           {/* Download */}
-          <button style={TB_BTN} title="Save as…"
+          <button style={TB_BTN} title={t('modals.imagePreview.save')}
             onClick={() => onDownload(attachment)}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#E8E8F0' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#C8C8E0' }}>
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = '#ECEEF0' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#ECEEF0' }}>
             <Download size={16} />
           </button>
 
           {/* Close */}
-          <button style={{ ...TB_BTN, marginLeft: 4 }} title="Close (Esc)"
+          <button style={{ ...TB_BTN, marginLeft: 4 }} title={t('modals.imagePreview.close')}
             onClick={onClose}
-            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(224,85,85,0.15)'; e.currentTarget.style.color = '#E05555' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#C8C8E0' }}>
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(201,123,110,0.15)'; e.currentTarget.style.color = color.terracotta500 }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#ECEEF0' }}>
             <X size={16} />
           </button>
         </div>
@@ -109,7 +113,7 @@ export default function ImagePreviewModal({ attachment, url, onClose, onDownload
         width: '100%', maxWidth: 920,
         flex: 1, maxHeight: 'calc(100vh - 140px)',
         borderRadius: 12, overflow: 'hidden',
-        background: '#0F0F22', border: '1px solid #2A2A48',
+        background: '#0E1114', border: '1px solid #26323C',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
 
@@ -148,11 +152,11 @@ export default function ImagePreviewModal({ attachment, url, onClose, onDownload
             width: '100%', height: '100%', overflow: 'auto',
             padding: '16px 20px', margin: 0,
             fontSize: 13, lineHeight: 1.65,
-            color: '#C8C8E0', background: 'transparent',
-            fontFamily: "'Fira Code', 'Courier New', monospace",
+            color: '#ECEEF0', background: 'transparent',
+            fontFamily: "'JetBrains Mono', 'Courier New', monospace",
             whiteSpace: 'pre-wrap', wordBreak: 'break-word',
           }}>
-            {textContent ?? 'Loading…'}
+            {textContent ?? t('modals.imagePreview.loading')}
           </pre>
         )}
       </div>

@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
+import { AnimatePresence }  from 'framer-motion'
 import { useNavigate }     from 'react-router-dom'
+import { useTranslation }  from 'react-i18next'
 import { Archive, RotateCcw, Layers } from 'lucide-react'
 import { useAuth }         from '../auth/AuthProvider.jsx'
 import { useToast }        from '../components/Toast.jsx'
@@ -15,21 +17,24 @@ import NewRelicModal       from '../components/NewRelicModal.jsx'
 import EditRelicModal      from '../components/EditRelicModal.jsx'
 import AIInsightsPanel     from '../components/AIInsightsPanel.jsx'
 import SettingsModal       from '../components/SettingsModal.jsx'
+import { useTheme }        from '../context/ThemeContext.jsx'
 
 // ── Stats bar ─────────────────────────────────────────────────────
 function StatsBar({ stats }) {
+  const { t } = useTranslation()
+  const { color, font } = useTheme()
   const items = [
-    { icon: <Layers size={13}/>,    label: 'Total',   value: stats.total },
-    { icon: <RotateCcw size={13}/>, label: 'Revived', value: stats.revived },
-    { icon: <Archive size={13}/>,   label: 'Archived', value: stats.archived },
+    { icon: <Layers size={13}/>,    label: t('dashboard.stats.total'),    value: stats.total },
+    { icon: <RotateCcw size={13}/>, label: t('dashboard.stats.revived'),  value: stats.revived },
+    { icon: <Archive size={13}/>,   label: t('dashboard.stats.archived'), value: stats.archived },
   ]
   return (
     <div style={{display:'flex',gap:20,marginTop:8,marginBottom:16}}>
       {items.map(({icon,label,value})=>(
         <div key={label} style={{display:'flex',alignItems:'center',gap:6}}>
-          <span style={{color:'#7B6FFF'}}>{icon}</span>
-          <span style={{fontSize:12,color:'#7E7EA0'}}>{label}:</span>
-          <span style={{fontSize:12,fontWeight:700,color:'#E8E8F0'}}>{value}</span>
+          <span style={{color:color.blue500}}>{icon}</span>
+          <span style={{fontSize:11,fontFamily:font.mono,color:color.textSecondary}}>{label}</span>
+          <span style={{fontSize:12,fontWeight:700,fontFamily:font.mono,color:color.textPrimary}}>{value}</span>
         </div>
       ))}
     </div>
@@ -38,17 +43,19 @@ function StatsBar({ stats }) {
 
 // ── Empty state ────────────────────────────────────────────────────
 function EmptyState({ onNew, hasSearch, section }) {
+  const { t } = useTranslation()
+  const { color, font } = useTheme()
   const msg = hasSearch
-    ? 'No relics match your search.'
-    : section === 'revived' ? 'No revived relics yet. Drag one to the Revival Zone!'
-    : section === 'recent'  ? 'No relics added yet.'
-    : 'Your archive is empty.'
+    ? t('dashboard.empty.search')
+    : section === 'revived' ? t('dashboard.empty.revived')
+    : section === 'recent'  ? t('dashboard.empty.recent')
+    : t('dashboard.empty.archiveDark')
   return (
-    <div style={{marginTop:32,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,minHeight:200,borderRadius:12,border:'1px dashed #2A2A48',color:'#3A3A5C',padding:32}}>
-      <span style={{fontSize:13}}>{msg}</span>
+    <div style={{marginTop:32,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,minHeight:200,borderRadius:16,border:`1px dashed ${color.bgBorder}`,color:color.textTertiary,padding:32}}>
+      <span style={{fontSize:13,fontFamily:font.display,fontStyle:'italic'}}>{msg}</span>
       {!hasSearch && section==='gallery' && (
-        <button onClick={onNew} style={{padding:'8px 20px',borderRadius:8,border:'none',background:'#5B4BFF',color:'white',fontSize:13,fontWeight:600,fontFamily:'inherit',cursor:'pointer'}}>
-          + Add your first relic
+        <button onClick={onNew} style={{padding:'8px 20px',borderRadius:10,border:'none',background:color.blue500,color:color.onPrimary,fontSize:13,fontWeight:700,fontFamily:font.ui,cursor:'pointer'}}>
+          {t('dashboard.empty.addFirst')}
         </button>
       )}
     </div>
@@ -57,11 +64,13 @@ function EmptyState({ onNew, hasSearch, section }) {
 
 // ── Main ──────────────────────────────────────────────────────────
 export default function Dashboard() {
-  const { user, signOut } = useAuth()
-  const { push }          = useToast()
-  const navigate          = useNavigate()
+  const { t }              = useTranslation()
+  const { color, font }    = useTheme()
+  const { user, signOut }  = useAuth()
+  const { push }           = useToast()
+  const navigate           = useNavigate()
   const { confirm, ConfirmModalUI } = useConfirm()
-  const { analyzeRelic }  = useAI()
+  const { analyzeRelic }   = useAI()
 
   const {
     relics, visible, selected, selectedId, setSelectedId,
@@ -71,59 +80,67 @@ export default function Dashboard() {
   } = useRelics(user?.id)
 
   const [dragOver,      setDragOver]      = useState(false)
+  const [justRevived,   setJustRevived]   = useState(false)
   const [showNew,       setShowNew]       = useState(false)
   const [editRelic,     setEditRelic]     = useState(null)
   const [showSettings,  setShowSettings]  = useState(false)
   const [aiAnalysis,    setAiAnalysis]    = useState({})  // { [relicId]: string }
   const [aiLoadingId,   setAiLoadingId]   = useState(null)
-  const dragIdRef                         = useRef(null)
+  const revivalZoneRef                    = useRef(null)
 
   // Session expiry
   useEffect(() => {
     async function handleExpired() {
-      push('Your session expired. Please sign in again.', 'error', 6000)
+      push(t('dashboard.toast.sessionExpired'), 'error', 6000)
       await signOut()
       navigate('/login', { replace: true })
     }
     window.addEventListener('am:session-expired', handleExpired)
     return () => window.removeEventListener('am:session-expired', handleExpired)
-  }, [signOut, navigate, push])
+  }, [signOut, navigate, push, t])
 
-  // Drag & drop
-  function handleDragStart(e, id) {
-    dragIdRef.current = id
-    e.dataTransfer.effectAllowed = 'move'
+  // Drag & drop — spring-driven (framer-motion), not native HTML5 DnD
+  function isOverRevivalZone(point) {
+    const el = revivalZoneRef.current
+    if (!el || !point) return false
+    const r = el.getBoundingClientRect()
+    return point.x >= r.left && point.x <= r.right && point.y >= r.top && point.y <= r.bottom
   }
-  function handleDrop(e) {
-    e.preventDefault(); setDragOver(false)
-    if (!dragIdRef.current) return
-    revive(dragIdRef.current)
-    setSelectedId(dragIdRef.current)
-    push('Relic revived! 🎉', 'success')
-    dragIdRef.current = null
+  function handleCardDrag(id, info) {
+    setDragOver(isOverRevivalZone(info.point))
+  }
+  function handleCardDragEnd(id, info) {
+    const hit = isOverRevivalZone(info.point)
+    setDragOver(false)
+    if (!hit) return
+    revive(id)
+    setSelectedId(id)
+    push(t('dashboard.toast.revived'), 'success')
+    setJustRevived(true)
+    setTimeout(() => setJustRevived(false), 700)
   }
 
   // Relic actions
-  function handleRevive(id)     { revive(id); push('Relic revived!', 'success') }
+  function handleRevive(id) { revive(id); push(t('dashboard.toast.revived'), 'success') }
 
   async function handleDelete(id) {
     const relic = relics.find(r => r.id === id)
     const ok = await confirm({
-      title: 'Delete relic forever?',
-      message: relic ? `"${relic.title}" and all its attachments will be permanently removed.` : 'This cannot be undone.',
-      danger: true, confirmLabel: 'Delete Forever',
+      title: t('dashboard.toast.deleteTitle'),
+      message: relic ? t('dashboard.toast.deleteMessage', { title: relic.title }) : t('dashboard.toast.deleteCannotUndo'),
+      danger: true, confirmLabel: t('dashboard.toast.deleteConfirmLabel'),
     })
     if (!ok) return
     try {
       await remove(id)
-      push('Relic deleted forever.', 'info')
+      push(t('dashboard.toast.deletedForever'), 'info')
     } catch (err) {
       push(err.message, 'error')
     }
   }
 
   function handleAddRelic(relic) {
-    try { add(relic); push('Relic added to the archive.', 'success') }
+    try { add(relic); push(t('dashboard.toast.relicAdded'), 'success') }
     catch (err) { push(err.message, 'error') }
   }
 
@@ -147,19 +164,12 @@ export default function Dashboard() {
   // Highlight a relic from AI insights
   function handleHighlight(id) { setSelectedId(id) }
 
-  const sectionTitle = {
-    gallery: 'The Archive',
-    recent:  'Recent Relics',
-    revived: 'Revived',
-    deleted: 'Permanently Deleted',
-  }
-
   return (
-    <div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#0A0A1E',overflow:'hidden'}}>
+    <div style={{display:'flex',flexDirection:'column',height:'100vh',background:color.bgBase,overflow:'hidden'}}>
       <ConfirmModalUI/>
 
       {/* macOS chrome */}
-      <div style={{height:36,background:'#0A0A1E',borderBottom:'1px solid #1E1E3A',display:'flex',alignItems:'center',gap:6,padding:'0 16px',flexShrink:0}}>
+      <div style={{height:36,background:color.bgBase,borderBottom:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',gap:6,padding:'0 16px',flexShrink:0}}>
         <div style={{width:12,height:12,borderRadius:'50%',background:'#FF5F57'}}/>
         <div style={{width:12,height:12,borderRadius:'50%',background:'#FEBC2E'}}/>
         <div style={{width:12,height:12,borderRadius:'50%',background:'#28C840'}}/>
@@ -175,28 +185,26 @@ export default function Dashboard() {
         />
 
         {/* Center */}
-        <main style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:'#14142B'}}>
-          <TopBar
-            search={search} setSearch={setSearch}
-            filter={filter} setFilter={setFilter}
-            onNewRelic={()=>setShowNew(true)}
-            sortField={sortField} sortDir={sortDir} cycleSort={cycleSort}
-          />
-
+        <main style={{flex:1,display:'flex',flexDirection:'column',overflow:'hidden',background:color.bgSurface}}>
           <div style={{flex:1,overflowY:'auto',position:'relative'}}>
-            <div style={{padding:'20px 20px 120px'}}>
+            <TopBar
+              search={search} setSearch={setSearch}
+              filter={filter} setFilter={setFilter}
+              onNewRelic={()=>setShowNew(true)}
+              sortField={sortField} sortDir={sortDir} cycleSort={cycleSort}
+            />
+
+            <div style={{padding:'4px 20px 120px'}}>
 
               {/* Header */}
               <div style={{marginBottom:2}}>
-                <h1 style={{fontSize:26,fontWeight:800,color:'#E8E8F0',letterSpacing:'-0.02em',lineHeight:1.1,margin:0}}>
-                  {sectionTitle[section]}
+                <h1 style={{fontSize:28,fontWeight:600,fontFamily:font.display,color:color.textPrimary,letterSpacing:'-0.01em',lineHeight:1.1,margin:0}}>
+                  {t(`dashboard.sectionTitle.${section}`)}
                 </h1>
-                <p style={{fontSize:12,color:'#7E7EA0',marginTop:4,marginBottom:0}}>
+                <p style={{fontSize:12,color:color.textSecondary,marginTop:4,marginBottom:0}}>
                   {section==='gallery'
-                    ? `Review discarded drafts from '${user?.activeProject||'your projects'}' and other projects.`
-                    : section==='recent' ? 'Your 10 most recently added relics.'
-                    : section==='revived' ? 'Ideas brought back to life.'
-                    : 'No relics here yet.'}
+                    ? t('dashboard.sectionDesc.gallery', { project: user?.activeProject || t('sidebar.nav.archive') })
+                    : t(`dashboard.sectionDesc.${section}`)}
                 </p>
               </div>
 
@@ -217,23 +225,25 @@ export default function Dashboard() {
                   gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',
                   gap:14,
                 }}>
-                  {visible.map((r,i)=>(
-                    <RelicCard
-                      key={r.id} relic={r} animIndex={i}
-                      isSelected={r.id===selectedId}
-                      onSelect={setSelectedId}
-                      onDragStart={handleDragStart}
-                    />
-                  ))}
+                  <AnimatePresence>
+                    {visible.map((r,i)=>(
+                      <RelicCard
+                        key={r.id} relic={r} animIndex={i}
+                        isSelected={r.id===selectedId}
+                        onSelect={setSelectedId}
+                        onCardDrag={handleCardDrag}
+                        onCardDragEnd={handleCardDragEnd}
+                      />
+                    ))}
+                  </AnimatePresence>
                 </div>
               )}
             </div>
 
             <RevivalZone
+              ref={revivalZoneRef}
               isDragOver={dragOver}
-              onDragOver={e=>{e.preventDefault();setDragOver(true)}}
-              onDragLeave={()=>setDragOver(false)}
-              onDrop={handleDrop}
+              justRevived={justRevived}
             />
           </div>
         </main>

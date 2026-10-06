@@ -1,15 +1,19 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslation } from 'react-i18next'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Sparkles } from 'lucide-react'
 import AuthLayout from '../components/AuthLayout.jsx'
 import { Field, Input, PrimaryButton, GlobalError } from '../components/FormField.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useToast } from '../components/Toast.jsx'
-import { onboardingSchema } from '../lib/validators.js'
+import { getOnboardingSchema } from '../lib/validators.js'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 export default function Onboarding() {
+  const { t }      = useTranslation()
+  const { color, radius, font } = useTheme()
   // Register now signs in BEFORE navigating here, so user is authenticated.
   // We only need userId to setActiveProject — no password needed.
   const { user, setActiveProject } = useAuth()
@@ -23,6 +27,7 @@ export default function Onboarding() {
   const [loading, setLoading]         = useState(false)
   const [globalError, setGlobalError] = useState('')
 
+  const onboardingSchema = useMemo(() => getOnboardingSchema(t), [t])
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(onboardingSchema),
     defaultValues: { projectName: 'Nebula System' },
@@ -33,7 +38,7 @@ export default function Onboarding() {
     setLoading(true)
     try {
       await setActiveProject(data.projectName)
-      push('Welcome! Your archive is ready.', 'success')
+      push(t('auth.onboarding.successToast'), 'success')
       navigate('/app', { replace: true })
     } catch (err) {
       setGlobalError(err.message)
@@ -46,33 +51,33 @@ export default function Onboarding() {
     <AuthLayout>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
         <div style={{
-          width: 56, height: 56, borderRadius: 16,
-          background: 'rgba(91,75,255,0.15)', border: '1px solid rgba(91,75,255,0.3)',
+          width: 56, height: 56, borderRadius: radius.card,
+          background: 'rgba(93,133,168,0.15)', border: '1px solid rgba(93,133,168,0.3)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <Sparkles size={26} style={{ color: '#7B6FFF' }} />
+          <Sparkles size={26} style={{ color: color.blue300 }} />
         </div>
 
         <div style={{ textAlign: 'center' }}>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#E8E8F0', marginBottom: 6, letterSpacing: '-0.02em' }}>
-            Name your first project
-          </h2>
-          <p style={{ fontSize: 13, color: '#7E7EA0', lineHeight: 1.6 }}>
-            Every great archive starts with a project. You can add more later.
+          <h1 style={{ fontSize: 24, fontWeight: 500, fontFamily: font.display, color: color.textPrimary, marginBottom: 6, letterSpacing: '-0.01em' }}>
+            {t('auth.onboarding.title')}
+          </h1>
+          <p style={{ fontSize: 13, color: color.textSecondary, lineHeight: 1.6 }}>
+            {t('auth.onboarding.subtitle')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} noValidate
           style={{ display: 'flex', flexDirection: 'column', gap: 14, width: '100%' }}>
-          <Field label="Project name" error={errors.projectName?.message}>
+          <Field label={t('auth.onboarding.projectNameLabel')} error={errors.projectName?.message}>
             <Input register={register('projectName')} type="text"
-              placeholder="e.g. Nebula System" autoComplete="off" error={errors.projectName} />
+              placeholder={t('auth.onboarding.projectNamePlaceholder')} autoComplete="off" error={errors.projectName} />
           </Field>
 
           <GlobalError message={globalError} />
 
           <PrimaryButton loading={loading}>
-            {loading ? 'Setting up…' : 'Start Archiving →'}
+            {loading ? t('auth.onboarding.submitting') : t('auth.onboarding.submit')}
           </PrimaryButton>
         </form>
       </div>

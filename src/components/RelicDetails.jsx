@@ -1,25 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   RotateCcw, Trash2, Pencil, Paperclip, Expand,
-  Image as ImageIcon, Sparkles, ChevronDown, X,
+  Image as ImageIcon, Sparkles, X,
 } from 'lucide-react'
 import { ParchmentImage, getThumbnail } from './Thumbnails.jsx'
 import { useAttachments }  from '../hooks/useAttachments.js'
 import { useAuth }         from '../auth/AuthProvider.jsx'
 import { isImage }         from '../constants/fileTypes.js'
-
-/* ─── helpers ─────────────────────────────────────────────────────── */
-function fmtDate(val) {
-  if (!val) return '—'
-  try {
-    if (String(val).includes('T'))
-      return new Date(val).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-  } catch {}
-  return val
-}
+import { useTheme }        from '../context/ThemeContext.jsx'
+import { formatDate }      from '../lib/formatDate.js'
 
 /* ─── full-screen image viewer ────────────────────────────────────── */
 function ImageViewer({ src, title, onClose }) {
+  const { t } = useTranslation()
+  const { color } = useTheme()
   const [zoom, setZoom] = useState(1)
   const [rot,  setRot]  = useState(0)
 
@@ -33,12 +28,12 @@ function ImageViewer({ src, title, onClose }) {
     <button onClick={onClick} title={label}
       style={{
         background: 'none', border: 'none', cursor: 'pointer',
-        color: danger ? '#E05555' : '#C8C8E0', padding: 6, borderRadius: 6,
+        color: danger ? color.terracotta500 : color.textPrimary, padding: 6, borderRadius: 6,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
       onMouseLeave={e => e.currentTarget.style.background = 'none'}
-    >{label === 'Close' ? <X size={16}/> : label === 'R' ? <span style={{fontSize:13}}>↻</span> : label === '+' ? <span style={{fontSize:16}}>+</span> : <span style={{fontSize:16}}>−</span>}</button>
+    >{label === t('imageViewer.close') ? <X size={16}/> : label === t('imageViewer.rotate') ? <span style={{fontSize:13}}>↻</span> : label === '+' ? <span style={{fontSize:16}}>+</span> : <span style={{fontSize:16}}>−</span>}</button>
   )
 
   return (
@@ -50,18 +45,18 @@ function ImageViewer({ src, title, onClose }) {
       }}>
       {/* toolbar */}
       <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:12,width:'100%',maxWidth:800,justifyContent:'space-between'}}>
-        <span style={{fontSize:13,color:'#E8E8F0',fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{title}</span>
+        <span style={{fontSize:13,color:'#ECEEF0',fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{title}</span>
         <div style={{display:'flex',gap:2,alignItems:'center'}}>
           {btn('−',()=>setZoom(z=>Math.max(0.25,+(z-0.25).toFixed(2))))}
-          <span style={{fontSize:11,color:'#7E7EA0',minWidth:38,textAlign:'center'}}>{Math.round(zoom*100)}%</span>
+          <span style={{fontSize:11,color:'#949CA6',minWidth:38,textAlign:'center'}}>{Math.round(zoom*100)}%</span>
           {btn('+',()=>setZoom(z=>Math.min(5,+(z+0.25).toFixed(2))))}
-          {btn('R',()=>setRot(r=>(r+90)%360))}
-          <div style={{width:1,height:20,background:'#2A2A48',margin:'0 4px'}}/>
-          {btn('Close',onClose,true)}
+          {btn(t('imageViewer.rotate'),()=>setRot(r=>(r+90)%360))}
+          <div style={{width:1,height:20,background:'#26323C',margin:'0 4px'}}/>
+          {btn(t('imageViewer.close'),onClose,true)}
         </div>
       </div>
       {/* image */}
-      <div style={{width:'100%',maxWidth:800,flex:1,maxHeight:'calc(100vh-120px)',borderRadius:12,overflow:'auto',display:'flex',alignItems:'center',justifyContent:'center',background:'#0A0A1E',border:'1px solid #2A2A48'}}>
+      <div style={{width:'100%',maxWidth:800,flex:1,maxHeight:'calc(100vh-120px)',borderRadius:12,overflow:'auto',display:'flex',alignItems:'center',justifyContent:'center',background:'#0E1114',border:'1px solid #26323C'}}>
         <img src={src} alt={title} style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain',transform:`scale(${zoom}) rotate(${rot}deg)`,transformOrigin:'center',transition:'transform 0.2s ease',userSelect:'none'}} draggable={false}/>
       </div>
     </div>
@@ -70,6 +65,7 @@ function ImageViewer({ src, title, onClose }) {
 
 /* ─── thumbnail of an image attachment ───────────────────────────── */
 function AttachmentThumb({ att, getPreviewURL, onOpen }) {
+  const { color } = useTheme()
   const [src, setSrc] = useState(null)
   const [hov, setHov] = useState(false)
   const urlRef = useRef(null)
@@ -92,7 +88,7 @@ function AttachmentThumb({ att, getPreviewURL, onOpen }) {
       style={{
         width:56,height:56,borderRadius:8,overflow:'hidden',
         cursor:'pointer',position:'relative',flexShrink:0,
-        border: hov ? '2px solid #5B4BFF' : '2px solid #2A2A48',
+        border: hov ? `2px solid ${color.blue500}` : `2px solid ${color.bgBorder}`,
         transform: hov ? 'scale(1.05)' : 'scale(1)',
         transition:'border-color 0.12s,transform 0.12s',
       }}>
@@ -108,38 +104,42 @@ function AttachmentThumb({ att, getPreviewURL, onOpen }) {
 
 /* ─── AI analysis display ─────────────────────────────────────────── */
 function AIAnalysisBlock({ analysis, loading, onRequest }) {
+  const { t } = useTranslation()
+  const { color } = useTheme()
   if (loading) return (
-    <div style={{padding:'10px 12px',borderRadius:8,background:'rgba(91,75,255,0.08)',border:'1px solid rgba(91,75,255,0.2)',fontSize:11,color:'#7B6FFF',display:'flex',alignItems:'center',gap:8}}>
+    <div style={{padding:'10px 12px',borderRadius:8,background:'rgba(93,133,168,0.08)',border:'1px solid rgba(93,133,168,0.2)',fontSize:11,color:color.blue300,display:'flex',alignItems:'center',gap:8}}>
       <Sparkles size={12} style={{animation:'am-spin 1s linear infinite'}}/>
-      Analyzing relic…
+      {t('relicDetails.aiAnalyzing')}
     </div>
   )
   if (analysis) return (
-    <div style={{padding:'10px 12px',borderRadius:8,background:'rgba(91,75,255,0.08)',border:'1px solid rgba(91,75,255,0.2)'}}>
+    <div style={{padding:'10px 12px',borderRadius:8,background:'rgba(93,133,168,0.08)',border:'1px solid rgba(93,133,168,0.2)'}}>
       <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>
-        <Sparkles size={11} style={{color:'#7B6FFF'}}/>
-        <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:'#7B6FFF'}}>AI ANALYSIS</span>
+        <Sparkles size={11} style={{color:color.blue300}}/>
+        <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:color.blue300}}>{t('relicDetails.aiAnalysisLabel').toUpperCase()}</span>
       </div>
-      <p style={{fontSize:11,color:'#C8C8E0',lineHeight:1.65,margin:0}}>{analysis}</p>
+      <p style={{fontSize:11,color:color.textPrimary,lineHeight:1.65,margin:0}}>{analysis}</p>
     </div>
   )
   return (
     <button onClick={onRequest}
       style={{
-        width:'100%',padding:'8px 0',borderRadius:8,border:'1px dashed rgba(91,75,255,0.4)',
-        background:'transparent',color:'#7B6FFF',fontSize:12,fontWeight:600,
+        width:'100%',padding:'8px 0',borderRadius:8,border:'1px dashed rgba(93,133,168,0.4)',
+        background:'transparent',color:color.blue300,fontSize:12,fontWeight:600,
         fontFamily:'inherit',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,
         transition:'background 0.12s,border-color 0.12s',
       }}
-      onMouseEnter={e=>{e.currentTarget.style.background='rgba(91,75,255,0.08)';e.currentTarget.style.borderColor='#7B6FFF'}}
-      onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='rgba(91,75,255,0.4)'}}>
-      <Sparkles size={13}/> Analyze this relic
+      onMouseEnter={e=>{e.currentTarget.style.background='rgba(93,133,168,0.08)';e.currentTarget.style.borderColor=color.blue300}}
+      onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='rgba(93,133,168,0.4)'}}>
+      <Sparkles size={13}/> {t('relicDetails.aiAnalyzeButton')}
     </button>
   )
 }
 
 /* ─── main component ──────────────────────────────────────────────── */
 export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnalyze, aiAnalysis, aiLoading }) {
+  const { t } = useTranslation()
+  const { color, radius, font } = useTheme()
   const { user } = useAuth()
   const { attachments, getPreviewURL } = useAttachments(relic?.id ?? null, user?.id)
 
@@ -157,29 +157,29 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
   return (
     <aside style={{
       width:260,flexShrink:0,display:'flex',flexDirection:'column',
-      height:'100%',background:'#0F0F22',borderLeft:'1px solid #1E1E3A',
+      height:'100%',background:color.bgBase,borderLeft:`1px solid ${color.bgBorder}`,
       overflowY:'auto',
     }}>
       {/* header */}
       <div style={{
         padding:'14px 16px 10px',
         display:'flex',alignItems:'center',justifyContent:'space-between',
-        borderBottom: relic ? '1px solid #1E1E3A' : 'none',flexShrink:0,
+        borderBottom: relic ? `1px solid ${color.bgBorder}` : 'none',flexShrink:0,
       }}>
-        <span style={{fontSize:14,fontWeight:700,color:'#E8E8F0'}}>Relic Details</span>
+        <span style={{fontSize:14,fontWeight:600,fontFamily:font.display,color:color.textPrimary}}>{t('relicDetails.title')}</span>
         {relic && (
           <button onClick={()=>onEdit(relic)}
-            style={{display:'flex',alignItems:'center',gap:5,padding:'4px 10px',borderRadius:6,border:'1px solid #2A2A48',background:'transparent',color:'#7E7EA0',fontSize:11,fontWeight:600,fontFamily:'inherit',cursor:'pointer',transition:'border-color 0.12s,color 0.12s'}}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor='#5B4BFF';e.currentTarget.style.color='#7B6FFF'}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor='#2A2A48';e.currentTarget.style.color='#7E7EA0'}}>
-            <Pencil size={11}/> Edit
+            style={{display:'flex',alignItems:'center',gap:5,padding:'4px 10px',borderRadius:6,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textSecondary,fontSize:11,fontWeight:600,fontFamily:font.ui,cursor:'pointer',transition:'border-color 0.12s,color 0.12s'}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor=color.blue500;e.currentTarget.style.color=color.blue300}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor=color.bgBorder;e.currentTarget.style.color=color.textSecondary}}>
+            <Pencil size={11}/> {t('relicDetails.edit')}
           </button>
         )}
       </div>
 
       {!relic ? (
-        <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:24,textAlign:'center',color:'#3A3A5C',fontSize:13}}>
-          Select a relic to view its details
+        <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:24,textAlign:'center',color:color.textTertiary,fontSize:13}}>
+          {t('relicDetails.selectPrompt')}
         </div>
       ) : (
         <div style={{padding:'14px 16px 20px',display:'flex',flexDirection:'column',gap:12}}>
@@ -190,7 +190,7 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
             style={{
               width:'100%',height:160,borderRadius:10,overflow:'hidden',
               position:'relative',flexShrink:0,cursor:hasCover?'pointer':'default',
-              border:'1px solid #2A2A48',
+              border:`1px solid ${color.bgBorder}`,
             }}>
             {hasCover ? (
               <>
@@ -205,8 +205,8 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
                   onMouseEnter={e=>e.currentTarget.style.background='rgba(0,0,0,0.35)'}
                   onMouseLeave={e=>e.currentTarget.style.background='rgba(0,0,0,0)'}
                 >
-                  <div style={{background:'rgba(91,75,255,0.85)',borderRadius:6,padding:'3px 8px',display:'flex',alignItems:'center',gap:5,fontSize:10,color:'white',fontWeight:600}}>
-                    <Expand size={10}/> View
+                  <div style={{background:'rgba(93,133,168,0.85)',borderRadius:6,padding:'3px 8px',display:'flex',alignItems:'center',gap:5,fontSize:10,color:'white',fontWeight:600}}>
+                    <Expand size={10}/> {t('relicDetails.viewOverlay')}
                   </div>
                 </div>
               </>
@@ -219,24 +219,24 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
           </div>
 
           {/* title */}
-          <div style={{fontSize:14,fontStyle:'italic',fontWeight:700,color:'#E8E8F0',lineHeight:1.35}}>
+          <div style={{fontSize:14,fontStyle:'italic',fontWeight:500,fontFamily:font.display,color:color.textPrimary,lineHeight:1.4}}>
             "{relic.title}"
           </div>
 
           {/* status */}
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <div style={{width:7,height:7,borderRadius:'50%',flexShrink:0,
-              background:relic.revived?'#4ADE80':'#5B4BFF',
-              boxShadow:relic.revived?'0 0 6px #4ADE80':'0 0 6px #5B4BFF'}}/>
-            <span style={{fontSize:11,color:'#A0A0CC'}}>{relic.revived?'Revived State':'Archived State'}</span>
+              background:relic.revived?color.sage500:color.blue500,
+              boxShadow:relic.revived?`0 0 6px ${color.sage500}`:`0 0 6px ${color.blue500}`}}/>
+            <span style={{fontSize:11,color:color.textSecondary}}>{relic.revived?t('relicDetails.statusRevived'):t('relicDetails.statusArchived')}</span>
           </div>
 
           {/* tags */}
           {relic.tags?.length > 0 && (
             <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-              {relic.tags.map(t=>(
-                <span key={t} style={{fontSize:9,fontWeight:700,letterSpacing:'0.08em',color:'#7B6FFF',background:'rgba(91,75,255,0.15)',borderRadius:99,padding:'2px 8px'}}>
-                  {t}
+              {relic.tags.map(tag=>(
+                <span key={tag} style={{fontSize:9,fontWeight:700,letterSpacing:'0.08em',color:color.blue300,background:'rgba(93,133,168,0.15)',borderRadius:99,padding:'2px 8px'}}>
+                  {tag}
                 </span>
               ))}
             </div>
@@ -246,9 +246,9 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
           {imageAtts.length > 0 && (
             <div style={{display:'flex',flexDirection:'column',gap:7}}>
               <div style={{display:'flex',alignItems:'center',gap:6}}>
-                <ImageIcon size={12} style={{color:'#7B6FFF'}}/>
-                <span style={{fontSize:11,fontWeight:700,color:'#C8C8E0'}}>Images</span>
-                <span style={{fontSize:10,fontWeight:700,color:'#7B6FFF',background:'rgba(91,75,255,0.15)',borderRadius:99,padding:'1px 7px'}}>{imageAtts.length}</span>
+                <ImageIcon size={12} style={{color:color.blue300}}/>
+                <span style={{fontSize:11,fontWeight:700,color:color.textPrimary}}>{t('relicDetails.images')}</span>
+                <span style={{fontSize:10,fontWeight:700,color:color.blue300,background:'rgba(93,133,168,0.15)',borderRadius:99,padding:'1px 7px'}}>{imageAtts.length}</span>
               </div>
               <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
                 {visibleImg.map(att=>(
@@ -258,8 +258,8 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
               </div>
               {imageAtts.length > 6 && (
                 <button onClick={()=>setShowAll(s=>!s)}
-                  style={{fontSize:10,color:'#7B6FFF',background:'none',border:'none',cursor:'pointer',textAlign:'left',padding:0}}>
-                  {showAll ? 'Show less' : `+${imageAtts.length-6} more`}
+                  style={{fontSize:10,color:color.blue300,background:'none',border:'none',cursor:'pointer',textAlign:'left',padding:0}}>
+                  {showAll ? t('relicDetails.showLess') : t('relicDetails.showMore', { count: imageAtts.length-6 })}
                 </button>
               )}
             </div>
@@ -267,33 +267,33 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
 
           {/* attachments badge */}
           {totalAtts > 0 && (
-            <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 10px',borderRadius:7,background:'rgba(91,75,255,0.1)',border:'1px solid rgba(91,75,255,0.2)'}}>
-              <Paperclip size={12} style={{color:'#7B6FFF'}}/>
-              <span style={{fontSize:11,color:'#7B6FFF',fontWeight:600}}>{totalAtts} file{totalAtts!==1?'s':''} attached</span>
+            <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 10px',borderRadius:7,background:'rgba(93,133,168,0.1)',border:'1px solid rgba(93,133,168,0.2)'}}>
+              <Paperclip size={12} style={{color:color.blue300}}/>
+              <span style={{fontSize:11,color:color.blue300,fontWeight:600}}>{t('relicDetails.filesAttached', { count: totalAtts })}</span>
             </div>
           )}
 
           {/* metadata */}
-          <div style={{border:'1px solid #1E1E3A',borderRadius:10,overflow:'hidden'}}>
+          <div style={{border:`1px solid ${color.bgBorder}`,borderRadius:10,overflow:'hidden'}}>
             {[
-              {label:'Project',  value:relic.project},
-              {label:'Category', value:relic.category},
-              {label:'Created',  value:fmtDate(relic.createdAt??relic.created)},
-              {label:'Discarded',value:fmtDate(relic.discardedAt??relic.discarded)},
-              ...(relic.responsible?[{label:'Responsible',value:relic.responsible}]:[]),
+              {label:t('relicDetails.project'),  value:relic.project},
+              {label:t('relicDetails.category'), value:t(`relicCard.category.${relic.category}`, relic.category)},
+              {label:t('relicDetails.created'),  value:formatDate(relic.createdAt??relic.created)},
+              {label:t('relicDetails.discarded'),value:formatDate(relic.discardedAt??relic.discarded)},
+              ...(relic.responsible?[{label:t('relicDetails.responsible'),value:relic.responsible}]:[]),
             ].map(({label,value},i,arr)=>(
-              <div key={label} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 12px',background:'#111126',borderBottom:i<arr.length-1?'1px solid #1E1E3A':'none'}}>
-                <span style={{fontSize:11,color:'#7E7EA0',flexShrink:0}}>{label}</span>
-                <span style={{fontSize:11,color:'#C8C8E0',fontWeight:500,textAlign:'right',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{value??'—'}</span>
+              <div key={label} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 12px',background:color.bgElevated,borderBottom:i<arr.length-1?`1px solid ${color.bgBorder}`:'none'}}>
+                <span style={{fontSize:11,color:color.textSecondary,flexShrink:0}}>{label}</span>
+                <span style={{fontSize:11,color:color.textPrimary,fontWeight:500,textAlign:'right',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{value??'—'}</span>
               </div>
             ))}
           </div>
 
           {/* notes */}
           {relic.notes && (
-            <div style={{padding:'8px 12px',borderRadius:8,background:'#111126',border:'1px solid #1E1E3A'}}>
-              <div style={{fontSize:10,fontWeight:700,color:'#7E7EA0',marginBottom:4,letterSpacing:'0.06em'}}>NOTES</div>
-              <div style={{fontSize:11,color:'#C8C8E0',lineHeight:1.6}}>{relic.notes}</div>
+            <div style={{padding:'8px 12px',borderRadius:8,background:color.bgElevated,border:`1px solid ${color.bgBorder}`}}>
+              <div style={{fontSize:10,fontWeight:700,color:color.textSecondary,marginBottom:4,letterSpacing:'0.06em'}}>{t('relicDetails.notes').toUpperCase()}</div>
+              <div style={{fontSize:11,color:color.textPrimary,lineHeight:1.6}}>{relic.notes}</div>
             </div>
           )}
 
@@ -302,16 +302,16 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
 
           {/* actions */}
           <button onClick={()=>onRevive(relic.id)}
-            style={{width:'100%',padding:'10px 0',borderRadius:8,border:'none',background:'#5B4BFF',color:'white',fontSize:13,fontWeight:600,fontFamily:'inherit',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'background 0.12s'}}
-            onMouseEnter={e=>e.currentTarget.style.background='#4A3AEE'}
-            onMouseLeave={e=>e.currentTarget.style.background='#5B4BFF'}>
-            <RotateCcw size={13}/> Revive Now
+            style={{width:'100%',padding:'10px 0',borderRadius:8,border:'none',background:color.blue500,color:color.onPrimary,fontSize:13,fontWeight:600,fontFamily:font.ui,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'background 0.12s'}}
+            onMouseEnter={e=>e.currentTarget.style.background=color.blue600}
+            onMouseLeave={e=>e.currentTarget.style.background=color.blue500}>
+            <RotateCcw size={13}/> {t('relicDetails.reviveNow')}
           </button>
           <button onClick={()=>onDelete(relic.id)}
-            style={{width:'100%',padding:'10px 0',borderRadius:8,background:'transparent',color:'#7E7EA0',fontSize:13,fontWeight:600,fontFamily:'inherit',cursor:'pointer',border:'1px solid #2A2A48',display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'border-color 0.12s,color 0.12s'}}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor='#E05555';e.currentTarget.style.color='#E05555'}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor='#2A2A48';e.currentTarget.style.color='#7E7EA0'}}>
-            <Trash2 size={13}/> Delete Forever
+            style={{width:'100%',padding:'10px 0',borderRadius:8,background:'transparent',color:color.textSecondary,fontSize:13,fontWeight:600,fontFamily:font.ui,cursor:'pointer',border:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'border-color 0.12s,color 0.12s'}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor=color.terracotta500;e.currentTarget.style.color=color.terracotta500}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor=color.bgBorder;e.currentTarget.style.color=color.textSecondary}}>
+            <Trash2 size={13}/> {t('relicDetails.deleteForever')}
           </button>
         </div>
       )}

@@ -1,0 +1,295 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "delete": "Eliminar",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "loading": "Cargando…"
+  },
+  "theme": {
+    "light": "Claro",
+    "dark": "Oscuro",
+    "auto": "Automático"
+  },
+  "language": {
+    "es": "Español",
+    "en": "Inglés"
+  },
+  "auth": {
+    "login": {
+      "title": "El archivo te esperaba.",
+      "subtitle": "Entra a revisar lo que tu equipo dejó atrás.",
+      "emailLabel": "Correo",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Tu contraseña",
+      "remember": "Recuérdame",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Entrar",
+      "submitting": "Entrando…",
+      "or": "o",
+      "googleButton": "Continuar con Google",
+      "googleUnavailable": "El inicio con Google no está disponible en esta demo.",
+      "demoButton": "Usar cuenta de demostración",
+      "noAccount": "¿Primera vez aquí?",
+      "createAccount": "Crea una cuenta",
+      "welcomeToast": "El archivo te ha dejado entrar.",
+      "errorInvalidCredentials": "Correo o contraseña incorrectos."
+    },
+    "register": {
+      "title": "Crea tu archivo",
+      "subtitle": "Empieza a conservar las ideas que tu equipo descarta.",
+      "fullNameLabel": "Nombre completo",
+      "fullNamePlaceholder": "Tu nombre completo",
+      "emailLabel": "Correo",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "Crea una contraseña fuerte",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Repite tu contraseña",
+      "termsPrefix": "Acepto los",
+      "termsOfService": "Términos de Servicio",
+      "and": "y",
+      "privacyPolicy": "la Política de Privacidad",
+      "submit": "Crear cuenta",
+      "submitting": "Creando cuenta…",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Entrar",
+      "successToast": "¡Cuenta creada!",
+      "strength": {
+        "tooWeak": "Muy débil",
+        "weak": "Débil",
+        "fair": "Aceptable",
+        "strong": "Fuerte"
+      }
+    },
+    "forgotPassword": {
+      "title": "Restablece tu contraseña",
+      "subtitle": "Ingresa tu correo y te enviaremos un enlace.",
+      "emailLabel": "Correo",
+      "emailPlaceholder": "tu@ejemplo.com",
+      "submit": "Enviar enlace",
+      "submitting": "Enviando…",
+      "backToSignIn": "Volver a iniciar sesión",
+      "sentTitle": "Revisa tu bandeja de entrada",
+      "sentMessage": "Si <strong>{{email}}</strong> está registrado, te enviamos un enlace para restablecer tu contraseña. Revisa también la carpeta de spam."
+    },
+    "onboarding": {
+      "title": "Nombra tu primer proyecto",
+      "subtitle": "Todo gran archivo empieza con un proyecto. Puedes agregar más después.",
+      "projectNameLabel": "Nombre del proyecto",
+      "projectNamePlaceholder": "ej. Sistema Nebulosa",
+      "submit": "Empezar a archivar",
+      "submitting": "Preparando todo…",
+      "successToast": "¡Bienvenido! Tu archivo está listo."
+    },
+    "validation": {
+      "emailRequired": "El correo es obligatorio",
+      "emailInvalid": "Ingresa un correo válido",
+      "passwordRequired": "La contraseña es obligatoria",
+      "nameMin": "El nombre debe tener al menos 2 caracteres",
+      "passwordMin": "Al menos 8 caracteres",
+      "passwordUppercase": "Incluye al menos una mayúscula",
+      "passwordNumber": "Incluye al menos un número",
+      "passwordSpecial": "Incluye al menos un carácter especial",
+      "confirmRequired": "Confirma tu contraseña",
+      "termsRequired": "Debes aceptar los términos",
+      "passwordsMismatch": "Las contraseñas no coinciden",
+      "projectNameRequired": "El nombre del proyecto es obligatorio"
+    }
+  },
+  "sidebar": {
+    "nav": {
+      "archive": "El Archivo",
+      "archiveDesc": "Todas las reliquias",
+      "recent": "Reliquias Recientes",
+      "recentDesc": "Últimas 10 añadidas",
+      "revived": "Revividas",
+      "revivedDesc": "De vuelta en acción",
+      "deleted": "Eliminado Permanentemente",
+      "deletedDesc": "Próximamente",
+      "comingSoon": "Próximamente"
+    },
+    "activeProject": "proyecto activo",
+    "projectVersion": "v2.4 activo",
+    "userFallback": "Usuario",
+    "freePlan": "Plan Gratuito"
+  },
+  "topbar": {
+    "searchPlaceholder": "Busca en tu museo de ideas…",
+    "filters": { "all": "Todas", "visuals": "Visuales", "drafts": "Borradores" },
+    "sort": { "date": "Fecha de descarte", "title": "Título", "category": "Categoría", "status": "Estado" },
+    "newRelic": "Nueva Reliquia",
+    "theme": "Tema",
+    "language": "Idioma"
+  },
+  "dashboard": {
+    "sectionTitle": { "gallery": "El Archivo", "recent": "Reliquias Recientes", "revived": "Revividas", "deleted": "Eliminado Permanentemente" },
+    "sectionDesc": {
+      "gallery": "Revisa los borradores descartados de «{{project}}» y otros proyectos.",
+      "recent": "Tus 10 reliquias más recientes.",
+      "revived": "Ideas que volvieron a la vida.",
+      "deleted": "Reliquias eliminadas para siempre."
+    },
+    "stats": { "total": "Total", "revived": "Revividas", "archived": "Archivadas" },
+    "empty": {
+      "search": "Ninguna reliquia coincide con tu búsqueda.",
+      "revived": "Todavía no revives nada. Arrastra una reliquia a la Zona de Revival.",
+      "recent": "Aún no se ha archivado ninguna reliquia.",
+      "archiveDark": "Tu archivo está vacío. Todavía no ha muerto ninguna idea aquí.",
+      "addFirst": "+ Agrega tu primera reliquia"
+    },
+    "toast": {
+      "revived": "¡Reliquia revivida! 🎉",
+      "relicAdded": "Reliquia añadida al archivo.",
+      "sessionExpired": "Tu sesión expiró. Vuelve a iniciar sesión.",
+      "deleteTitle": "¿Eliminar esta reliquia para siempre?",
+      "deleteMessage": "«{{title}}» y todos sus archivos adjuntos se eliminarán para siempre.",
+      "deleteCannotUndo": "Esto no se puede deshacer.",
+      "deleteConfirmLabel": "Eliminar para siempre",
+      "deletedForever": "Reliquia eliminada para siempre."
+    }
+  },
+  "relicCard": {
+    "revived": "revivida",
+    "category": {
+      "SKETCH": "boceto",
+      "COPYWRITING": "redacción",
+      "PALETTE": "paleta",
+      "BRANDING": "marca",
+      "NOTES": "notas"
+    }
+  },
+  "revivalZone": {
+    "tag": "zona de revival",
+    "label": "Arrastra cualquier reliquia aquí para devolverla al proyecto activo."
+  },
+  "relicDetails": {
+    "title": "Detalles de la Reliquia",
+    "selectPrompt": "Selecciona una reliquia para ver sus detalles",
+    "edit": "Editar",
+    "statusRevived": "Estado: Revivida",
+    "statusArchived": "Estado: Archivada",
+    "images": "Imágenes",
+    "showLess": "Mostrar menos",
+    "showMore": "+{{count}} más",
+    "filesAttached_one": "{{count}} archivo adjunto",
+    "filesAttached_other": "{{count}} archivos adjuntos",
+    "project": "Proyecto",
+    "category": "Categoría",
+    "created": "Creada",
+    "discarded": "Descartada",
+    "responsible": "Responsable",
+    "notes": "Notas",
+    "aiAnalyzing": "Analizando reliquia…",
+    "aiAnalysisLabel": "Análisis de IA",
+    "aiAnalyzeButton": "Analizar esta reliquia",
+    "reviveNow": "Revivir Ahora",
+    "deleteForever": "Eliminar para Siempre",
+    "viewOverlay": "Ver"
+  },
+  "imageViewer": { "close": "Cerrar", "rotate": "Girar" },
+  "modals": {
+    "newRelic": {
+      "title": "Nueva Reliquia",
+      "generalInfo": "Información General",
+      "titleLabel": "Título",
+      "titleRequired": "El título es obligatorio",
+      "titlePlaceholder": "¿Qué era esta idea?",
+      "category": "Categoría",
+      "coverImage": "Imagen de Portada",
+      "changeImage": "Cambiar imagen",
+      "uploadImage": "Subir imagen",
+      "remove": "Quitar",
+      "imageHint": "JPG, PNG, WEBP · Máx 5 MB",
+      "details": "Detalles",
+      "responsible": "Responsable",
+      "responsiblePlaceholder": "¿Quién descartó esto?",
+      "description": "Descripción",
+      "descriptionPlaceholder": "¿Por qué se descartó?",
+      "additionalNotes": "Notas Adicionales",
+      "notesPlaceholder": "Contexto extra…",
+      "tags": "Etiquetas",
+      "tagPlaceholder": "Escribe una etiqueta y presiona Enter…",
+      "save": "Guardar Reliquia",
+      "imageTypeError": "Solo JPG, PNG, WEBP o GIF.",
+      "imageSizeError": "Máx 5 MB por imagen.",
+      "imageProcessError": "No se pudo procesar la imagen."
+    },
+    "editRelic": {
+      "title": "Editar Reliquia",
+      "saveChanges": "Guardar Cambios",
+      "deleteAttachmentTitle": "¿Eliminar archivo adjunto?",
+      "deleteAttachmentMessage": "«{{name}}» se eliminará permanentemente.",
+      "deleteAttachmentConfirm": "Eliminar",
+      "attachmentDeleted": "Archivo adjunto eliminado.",
+      "attachmentDeleteError": "No se pudo eliminar el archivo adjunto.",
+      "relicUpdated": "Reliquia actualizada.",
+      "enhanceWithAI": "Mejorar con IA",
+      "enhancing": "Mejorando…",
+      "applied": "Aplicado"
+    },
+    "settings": {
+      "title": "Ajustes",
+      "apiKeyLabel": "Clave API de Anthropic",
+      "active": "ACTIVA",
+      "apiKeyDescription": "Ingresa tu clave API de Anthropic para desbloquear funciones reales de IA (sugerencia de etiquetas, mejora de descripciones, análisis de reliquias, perspectivas del archivo). Sin una clave, se usa una simulación inteligente — todas las funciones igual funcionan.",
+      "apiKeyWarning": "⚠️ Solo demo: la clave se guarda en el localStorage de tu navegador. En producción, estas llamadas deben pasar por tu propio backend.",
+      "apiKeyPlaceholder": "sk-ant-api03-…",
+      "save": "Guardar",
+      "saved": "Guardado",
+      "removeKey": "Quitar clave",
+      "apiKeySaved": "Clave API guardada.",
+      "apiKeyCleared": "Clave API eliminada.",
+      "exportArchive": "Exportar Archivo",
+      "exportJSON": "Exportar JSON",
+      "exportCSV": "Exportar CSV",
+      "exportedJSON": "Exportado como JSON.",
+      "exportedCSV": "Exportado como CSV.",
+      "language": "Idioma",
+      "theme": "Tema"
+    },
+    "imagePreview": {
+      "zoomOut": "Alejar", "zoomIn": "Acercar", "rotate": "Girar 90°",
+      "save": "Guardar como…", "close": "Cerrar (Esc)",
+      "loading": "Cargando…", "couldNotRead": "No se pudo leer el contenido del archivo."
+    }
+  },
+  "attachments": {
+    "sectionTitle": "Archivos Adjuntos",
+    "noFiles": "Aún no hay archivos adjuntos.",
+    "dropHere": "Suelta los archivos aquí",
+    "dragOrClick": "Arrastra archivos aquí o haz clic para explorar",
+    "fileHint": "PDF, DOC, XLS, JPG, PNG, ZIP… · Máx 50 MB cada uno",
+    "preview": "Vista previa",
+    "openWith": "Abrir con la app del sistema",
+    "save": "Guardar como…",
+    "delete": "Eliminar archivo adjunto"
+  },
+  "ai": {
+    "suggestTags": "✦ Sugerir etiquetas con IA",
+    "suggesting": "Sugiriendo…",
+    "allAdded": "Todas las etiquetas sugeridas ya fueron añadidas.",
+    "archiveIntelligence": "Inteligencia del Archivo",
+    "analyzingArchive": "Analizando tu archivo…",
+    "poweredByClaude": "Impulsado por Claude AI",
+    "mockMode": "Perspectivas inteligentes · Modo simulado",
+    "relicsCount_one": "{{count}} reliquia",
+    "relicsCount_other": "{{count}} reliquias",
+    "generate": "Generar",
+    "patterns": "Patrones",
+    "topCandidates": "Mejores Candidatas a Revivir",
+    "tip": "Consejo",
+    "regenerate": "Regenerar perspectivas",
+    "regenerating": "Regenerando…"
+  },
+  "userMenu": {
+    "profile": "Perfil",
+    "settings": "Ajustes",
+    "signOut": "Cerrar sesión",
+    "signedOutToast": "Sesión cerrada."
+  },
+  "loadingScreen": { "loading": "Cargando…" }
+}

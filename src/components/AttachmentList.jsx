@@ -9,10 +9,12 @@
 // so this component stays purely presentational.
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Paperclip, Loader } from 'lucide-react'
 import FileDropZone    from './FileDropZone.jsx'
 import AttachmentItem  from './AttachmentItem.jsx'
 import ImagePreviewModal from './ImagePreviewModal.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 export default function AttachmentList({
   attachments,
@@ -24,6 +26,8 @@ export default function AttachmentList({
   getPreviewURL,
   readOnly = false,
 }) {
+  const { t } = useTranslation()
+  const { color, radius } = useTheme()
   const [previewAtt, setPreviewAtt] = useState(null)
   const [previewURL, setPreviewURL] = useState(null)
 
@@ -45,23 +49,23 @@ export default function AttachmentList({
 
       {/* Section header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-        <Paperclip size={13} style={{ color: '#7B6FFF' }} />
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#C8C8E0', letterSpacing: '0.03em' }}>
-          Attachments
+        <Paperclip size={13} style={{ color: color.blue300 }} />
+        <span style={{ fontSize: 12, fontWeight: 700, color: color.textPrimary, letterSpacing: '0.03em' }}>
+          {t('attachments.sectionTitle')}
         </span>
         {attachments.length > 0 && (
           <span style={{
             fontSize:       10,
             fontWeight:     700,
-            color:          '#7B6FFF',
-            background:     'rgba(91,75,255,0.15)',
+            color:          color.blue300,
+            background:     'rgba(93,133,168,0.15)',
             borderRadius:   99,
             padding:        '1px 7px',
           }}>
             {attachments.length}
           </span>
         )}
-        {loading && <Loader size={12} style={{ color: '#7E7EA0', animation: 'am-spin 0.8s linear infinite' }} />}
+        {loading && <Loader size={12} style={{ color: color.textSecondary, animation: 'am-spin 0.8s linear infinite' }} />}
       </div>
 
       {/* Error banner */}
@@ -71,10 +75,10 @@ export default function AttachmentList({
           style={{
             padding:      '8px 12px',
             borderRadius: 7,
-            background:   'rgba(224,85,85,0.1)',
-            border:       '1px solid rgba(224,85,85,0.3)',
+            background:   'rgba(201,123,110,0.1)',
+            border:       '1px solid rgba(201,123,110,0.3)',
             fontSize:     11,
-            color:        '#E05555',
+            color:        color.terracotta500,
             whiteSpace:   'pre-line',
           }}
         >
@@ -85,14 +89,14 @@ export default function AttachmentList({
       {/* Attachment rows */}
       {attachments.length > 0 && (
         <div style={{
-          borderRadius: 9,
-          border:       '1px solid #1E1E3A',
+          borderRadius: radius.control-1,
+          border:       `1px solid ${color.bgBorder}`,
           overflow:     'hidden',
-          background:   '#111126',
+          background:   color.bgBase,
         }}>
           {attachments.map((att, i) => (
             <div key={att.id} style={{
-              borderBottom: i < attachments.length - 1 ? '1px solid #1E1E3A' : 'none',
+              borderBottom: i < attachments.length - 1 ? `1px solid ${color.bgBorder}` : 'none',
             }}>
               <AttachmentItem
                 attachment={att}
@@ -110,10 +114,10 @@ export default function AttachmentList({
         <div style={{
           textAlign:  'center',
           fontSize:   11,
-          color:      '#3A3A5C',
+          color:      color.textTertiary,
           padding:    '8px 0 4px',
         }}>
-          No files attached yet.
+          {t('attachments.noFiles')}
         </div>
       )}
 

@@ -1,5 +1,7 @@
-import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react'
+import { createContext, useContext, useState, useCallback, useRef } from 'react'
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 const ToastContext = createContext(null)
 
@@ -34,10 +36,13 @@ export function useToast() {
   return ctx
 }
 
-const ICONS = {
-  success: <CheckCircle size={15} style={{ color: '#4ADE80' }} />,
-  error:   <AlertCircle size={15} style={{ color: '#E05555' }} />,
-  info:    <Info        size={15} style={{ color: '#7B6FFF' }} />,
+function getIcon(type, color) {
+  const ICONS = {
+    success: <CheckCircle size={15} style={{ color: color.sage500 }} />,
+    error:   <AlertCircle size={15} style={{ color: color.terracotta500 }} />,
+    info:    <Info        size={15} style={{ color: color.blue300 }} />,
+  }
+  return ICONS[type] || ICONS.info
 }
 
 function ToastContainer({ toasts, onDismiss }) {
@@ -54,48 +59,46 @@ function ToastContainer({ toasts, onDismiss }) {
       }}
       aria-live="polite"
     >
-      {toasts.map(t => (
-        <ToastItem key={t.id} toast={t} onDismiss={onDismiss} />
-      ))}
+      <AnimatePresence>
+        {toasts.map(t => (
+          <ToastItem key={t.id} toast={t} onDismiss={onDismiss} />
+        ))}
+      </AnimatePresence>
     </div>
   )
 }
 
 function ToastItem({ toast, onDismiss }) {
-  const [visible, setVisible] = useState(false)
-
-  useEffect(() => {
-    requestAnimationFrame(() => setVisible(true))
-  }, [])
-
+  const { color, radius, font, spring } = useTheme()
   return (
-    <div
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 12, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.15 } }}
+      transition={spring.tap}
+      className="glass glass-neutral"
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: 10,
         padding: '10px 14px',
-        borderRadius: 10,
-        background: '#1A1A35',
-        border: '1px solid #2A2A48',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
-        color: '#E8E8F0',
+        borderRadius: radius.card,
+        color: color.textPrimary,
+        fontFamily: font.ui,
         fontSize: 13,
         minWidth: 260,
         maxWidth: 360,
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(12px)',
-        transition: 'opacity 0.2s ease, transform 0.2s ease',
       }}
     >
-      {ICONS[toast.type] || ICONS.info}
+      {getIcon(toast.type, color)}
       <span style={{ flex: 1 }}>{toast.message}</span>
       <button
         onClick={() => onDismiss(toast.id)}
-        style={{ color: '#7E7EA0', background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
+        style={{ color: color.textSecondary, background: 'none', border: 'none', cursor: 'pointer', padding: 2 }}
       >
         <X size={13} />
       </button>
-    </div>
+    </motion.div>
   )
 }

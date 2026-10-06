@@ -1,49 +1,71 @@
+import { forwardRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { Sparkles, RotateCcw } from 'lucide-react'
+import { useTheme } from '../context/ThemeContext.jsx'
 
-export default function RevivalZone({ isDragOver, onDragOver, onDragLeave, onDrop }) {
+const RevivalZone = forwardRef(function RevivalZone({ isDragOver, justRevived }, ref) {
+  const { t } = useTranslation()
+  const { color, radius, font, spring } = useTheme()
   return (
-    <div
+    <motion.div
+      ref={ref}
+      className="glass"
+      animate={{
+        scale: isDragOver ? 1.015 : 1,
+        borderColor: isDragOver ? 'rgba(169,192,210,0.7)' : 'rgba(93,133,168,0.4)',
+      }}
+      transition={spring.tap}
       style={{
         position: 'absolute', bottom: 14, left: 16, right: 16,
         display: 'flex', alignItems: 'center', gap: 14,
-        padding: '12px 18px', borderRadius: 12,
-        border: `1.5px dashed ${isDragOver ? '#7B6FFF' : '#5B4BFF'}`,
-        background: isDragOver ? 'rgba(91,75,255,0.2)' : 'rgba(91,75,255,0.07)',
-        boxShadow: isDragOver ? '0 0 24px rgba(91,75,255,0.22)' : 'none',
-        transition: 'background 0.15s, border-color 0.15s, box-shadow 0.15s',
+        padding: '12px 18px', borderRadius: radius.glass,
+        borderStyle: 'dashed', borderWidth: 1.5,
+        background: isDragOver ? 'rgba(93,133,168,0.22)' : 'rgba(93,133,168,0.08)',
+        boxShadow: isDragOver ? '0 0 32px rgba(93,133,168,0.28)' : 'none',
         zIndex: 10,
       }}
-      onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
-      onDrop={onDrop}
     >
       <div style={{
         width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-        background: 'rgba(91,75,255,0.22)', border: '1px solid rgba(91,75,255,0.4)',
+        background: 'rgba(93,133,168,0.22)', border: '1px solid rgba(93,133,168,0.4)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <Sparkles size={16} style={{ color: '#7B6FFF' }} />
+        <Sparkles size={16} style={{ color: color.blue300 }} />
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', color: '#7B6FFF', marginBottom: 2 }}>
-          REVIVAL ZONE
+        <div style={{ fontSize: 10, color: color.blue300, marginBottom: 2, fontFamily: font.mono }}>
+          {t('revivalZone.tag')}
         </div>
-        <div style={{ fontSize: 11, color: '#A0A0CC' }}>
-          Drag any relic here to bring it back to active project
+        <div style={{ fontSize: 11, color: color.textSecondary, fontFamily: font.ui }}>
+          {t('revivalZone.label')}
         </div>
       </div>
-      <button
-        style={{
-          width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
-          background: '#5B4BFF', border: 'none', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-          transition: 'background 0.12s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.background = '#4A3AEE'}
-        onMouseLeave={e => e.currentTarget.style.background = '#5B4BFF'}
-      >
+      <div style={{
+        width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+        background: color.blue500, display: 'flex', alignItems: 'center', justifyContent: 'center', color: color.onPrimary,
+      }}>
         <RotateCcw size={14} />
-      </button>
-    </div>
+      </div>
+
+      {/* success pulse on a successful drop */}
+      <AnimatePresence>
+        {justRevived && (
+          <motion.div
+            initial={{ opacity: 0.6, scale: 1 }}
+            animate={{ opacity: 0, scale: 1.08 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            style={{
+              position: 'absolute', inset: -2, borderRadius: radius.glass,
+              boxShadow: `0 0 0 3px ${color.sage500}, 0 0 40px rgba(127,179,138,0.5)`,
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </motion.div>
   )
-}
+})
+
+export default RevivalZone

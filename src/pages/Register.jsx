@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
 import AuthLayout from '../components/AuthLayout.jsx'
 import {
@@ -8,12 +9,15 @@ import {
 } from '../components/FormField.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useToast } from '../components/Toast.jsx'
-import { registerSchema, passwordStrength } from '../lib/validators.js'
+import { getRegisterSchema, passwordStrength } from '../lib/validators.js'
+import { useTheme } from '../context/ThemeContext.jsx'
 
-const STRENGTH_LABELS = ['Too weak', 'Weak', 'Fair', 'Strong']
-const STRENGTH_COLORS = ['#E05555', '#E08855', '#E0C855', '#4ADE80']
+const STRENGTH_KEYS = ['tooWeak', 'weak', 'fair', 'strong']
 
 function PasswordStrengthMeter({ password }) {
+  const { t } = useTranslation()
+  const { color } = useTheme()
+  const STRENGTH_COLORS = [color.terracotta500, '#E08855', '#E0C855', color.sage500]
   const score = passwordStrength(password || '')
   return (
     <div style={{ marginTop: 6 }}>
@@ -21,14 +25,14 @@ function PasswordStrengthMeter({ password }) {
         {[0, 1, 2, 3].map(i => (
           <div key={i} style={{
             flex: 1, height: 3, borderRadius: 99,
-            background: i < score ? STRENGTH_COLORS[score - 1] : '#2A2A48',
+            background: i < score ? STRENGTH_COLORS[score - 1] : color.bgBorder,
             transition: 'background 0.2s',
           }} />
         ))}
       </div>
       {password && score > 0 && (
         <span style={{ fontSize: 10, color: STRENGTH_COLORS[score - 1], marginTop: 3, display: 'block' }}>
-          {STRENGTH_LABELS[score - 1]}
+          {t(`auth.register.strength.${STRENGTH_KEYS[score - 1]}`)}
         </span>
       )}
     </div>
@@ -36,12 +40,15 @@ function PasswordStrengthMeter({ password }) {
 }
 
 export default function Register() {
+  const { t }      = useTranslation()
+  const { color, font } = useTheme()
   const { signUp, signIn }    = useAuth()
   const { push }              = useToast()
   const navigate              = useNavigate()
   const [globalError, setGlobalError] = useState('')
   const [loading, setLoading]         = useState(false)
 
+  const registerSchema = useMemo(() => getRegisterSchema(t), [t])
   const { register, handleSubmit, control, formState: { errors } } = useForm({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: '', email: '', password: '', confirmPassword: '', terms: false },
@@ -57,7 +64,7 @@ export default function Register() {
       const user = await signUp(data.email, data.password, data.fullName)
       // 2. Sign in immediately — no password travels through navigation state
       await signIn(data.email, data.password, true)
-      push('Account created!', 'success')
+      push(t('auth.register.successToast'), 'success')
       // 3. Pass only the non-sensitive userId to onboarding
       navigate('/onboarding', { state: { userId: user.id } })
     } catch (err) {
@@ -70,59 +77,59 @@ export default function Register() {
   return (
     <AuthLayout>
       <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: '#E8E8F0', marginBottom: 6, letterSpacing: '-0.02em' }}>
-          Create your archive
-        </h2>
-        <p style={{ fontSize: 13, color: '#7E7EA0' }}>
-          Start preserving the ideas your team discards.
+        <h1 style={{ fontSize: 24, fontWeight: 500, fontFamily: font.display, color: color.textPrimary, marginBottom: 6, letterSpacing: '-0.01em' }}>
+          {t('auth.register.title')}
+        </h1>
+        <p style={{ fontSize: 13, color: color.textSecondary }}>
+          {t('auth.register.subtitle')}
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
-        <Field label="Full name" error={errors.fullName?.message}>
-          <Input register={register('fullName')} type="text" placeholder="Your full name"
+        <Field label={t('auth.register.fullNameLabel')} error={errors.fullName?.message}>
+          <Input register={register('fullName')} type="text" placeholder={t('auth.register.fullNamePlaceholder')}
             autoComplete="name" error={errors.fullName} />
         </Field>
 
-        <Field label="Email" error={errors.email?.message}>
-          <Input register={register('email')} type="email" placeholder="you@example.com"
+        <Field label={t('auth.register.emailLabel')} error={errors.email?.message}>
+          <Input register={register('email')} type="email" placeholder={t('auth.register.emailPlaceholder')}
             autoComplete="email" error={errors.email} />
         </Field>
 
-        <Field label="Password" error={errors.password?.message}>
-          <PasswordInput register={register('password')} placeholder="Create a strong password"
+        <Field label={t('auth.register.passwordLabel')} error={errors.password?.message}>
+          <PasswordInput register={register('password')} placeholder={t('auth.register.passwordPlaceholder')}
             autoComplete="new-password" error={errors.password} />
           <PasswordStrengthMeter password={password} />
         </Field>
 
-        <Field label="Confirm password" error={errors.confirmPassword?.message}>
-          <PasswordInput register={register('confirmPassword')} placeholder="Repeat your password"
+        <Field label={t('auth.register.confirmPasswordLabel')} error={errors.confirmPassword?.message}>
+          <PasswordInput register={register('confirmPassword')} placeholder={t('auth.register.confirmPasswordPlaceholder')}
             autoComplete="new-password" error={errors.confirmPassword} />
         </Field>
 
-        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', fontSize: 12, color: '#A0A0CC' }}>
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', fontSize: 12, color: color.textSecondary }}>
           <input type="checkbox" {...register('terms')}
-            style={{ accentColor: '#5B4BFF', width: 14, height: 14, marginTop: 1 }} />
+            style={{ accentColor: color.blue500, width: 14, height: 14, marginTop: 1 }} />
           <span>
-            I agree to the <span style={{ color: '#7B6FFF' }}>Terms of Service</span> and{' '}
-            <span style={{ color: '#7B6FFF' }}>Privacy Policy</span>
+            {t('auth.register.termsPrefix')} <span style={{ color: color.blue300 }}>{t('auth.register.termsOfService')}</span>{' '}
+            {t('auth.register.and')} <span style={{ color: color.blue300 }}>{t('auth.register.privacyPolicy')}</span>
           </span>
         </label>
         {errors.terms && (
-          <span style={{ fontSize: 11, color: '#E05555', marginTop: -8 }}>{errors.terms.message}</span>
+          <span style={{ fontSize: 11, color: color.terracotta500, marginTop: -8 }}>{errors.terms.message}</span>
         )}
 
         <GlobalError message={globalError} />
 
         <PrimaryButton loading={loading}>
-          {loading ? 'Creating account…' : 'Create Account'}
+          {loading ? t('auth.register.submitting') : t('auth.register.submit')}
         </PrimaryButton>
 
-        <p style={{ textAlign: 'center', fontSize: 12, color: '#7E7EA0', marginTop: 4 }}>
-          Already have an account?{' '}
-          <Link to="/login" style={{ color: '#7B6FFF', textDecoration: 'none', fontWeight: 600 }}>
-            Sign in
+        <p style={{ textAlign: 'center', fontSize: 12, color: color.textSecondary, marginTop: 4 }}>
+          {t('auth.register.haveAccount')}{' '}
+          <Link to="/login" style={{ color: color.blue300, textDecoration: 'none', fontWeight: 600 }}>
+            {t('auth.register.signIn')}
           </Link>
         </p>
       </form>

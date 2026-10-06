@@ -1,8 +1,13 @@
+import { useTranslation } from 'react-i18next'
+import { useTheme } from '../context/ThemeContext.jsx'
+
 export default function LoadingScreen() {
+  const { t } = useTranslation()
+  const { color } = useTheme()
   return (
     <div
       className="flex items-center justify-center"
-      style={{ height: '100vh', background: '#14142B' }}
+      style={{ height: '100vh', background: color.bgSurface }}
     >
       <div className="flex flex-col items-center gap-4">
         {/* Logo with pulse */}
@@ -10,7 +15,7 @@ export default function LoadingScreen() {
           style={{
             width: 48,
             height: 48,
-            background: '#5B4BFF',
+            background: color.blue500,
             borderRadius: 12,
             display: 'flex',
             alignItems: 'center',
@@ -25,8 +30,8 @@ export default function LoadingScreen() {
             <rect x="11" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.3" />
           </svg>
         </div>
-        <span style={{ color: '#7E7EA0', fontSize: 13, letterSpacing: '0.05em' }}>
-          Loading…
+        <span style={{ color: color.textSecondary, fontSize: 13, letterSpacing: '0.05em' }}>
+          {t('loadingScreen.loading')}
         </span>
       </div>
       <style>{`

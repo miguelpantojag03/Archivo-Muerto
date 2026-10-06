@@ -1,0 +1,295 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "close": "Close",
+    "confirm": "Confirm",
+    "loading": "Loading…"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "auto": "Auto"
+  },
+  "language": {
+    "es": "Spanish",
+    "en": "English"
+  },
+  "auth": {
+    "login": {
+      "title": "The archive has been waiting.",
+      "subtitle": "Come see what your team left behind.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Your password",
+      "remember": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "submitting": "Signing in…",
+      "or": "or",
+      "googleButton": "Continue with Google",
+      "googleUnavailable": "Google sign-in is not available in the demo.",
+      "demoButton": "Use demo account",
+      "noAccount": "New here?",
+      "createAccount": "Create an account",
+      "welcomeToast": "The archive let you in.",
+      "errorInvalidCredentials": "Invalid email or password."
+    },
+    "register": {
+      "title": "Create your archive",
+      "subtitle": "Start preserving the ideas your team discards.",
+      "fullNameLabel": "Full name",
+      "fullNamePlaceholder": "Your full name",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Create a strong password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat your password",
+      "termsPrefix": "I agree to the",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy",
+      "submit": "Create Account",
+      "submitting": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "successToast": "Account created!",
+      "strength": {
+        "tooWeak": "Too weak",
+        "weak": "Weak",
+        "fair": "Fair",
+        "strong": "Strong"
+      }
+    },
+    "forgotPassword": {
+      "title": "Reset your password",
+      "subtitle": "Enter your email and we'll send a reset link.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Send reset link",
+      "submitting": "Sending…",
+      "backToSignIn": "Back to sign in",
+      "sentTitle": "Check your inbox",
+      "sentMessage": "If <strong>{{email}}</strong> is registered, we've sent a reset link. Check your spam folder too."
+    },
+    "onboarding": {
+      "title": "Name your first project",
+      "subtitle": "Every great archive starts with a project. You can add more later.",
+      "projectNameLabel": "Project name",
+      "projectNamePlaceholder": "e.g. Nebula System",
+      "submit": "Start Archiving",
+      "submitting": "Setting up…",
+      "successToast": "Welcome! Your archive is ready."
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email",
+      "passwordRequired": "Password is required",
+      "nameMin": "Name must be at least 2 characters",
+      "passwordMin": "At least 8 characters",
+      "passwordUppercase": "Include at least one uppercase letter",
+      "passwordNumber": "Include at least one number",
+      "passwordSpecial": "Include at least one special character",
+      "confirmRequired": "Please confirm your password",
+      "termsRequired": "You must accept the terms",
+      "passwordsMismatch": "Passwords don't match",
+      "projectNameRequired": "Project name is required"
+    }
+  },
+  "sidebar": {
+    "nav": {
+      "archive": "The Archive",
+      "archiveDesc": "All relics",
+      "recent": "Recent Relics",
+      "recentDesc": "Last 10 added",
+      "revived": "Revived",
+      "revivedDesc": "Back in action",
+      "deleted": "Permanently Deleted",
+      "deletedDesc": "Coming soon",
+      "comingSoon": "Coming soon"
+    },
+    "activeProject": "active project",
+    "projectVersion": "v2.4 active",
+    "userFallback": "User",
+    "freePlan": "Free Plan"
+  },
+  "topbar": {
+    "searchPlaceholder": "Search your museum of ideas…",
+    "filters": { "all": "All", "visuals": "Visuals", "drafts": "Drafts" },
+    "sort": { "date": "Date discarded", "title": "Title", "category": "Category", "status": "Status" },
+    "newRelic": "New Relic",
+    "theme": "Theme",
+    "language": "Language"
+  },
+  "dashboard": {
+    "sectionTitle": { "gallery": "The Archive", "recent": "Recent Relics", "revived": "Revived", "deleted": "Permanently Deleted" },
+    "sectionDesc": {
+      "gallery": "Review discarded drafts from '{{project}}' and other projects.",
+      "recent": "Your 10 most recently added relics.",
+      "revived": "Ideas brought back to life.",
+      "deleted": "Relics deleted forever."
+    },
+    "stats": { "total": "Total", "revived": "Revived", "archived": "Archived" },
+    "empty": {
+      "search": "No relics match your search.",
+      "revived": "Nothing revived yet — drag a relic into the Revival Zone.",
+      "recent": "No relics added yet.",
+      "archiveDark": "Your archive is empty. No ideas have died here yet.",
+      "addFirst": "+ Add your first relic"
+    },
+    "toast": {
+      "revived": "Relic revived! 🎉",
+      "relicAdded": "Relic added to the archive.",
+      "sessionExpired": "Your session expired. Please sign in again.",
+      "deleteTitle": "Delete relic forever?",
+      "deleteMessage": "\"{{title}}\" and all its attachments will be permanently removed.",
+      "deleteCannotUndo": "This cannot be undone.",
+      "deleteConfirmLabel": "Delete Forever",
+      "deletedForever": "Relic deleted forever."
+    }
+  },
+  "relicCard": {
+    "revived": "revived",
+    "category": {
+      "SKETCH": "sketch",
+      "COPYWRITING": "copywriting",
+      "PALETTE": "palette",
+      "BRANDING": "branding",
+      "NOTES": "notes"
+    }
+  },
+  "revivalZone": {
+    "tag": "revival zone",
+    "label": "Drag any relic here to bring it back to the active project."
+  },
+  "relicDetails": {
+    "title": "Relic Details",
+    "selectPrompt": "Select a relic to view its details",
+    "edit": "Edit",
+    "statusRevived": "Revived State",
+    "statusArchived": "Archived State",
+    "images": "Images",
+    "showLess": "Show less",
+    "showMore": "+{{count}} more",
+    "filesAttached_one": "{{count}} file attached",
+    "filesAttached_other": "{{count}} files attached",
+    "project": "Project",
+    "category": "Category",
+    "created": "Created",
+    "discarded": "Discarded",
+    "responsible": "Responsible",
+    "notes": "Notes",
+    "aiAnalyzing": "Analyzing relic…",
+    "aiAnalysisLabel": "AI Analysis",
+    "aiAnalyzeButton": "Analyze this relic",
+    "reviveNow": "Revive Now",
+    "deleteForever": "Delete Forever",
+    "viewOverlay": "View"
+  },
+  "imageViewer": { "close": "Close", "rotate": "Rotate" },
+  "modals": {
+    "newRelic": {
+      "title": "New Relic",
+      "generalInfo": "General Information",
+      "titleLabel": "Title",
+      "titleRequired": "Title is required",
+      "titlePlaceholder": "What was this idea?",
+      "category": "Category",
+      "coverImage": "Cover Image",
+      "changeImage": "Change image",
+      "uploadImage": "Upload image",
+      "remove": "Remove",
+      "imageHint": "JPG, PNG, WEBP · Max 5 MB",
+      "details": "Details",
+      "responsible": "Responsible",
+      "responsiblePlaceholder": "Who discarded this?",
+      "description": "Description",
+      "descriptionPlaceholder": "Why was it discarded?",
+      "additionalNotes": "Additional Notes",
+      "notesPlaceholder": "Any extra context…",
+      "tags": "Tags",
+      "tagPlaceholder": "Type a tag and press Enter…",
+      "save": "Save Relic",
+      "imageTypeError": "Only JPG, PNG, WEBP or GIF.",
+      "imageSizeError": "Max 5 MB per image.",
+      "imageProcessError": "Could not process image."
+    },
+    "editRelic": {
+      "title": "Edit Relic",
+      "saveChanges": "Save Changes",
+      "deleteAttachmentTitle": "Delete attachment?",
+      "deleteAttachmentMessage": "\"{{name}}\" will be permanently removed.",
+      "deleteAttachmentConfirm": "Delete",
+      "attachmentDeleted": "Attachment deleted.",
+      "attachmentDeleteError": "Could not delete the attachment.",
+      "relicUpdated": "Relic updated.",
+      "enhanceWithAI": "Enhance with AI",
+      "enhancing": "Enhancing…",
+      "applied": "Applied"
+    },
+    "settings": {
+      "title": "Settings",
+      "apiKeyLabel": "Anthropic API Key",
+      "active": "ACTIVE",
+      "apiKeyDescription": "Enter your Anthropic API key to unlock real AI features (tag suggestions, description enhancer, relic analysis, archive insights). Without a key, a smart mock is used instead — all features still work.",
+      "apiKeyWarning": "⚠️ Demo only: the key is stored in your browser's localStorage. For production, route calls through your own backend.",
+      "apiKeyPlaceholder": "sk-ant-api03-…",
+      "save": "Save",
+      "saved": "Saved",
+      "removeKey": "Remove key",
+      "apiKeySaved": "API key saved.",
+      "apiKeyCleared": "API key cleared.",
+      "exportArchive": "Export Archive",
+      "exportJSON": "Export JSON",
+      "exportCSV": "Export CSV",
+      "exportedJSON": "Exported as JSON.",
+      "exportedCSV": "Exported as CSV.",
+      "language": "Language",
+      "theme": "Theme"
+    },
+    "imagePreview": {
+      "zoomOut": "Zoom out", "zoomIn": "Zoom in", "rotate": "Rotate 90°",
+      "save": "Save as…", "close": "Close (Esc)",
+      "loading": "Loading…", "couldNotRead": "Could not read file content."
+    }
+  },
+  "attachments": {
+    "sectionTitle": "Attachments",
+    "noFiles": "No files attached yet.",
+    "dropHere": "Drop files here",
+    "dragOrClick": "Drag files here or click to browse",
+    "fileHint": "PDF, DOC, XLS, JPG, PNG, ZIP… · Max 50 MB each",
+    "preview": "Preview",
+    "openWith": "Open with system app",
+    "save": "Save as…",
+    "delete": "Delete attachment"
+  },
+  "ai": {
+    "suggestTags": "✦ Suggest tags with AI",
+    "suggesting": "Suggesting…",
+    "allAdded": "All suggested tags already added.",
+    "archiveIntelligence": "Archive Intelligence",
+    "analyzingArchive": "Analyzing your archive…",
+    "poweredByClaude": "Powered by Claude AI",
+    "mockMode": "Smart insights · Mock mode",
+    "relicsCount_one": "{{count}} relic",
+    "relicsCount_other": "{{count}} relics",
+    "generate": "Generate",
+    "patterns": "Patterns",
+    "topCandidates": "Top Revival Candidates",
+    "tip": "Tip",
+    "regenerate": "Regenerate insights",
+    "regenerating": "Regenerating…"
+  },
+  "userMenu": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "signedOutToast": "Signed out."
+  },
+  "loadingScreen": { "loading": "Loading…" }
+}

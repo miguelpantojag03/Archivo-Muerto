@@ -1,7 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import MockAuthService from './MockAuthService.js'
-import { SESSION_KEY } from '../constants/storageKeys.js'
 
 // Swap MockAuthService for SupabaseAuthService / FirebaseAuthService here
 const authService = MockAuthService

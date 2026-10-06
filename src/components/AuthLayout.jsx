@@ -1,156 +1,109 @@
-// Decorative relic cards used on the auth left panel – pure CSS/SVG
-function DecorativeRelics() {
+import { motion } from 'framer-motion'
+import { useTheme } from '../context/ThemeContext.jsx'
+
+// Abstract night-museum atmosphere: fog, a moonlight glow, and a few
+// blurred silhouettes suggesting distant vitrines — never literal icons.
+function Atmosphere() {
+  const { color, resolvedTheme } = useTheme()
+  const dark = resolvedTheme === 'dark'
   return (
-    <div style={{ display: 'flex', gap: 10, marginTop: 32, width: '100%', maxWidth: 420 }}>
-      {/* Card 1 – Sketch, dimmed */}
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
       <div style={{
-        flex: 1, borderRadius: 12, padding: 10, opacity: 0.55,
-        background: '#1A1A35', border: '1px solid #2A2A48',
-      }}>
-        <div style={{ height: 72, borderRadius: 8, background: '#C8C4B8', marginBottom: 8, position: 'relative', overflow: 'hidden' }}>
-          <svg width="100%" height="100%" viewBox="0 0 120 72" preserveAspectRatio="none">
-            <rect x="10" y="10" width="100" height="52" rx="3" stroke="#8A7E72" strokeWidth="1" fill="none" />
-            <line x1="10" y1="36" x2="110" y2="34" stroke="#8A7E72" strokeWidth="1" strokeDasharray="3,4" />
-          </svg>
-        </div>
-        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', color: '#7B6FFF', marginBottom: 4 }}>SKETCH</div>
-        <div style={{ fontSize: 10, fontStyle: 'italic', fontWeight: 700, color: '#C8C8E0' }}>"Complex hero"</div>
-      </div>
-
-      {/* Card 2 – Copywriting, SELECTED / revived */}
+        position: 'absolute', top: '-10%', left: '8%', width: '55%', height: '70%',
+        background: dark
+          ? `radial-gradient(ellipse at center, rgba(93,133,168,0.16) 0%, transparent 65%)`
+          : `radial-gradient(ellipse at center, rgba(61,107,136,0.10) 0%, transparent 65%)`,
+      }} />
       <div style={{
-        flex: 1, borderRadius: 12, padding: 10,
-        background: '#1A1A35',
-        border: '1.5px solid #5B4BFF',
-        boxShadow: '0 0 0 3px rgba(91,75,255,0.18)',
-      }}>
-        <div style={{ height: 72, borderRadius: 8, background: '#0D0D24', marginBottom: 8, position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{
-              background: '#5B4BFF', borderRadius: 5, padding: '2px 7px',
-              fontSize: 7, fontWeight: 700, letterSpacing: '0.08em', color: 'white',
-              display: 'flex', alignItems: 'center', gap: 3,
-            }}>
-              ↩ REVIVED
-            </div>
-          </div>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 10px', gap: 3 }}>
-            {[100, 85, 90, 70].map((w, i) => (
-              <div key={i} style={{ height: 2.5, width: `${w}%`, borderRadius: 99, background: i === 0 ? '#5B4BFF' : '#2A2A55', opacity: 0.8 }} />
-            ))}
-          </div>
-        </div>
-        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', color: '#7B6FFF', marginBottom: 4 }}>COPYWRITING</div>
-        <div style={{ fontSize: 10, fontStyle: 'italic', fontWeight: 700, color: '#E8E8F0' }}>"The Obsidian…"</div>
+        position: 'absolute', bottom: '-15%', right: '5%', width: '50%', height: '60%',
+        background: dark
+          ? `radial-gradient(ellipse at center, rgba(152,147,168,0.12) 0%, transparent 65%)`
+          : `radial-gradient(ellipse at center, rgba(95,90,116,0.08) 0%, transparent 65%)`,
+      }} />
+      {/* distant silhouettes */}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '38%', display: 'flex', alignItems: 'flex-end', gap: 38, padding: '0 6%', filter: 'blur(3px)' }}>
+        {[
+          { w: 54, h: '60%', r: '4px 4px 0 0' },
+          { w: 40, h: '42%', r: '20px 20px 0 0' },
+          { w: 60, h: '75%', r: '4px 4px 0 0' },
+          { w: 36, h: '35%', r: '18px 18px 0 0' },
+          { w: 50, h: '55%', r: '4px 4px 0 0' },
+          { w: 44, h: '48%', r: '4px 4px 0 0' },
+        ].map((s, i) => (
+          <div key={i} style={{
+            width: s.w, height: s.h, borderRadius: s.r, flexShrink: 0,
+            background: `linear-gradient(180deg, ${color.bgElevated}, ${color.bgBase})`,
+            opacity: dark ? 0.6 : 0.5,
+          }} />
+        ))}
       </div>
-
-      {/* Card 3 – Palette, dimmed */}
+      {/* fog layer */}
       <div style={{
-        flex: 1, borderRadius: 12, padding: 10, opacity: 0.55,
-        background: '#1A1A35', border: '1px solid #2A2A48',
-      }}>
-        <div style={{ height: 72, borderRadius: 8, overflow: 'hidden', marginBottom: 8, display: 'flex' }}>
-          <div style={{ flex: 1, background: '#8B3A3A' }} />
-          <div style={{ flex: 1, background: '#2D7D6E' }} />
-          <div style={{ flex: 1, background: '#B8A44A' }} />
-        </div>
-        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', color: '#7B6FFF', marginBottom: 4 }}>PALETTE</div>
-        <div style={{ fontSize: 10, fontStyle: 'italic', fontWeight: 700, color: '#C8C8E0' }}>"Neon Summer"</div>
-      </div>
+        position: 'absolute', inset: 0,
+        background: dark ? `
+          radial-gradient(ellipse 60% 35% at 25% 75%, rgba(236,238,240,0.04) 0%, transparent 70%),
+          radial-gradient(ellipse 55% 30% at 78% 55%, rgba(236,238,240,0.03) 0%, transparent 70%)
+        ` : `
+          radial-gradient(ellipse 60% 35% at 25% 75%, rgba(255,255,255,0.5) 0%, transparent 70%),
+          radial-gradient(ellipse 55% 30% at 78% 55%, rgba(255,255,255,0.4) 0%, transparent 70%)
+        `,
+      }} />
     </div>
   )
 }
 
 export default function AuthLayout({ children }) {
+  const { color, radius, font, spring } = useTheme()
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#0A0A1E', overflow: 'hidden' }}>
-
-      {/* ── macOS chrome ── */}
+    <div style={{
+      height: '100vh', overflow: 'hidden', position: 'relative',
+      background: color.bgBase, display: 'flex', flexDirection: 'column',
+    }}>
+      {/* macOS chrome */}
       <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0, height: 36,
-        background: '#0A0A1E', borderBottom: '1px solid #1E1E3A',
-        display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px',
-        zIndex: 10,
+        height: 36, background: color.bgBase, borderBottom: `1px solid ${color.bgBorder}`,
+        display: 'flex', alignItems: 'center', gap: 6, padding: '0 16px', flexShrink: 0, zIndex: 2,
       }}>
         <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FF5F57' }} />
         <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#FEBC2E' }} />
         <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#28C840' }} />
       </div>
 
-      {/* ── Left brand panel ── */}
-      <div style={{
-        width: '55%',
-        background: '#14142B',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        padding: '80px 60px 60px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        {/* Violet glow */}
-        <div style={{
-          position: 'absolute',
-          top: '20%', left: '10%',
-          width: '70%', height: '60%',
-          background: 'radial-gradient(ellipse at center, rgba(91,75,255,0.18) 0%, transparent 70%)',
-          pointerEvents: 'none',
-        }} />
+      <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px' }}>
+        <Atmosphere />
 
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 40 }}>
-          <div style={{
-            width: 36, height: 36, background: '#5B4BFF', borderRadius: 10,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+        <motion.div
+          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={spring.drop}
+          className="glass glass-blue"
+          style={{
+            position: 'relative', zIndex: 1,
+            width: '100%', maxWidth: 400,
+            borderRadius: radius.glass,
+            padding: '36px 32px',
           }}>
-            <svg viewBox="0 0 20 20" width="22" height="22" fill="none">
-              <rect x="3" y="3" width="6" height="6" rx="1.5" fill="white" opacity="0.9" />
-              <rect x="11" y="3" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
-              <rect x="3" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
-              <rect x="11" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.3" />
-            </svg>
+          {/* Wordmark */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
+            <div style={{
+              width: 30, height: 30, borderRadius: radius.control, flexShrink: 0,
+              background: `linear-gradient(135deg, ${color.blue500}, ${color.blue800})`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg viewBox="0 0 20 20" width="16" height="16" fill="none">
+                <rect x="3" y="3" width="6" height="6" rx="1.5" fill="white" opacity="0.9" />
+                <rect x="11" y="3" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
+                <rect x="3" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
+                <rect x="11" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.3" />
+              </svg>
+            </div>
+            <span style={{ fontWeight: 600, fontSize: 14, color: color.textPrimary, fontFamily: font.ui, letterSpacing: '-0.01em' }}>
+              Archivo Muerto
+            </span>
           </div>
-          <span style={{ fontWeight: 700, fontSize: 16, color: '#E8E8F0', letterSpacing: '-0.02em' }}>
-            Archivo Muerto
-          </span>
-        </div>
 
-        {/* Headline */}
-        <h1 style={{
-          fontSize: 38, fontWeight: 800, color: '#E8E8F0',
-          lineHeight: 1.15, letterSpacing: '-0.03em',
-          marginBottom: 16, maxWidth: 420,
-        }}>
-          Where discarded ideas come back to life.
-        </h1>
-        <p style={{ fontSize: 14, color: '#7E7EA0', lineHeight: 1.7, maxWidth: 380, marginBottom: 0 }}>
-          A museum for the drafts, palettes and sketches your team left behind.
-        </p>
-
-        <DecorativeRelics />
-      </div>
-
-      {/* ── Right form panel ── */}
-      <div style={{
-        width: '45%',
-        background: '#0F0F22',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '80px 32px 40px',
-        borderLeft: '1px solid #1E1E3A',
-        overflowY: 'auto',
-      }}>
-        <div style={{
-          width: '100%',
-          maxWidth: 400,
-          background: '#141428',
-          border: '1px solid #2A2A48',
-          borderRadius: 14,
-          padding: '32px 28px',
-        }}>
           {children}
-        </div>
+        </motion.div>
       </div>
     </div>
   )

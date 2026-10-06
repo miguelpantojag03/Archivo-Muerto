@@ -23,7 +23,7 @@ export function CopyThumbnail() {
       {[100, 85, 90, 70, 95, 60].map((w, i) => (
         <div key={i} style={{
           height: 3, width: `${w}%`, borderRadius: 99,
-          background: i === 0 ? '#5B4BFF' : '#2A2A55',
+          background: i === 0 ? '#5D85A8' : '#26323C',
           opacity: i === 0 ? 1 : 0.8,
         }} />
       ))}
@@ -45,10 +45,10 @@ export function BrandingThumbnail() {
   return (
     <div style={{ width: '100%', height: '100%', background: '#12121F', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <svg viewBox="0 0 80 80" width="55" height="55">
-        <circle cx="40" cy="40" r="30" stroke="#3A3A5C" strokeWidth="1.5" fill="none" />
+        <circle cx="40" cy="40" r="30" stroke="#636B74" strokeWidth="1.5" fill="none" />
         <path d="M40 15 L47 30 L62 32 L51 43 L54 58 L40 51 L26 58 L29 43 L18 32 L33 30 Z"
           stroke="#6060A0" strokeWidth="1.5" fill="none" />
-        <circle cx="40" cy="40" r="5" fill="#3A3A5C" />
+        <circle cx="40" cy="40" r="5" fill="#636B74" />
       </svg>
     </div>
   )
@@ -57,10 +57,10 @@ export function BrandingThumbnail() {
 export function NotesThumbnail() {
   return (
     <div style={{ width: '100%', height: '100%', background: '#10102A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-      <div style={{ fontSize: 32, color: '#2A2A55', lineHeight: 1, fontFamily: 'serif' }}>❝</div>
+      <div style={{ fontSize: 32, color: '#26323C', lineHeight: 1, fontFamily: 'serif' }}>❝</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: '70%' }}>
         {[100, 80, 90].map((w, i) => (
-          <div key={i} style={{ height: 2.5, width: `${w}%`, borderRadius: 99, background: '#2A2A55' }} />
+          <div key={i} style={{ height: 2.5, width: `${w}%`, borderRadius: 99, background: '#26323C' }} />
         ))}
       </div>
     </div>
@@ -115,6 +115,6 @@ export function getThumbnail(type, coverImage) {
     case 'palette':  return <PaletteThumbnail />
     case 'branding': return <BrandingThumbnail />
     case 'notes':    return <NotesThumbnail />
-    default:         return <div style={{ width: '100%', height: '100%', background: '#1A1A35' }} />
+    default:         return <div style={{ width: '100%', height: '100%', background: '#1B232B' }} />
   }
 }

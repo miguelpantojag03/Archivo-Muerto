@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { RotateCcw, PenLine, FileText, Palette, Tag, StickyNote, Paperclip } from 'lucide-react'
 import { getThumbnail } from './Thumbnails.jsx'
 import { countAttachments } from '../lib/attachmentStorage.js'
+import { useTheme } from '../context/ThemeContext.jsx'
+import { formatDate } from '../lib/formatDate.js'
 
 function CategoryIcon({ cat }) {
   switch (cat) {
@@ -14,7 +18,9 @@ function CategoryIcon({ cat }) {
   }
 }
 
-export default function RelicCard({ relic, isSelected, onSelect, onDragStart, animIndex = 0 }) {
+export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onCardDragEnd, animIndex = 0 }) {
+  const { t } = useTranslation()
+  const { color, radius, font, spring } = useTheme()
   const [attCount, setAttCount] = useState(0)
 
   // Load attachment count asynchronously (lightweight, no blob transfer)
@@ -24,25 +30,32 @@ export default function RelicCard({ relic, isSelected, onSelect, onDragStart, an
   }, [relic?.id])
 
   return (
-    <div
-      draggable
-      onDragStart={e => onDragStart(e, relic.id)}
+    <motion.div
+      drag
+      dragSnapToOrigin
+      dragElastic={0.12}
+      dragMomentum={false}
+      whileDrag={{ scale: 1.05, zIndex: 50, boxShadow: '0 24px 56px -14px rgba(93,133,168,0.45)' }}
+      onDrag={(e, info) => onCardDrag?.(relic.id, info)}
+      onDragEnd={(e, info) => onCardDragEnd?.(relic.id, info)}
       onClick={() => onSelect(relic.id)}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.88, transition: spring.tap }}
+      transition={{ ...spring.tap, delay: animIndex * 0.025 }}
       style={{
-        borderRadius:12, padding:10, cursor:'pointer',
-        background:'#1A1A35',
-        border: isSelected ? '1.5px solid #5B4BFF' : '1px solid #1E1E3A',
-        boxShadow: isSelected ? '0 0 0 3px rgba(91,75,255,0.18),0 4px 24px rgba(91,75,255,0.10)' : 'none',
-        opacity: isSelected ? 1 : 0.68,
+        borderRadius:radius.card, padding:10, cursor:'pointer',
+        background:color.bgElevated,
+        border: isSelected ? `1.5px solid ${color.blue500}` : `1px solid ${color.bgBorder}`,
+        boxShadow: isSelected ? `0 0 0 3px rgba(93,133,168,0.18),0 4px 24px rgba(93,133,168,0.10)` : 'none',
+        opacity: isSelected ? 1 : 0.72,
         userSelect:'none',
-        transition:'opacity 0.18s,box-shadow 0.18s,border-color 0.18s',
-        animation:`rc-fade 0.3s ease ${animIndex * 0.04}s both`,
       }}
       onMouseEnter={e=>{ if(!isSelected) e.currentTarget.style.opacity='1' }}
-      onMouseLeave={e=>{ if(!isSelected) e.currentTarget.style.opacity='0.68' }}
+      onMouseLeave={e=>{ if(!isSelected) e.currentTarget.style.opacity='0.72' }}
     >
       {/* Thumbnail */}
-      <div style={{height:100,borderRadius:8,overflow:'hidden',position:'relative',marginBottom:9}}>
+      <div style={{height:100,borderRadius:radius.chip+2,overflow:'hidden',position:'relative',marginBottom:9}}>
         {getThumbnail(relic.thumbnail, relic.coverImage)}
 
         {/* Attachment count badge */}
@@ -50,8 +63,8 @@ export default function RelicCard({ relic, isSelected, onSelect, onDragStart, an
           <div style={{
             position:'absolute',top:5,right:5,
             display:'flex',alignItems:'center',gap:3,
-            background:'rgba(0,0,0,0.7)',borderRadius:99,padding:'2px 6px',
-            fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.85)',
+            background:'rgba(0,0,0,0.7)',borderRadius:radius.pill,padding:'2px 6px',
+            fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.85)',fontFamily:font.mono,
           }}>
             <Paperclip size={8}/>{attCount}
           </div>
@@ -59,9 +72,9 @@ export default function RelicCard({ relic, isSelected, onSelect, onDragStart, an
 
         {/* Revived overlay */}
         {relic.revived && (
-          <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(91,75,255,0.18)'}}>
-            <div style={{background:'#5B4BFF',borderRadius:5,padding:'2px 8px',fontSize:7.5,fontWeight:700,letterSpacing:'0.08em',color:'white',display:'flex',alignItems:'center',gap:4}}>
-              <RotateCcw size={8}/> REVIVED → ACTIVE PROJECT
+          <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(93,133,168,0.18)'}}>
+            <div style={{background:color.blue500,borderRadius:radius.chip,padding:'2px 8px',fontSize:9,fontWeight:600,color:color.onPrimary,display:'flex',alignItems:'center',gap:4,fontFamily:font.mono}}>
+              <RotateCcw size={8}/> {t('relicCard.revived')}
             </div>
           </div>
         )}
@@ -69,33 +82,31 @@ export default function RelicCard({ relic, isSelected, onSelect, onDragStart, an
 
       {/* Meta row */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:5}}>
-        <div style={{display:'flex',alignItems:'center',gap:4,background:'rgba(91,75,255,0.15)',borderRadius:4,padding:'2px 6px',fontSize:9,fontWeight:700,letterSpacing:'0.1em',color:'#7B6FFF'}}>
-          <CategoryIcon cat={relic.category}/>{relic.category}
+        <div style={{display:'flex',alignItems:'center',gap:4,background:'rgba(93,133,168,0.12)',borderRadius:radius.chip-2,padding:'2px 6px',fontSize:9,fontWeight:500,color:color.blue300,fontFamily:font.mono,textTransform:'lowercase'}}>
+          <CategoryIcon cat={relic.category}/>{t(`relicCard.category.${relic.category}`, relic.category)}
         </div>
-        <span style={{fontSize:9,color:'#7E7EA0'}}>{relic.date}</span>
+        <span style={{fontSize:9,color:color.textSecondary,fontFamily:font.mono}}>{formatDate(relic.createdAt)}</span>
       </div>
 
       {/* Title */}
-      <div style={{fontSize:12,fontStyle:'italic',fontWeight:700,color:'#E8E8F0',marginBottom:4,lineHeight:1.35}}>
+      <div style={{fontSize:12,fontStyle:'italic',fontWeight:500,fontFamily:font.display,color:color.textPrimary,marginBottom:4,lineHeight:1.4}}>
         "{relic.title}"
       </div>
 
       {/* Description */}
-      <p style={{fontSize:10,color:'#7E7EA0',lineHeight:1.55,margin:0,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
+      <p style={{fontSize:10,color:color.textSecondary,fontFamily:font.ui,lineHeight:1.55,margin:0,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>
         {relic.description}
       </p>
 
       {/* Tags */}
       {relic.tags?.length > 0 && (
         <div style={{display:'flex',flexWrap:'wrap',gap:3,marginTop:5}}>
-          {relic.tags.slice(0,3).map(t=>(
-            <span key={t} style={{fontSize:8,fontWeight:700,letterSpacing:'0.06em',color:'#7B6FFF',background:'rgba(91,75,255,0.12)',borderRadius:99,padding:'1px 6px'}}>{t}</span>
+          {relic.tags.slice(0,3).map(tag=>(
+            <span key={tag} style={{fontSize:8,fontWeight:500,color:color.blue300,background:'rgba(93,133,168,0.1)',borderRadius:radius.pill,padding:'1px 6px',fontFamily:font.mono}}>{tag}</span>
           ))}
-          {relic.tags.length > 3 && <span style={{fontSize:8,color:'#7E7EA0',padding:'1px 0'}}>+{relic.tags.length-3}</span>}
+          {relic.tags.length > 3 && <span style={{fontSize:8,color:color.textSecondary,padding:'1px 0',fontFamily:font.mono}}>+{relic.tags.length-3}</span>}
         </div>
       )}
-
-      <style>{`@keyframes rc-fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}`}</style>
-    </div>
+    </motion.div>
   )
 }

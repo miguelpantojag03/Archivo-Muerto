@@ -3,11 +3,15 @@
 // Collapsed by default; expands on demand to avoid unnecessary API calls.
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Sparkles, ChevronDown, ChevronUp, Lightbulb, TrendingUp, Star } from 'lucide-react'
 import { useAI }     from '../hooks/useAI.js'
 import { hasAIKey }  from '../lib/aiKeyStorage.js'
+import { useTheme }  from '../context/ThemeContext.jsx'
 
 export default function AIInsightsPanel({ relics, onHighlight }) {
+  const { t } = useTranslation()
+  const { color, font } = useTheme()
   const { loading, error, archiveInsights } = useAI()
   const [insights,  setInsights]  = useState(null)
   const [expanded,  setExpanded]  = useState(false)
@@ -22,8 +26,8 @@ export default function AIInsightsPanel({ relics, onHighlight }) {
 
   return (
     <div style={{
-      borderRadius:12,border:'1px solid rgba(91,75,255,0.25)',
-      background:'rgba(91,75,255,0.05)',overflow:'hidden',
+      borderRadius:12,border:'1px solid rgba(93,133,168,0.25)',
+      background:'rgba(93,133,168,0.05)',overflow:'hidden',
       transition:'all 0.2s',
     }}>
       {/* header button */}
@@ -36,22 +40,22 @@ export default function AIInsightsPanel({ relics, onHighlight }) {
           fontFamily:'inherit',
         }}>
         <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <div style={{width:28,height:28,borderRadius:8,background:'rgba(91,75,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-            <Sparkles size={14} style={{color:'#7B6FFF',animation:loading?'am-spin 1s linear infinite':'none'}}/>
+          <div style={{width:28,height:28,borderRadius:8,background:'rgba(93,133,168,0.2)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <Sparkles size={14} style={{color:color.blue300,animation:loading?'am-spin 1s linear infinite':'none'}}/>
           </div>
           <div style={{textAlign:'left'}}>
-            <div style={{fontSize:13,fontWeight:700,color:'#E8E8F0'}}>
-              {loading ? 'Analyzing your archive…' : 'Archive Intelligence'}
+            <div style={{fontSize:13,fontWeight:700,color:color.textPrimary}}>
+              {loading ? t('ai.analyzingArchive') : t('ai.archiveIntelligence')}
             </div>
-            <div style={{fontSize:10,color:'#7E7EA0',marginTop:1}}>
-              {hasAIKey() ? 'Powered by Claude AI' : 'Smart insights · Mock mode'} · {relics.length} relics
+            <div style={{fontSize:10,color:color.textSecondary,marginTop:1}}>
+              {hasAIKey() ? t('ai.poweredByClaude') : t('ai.mockMode')} · {t('ai.relicsCount', { count: relics.length })}
             </div>
           </div>
         </div>
-        {insights && (expanded ? <ChevronUp size={15} style={{color:'#7E7EA0'}}/> : <ChevronDown size={15} style={{color:'#7E7EA0'}}/>)}
+        {insights && (expanded ? <ChevronUp size={15} style={{color:color.textSecondary}}/> : <ChevronDown size={15} style={{color:color.textSecondary}}/>)}
         {!insights && !loading && (
-          <span style={{fontSize:11,fontWeight:600,color:'#7B6FFF',background:'rgba(91,75,255,0.15)',borderRadius:99,padding:'3px 10px'}}>
-            Generate →
+          <span style={{fontSize:11,fontWeight:600,color:color.blue300,background:'rgba(93,133,168,0.15)',borderRadius:99,padding:'3px 10px'}}>
+            {t('ai.generate')}
           </span>
         )}
       </button>
@@ -59,22 +63,22 @@ export default function AIInsightsPanel({ relics, onHighlight }) {
       {/* expanded content */}
       {expanded && insights && (
         <div style={{padding:'0 16px 16px',display:'flex',flexDirection:'column',gap:12}}>
-          <div style={{height:1,background:'rgba(91,75,255,0.2)',marginBottom:2}}/>
+          <div style={{height:1,background:'rgba(93,133,168,0.2)',marginBottom:2}}/>
 
           {/* overview */}
-          <p style={{fontSize:12,color:'#C8C8E0',lineHeight:1.65,margin:0}}>{insights.overview}</p>
+          <p style={{fontSize:12,color:color.textPrimary,lineHeight:1.65,margin:0}}>{insights.overview}</p>
 
           {/* patterns */}
           {insights.patterns?.length > 0 && (
             <div>
               <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:7}}>
-                <TrendingUp size={12} style={{color:'#7B6FFF'}}/>
-                <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:'#7B6FFF'}}>PATTERNS</span>
+                <TrendingUp size={12} style={{color:color.blue300}}/>
+                <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:color.blue300}}>{t('ai.patterns').toUpperCase()}</span>
               </div>
               {insights.patterns.map((p,i)=>(
                 <div key={i} style={{display:'flex',gap:8,marginBottom:5}}>
-                  <span style={{color:'#5B4BFF',flexShrink:0,marginTop:1}}>·</span>
-                  <span style={{fontSize:11,color:'#A0A0CC',lineHeight:1.55}}>{p}</span>
+                  <span style={{color:color.blue500,flexShrink:0,marginTop:1}}>·</span>
+                  <span style={{fontSize:11,color:color.textSecondary,lineHeight:1.55}}>{p}</span>
                 </div>
               ))}
             </div>
@@ -85,7 +89,7 @@ export default function AIInsightsPanel({ relics, onHighlight }) {
             <div>
               <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:7}}>
                 <Star size={12} style={{color:'#FEBC2E'}}/>
-                <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:'#FEBC2E'}}>TOP REVIVAL CANDIDATES</span>
+                <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:'#FEBC2E'}}>{t('ai.topCandidates').toUpperCase()}</span>
               </div>
               <div style={{display:'flex',flexWrap:'wrap',gap:5}}>
                 {insights.topRevivalCandidates.map(id=>{
@@ -106,24 +110,24 @@ export default function AIInsightsPanel({ relics, onHighlight }) {
 
           {/* tip */}
           {insights.tip && (
-            <div style={{padding:'9px 12px',borderRadius:8,background:'rgba(91,75,255,0.08)',border:'1px solid rgba(91,75,255,0.2)',display:'flex',gap:8}}>
-              <Lightbulb size={13} style={{color:'#7B6FFF',flexShrink:0,marginTop:1}}/>
-              <span style={{fontSize:11,color:'#C8C8E0',lineHeight:1.6}}>{insights.tip}</span>
+            <div style={{padding:'9px 12px',borderRadius:8,background:'rgba(93,133,168,0.08)',border:'1px solid rgba(93,133,168,0.2)',display:'flex',gap:8}}>
+              <Lightbulb size={13} style={{color:color.blue300,flexShrink:0,marginTop:1}}/>
+              <span style={{fontSize:11,color:color.textPrimary,lineHeight:1.6}}>{insights.tip}</span>
             </div>
           )}
 
           {/* regenerate */}
           <button onClick={handleGenerate} disabled={loading}
-            style={{fontSize:10,color:'#7E7EA0',background:'none',border:'none',cursor:'pointer',textAlign:'left',padding:0,fontFamily:'inherit'}}
-            onMouseEnter={e=>e.currentTarget.style.color='#7B6FFF'}
-            onMouseLeave={e=>e.currentTarget.style.color='#7E7EA0'}>
-            {loading ? 'Regenerating…' : '↻ Regenerate insights'}
+            style={{fontSize:10,color:color.textSecondary,background:'none',border:'none',cursor:'pointer',textAlign:'left',padding:0,fontFamily:'inherit'}}
+            onMouseEnter={e=>e.currentTarget.style.color=color.blue300}
+            onMouseLeave={e=>e.currentTarget.style.color=color.textSecondary}>
+            {loading ? t('ai.regenerating') : `↻ ${t('ai.regenerate')}`}
           </button>
         </div>
       )}
 
       {error && expanded && (
-        <div style={{padding:'0 16px 12px',fontSize:11,color:'#E05555'}}>{error}</div>
+        <div style={{padding:'0 16px 12px',fontSize:11,color:color.terracotta500}}>{error}</div>
       )}
 
       <style>{`@keyframes am-spin{to{transform:rotate(360deg)}}`}</style>

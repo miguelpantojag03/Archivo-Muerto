@@ -3,12 +3,16 @@
 // Accepts the same file types as constants/fileTypes.js.
 
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Upload, FolderOpen } from 'lucide-react'
 import { ALLOWED_EXTENSIONS } from '../constants/fileTypes.js'
+import { useTheme } from '../context/ThemeContext.jsx'
 
 const ACCEPT = ALLOWED_EXTENSIONS.map(e => `.${e}`).join(',')
 
 export default function FileDropZone({ onFiles, disabled = false }) {
+  const { t } = useTranslation()
+  const { color, radius } = useTheme()
   const [dragOver, setDragOver] = useState(false)
   const inputRef                = useRef(null)
 
@@ -50,9 +54,9 @@ export default function FileDropZone({ onFiles, disabled = false }) {
         justifyContent: 'center',
         gap:            8,
         padding:        '18px 12px',
-        borderRadius:   10,
-        border:         `1.5px dashed ${dragOver ? '#7B6FFF' : '#2A2A48'}`,
-        background:     dragOver ? 'rgba(91,75,255,0.1)' : 'rgba(255,255,255,0.02)',
+        borderRadius:   radius.control,
+        border:         `1.5px dashed ${dragOver ? color.blue300 : color.bgBorder}`,
+        background:     dragOver ? 'rgba(93,133,168,0.1)' : 'rgba(255,255,255,0.02)',
         cursor:         disabled ? 'not-allowed' : 'pointer',
         opacity:        disabled ? 0.5 : 1,
         transition:     'border-color 0.15s, background 0.15s',
@@ -63,24 +67,24 @@ export default function FileDropZone({ onFiles, disabled = false }) {
         width:           36,
         height:          36,
         borderRadius:    '50%',
-        background:      dragOver ? 'rgba(91,75,255,0.2)' : 'rgba(91,75,255,0.1)',
+        background:      dragOver ? 'rgba(93,133,168,0.2)' : 'rgba(93,133,168,0.1)',
         display:         'flex',
         alignItems:      'center',
         justifyContent:  'center',
         transition:      'background 0.15s',
       }}>
         {dragOver
-          ? <Upload size={16} style={{ color: '#7B6FFF' }} />
-          : <FolderOpen size={16} style={{ color: '#7B6FFF' }} />
+          ? <Upload size={16} style={{ color: color.blue300 }} />
+          : <FolderOpen size={16} style={{ color: color.blue300 }} />
         }
       </div>
 
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: '#C8C8E0' }}>
-          {dragOver ? 'Drop files here' : 'Drag files here or click to browse'}
+        <div style={{ fontSize: 12, fontWeight: 600, color: color.textPrimary }}>
+          {dragOver ? t('attachments.dropHere') : t('attachments.dragOrClick')}
         </div>
-        <div style={{ fontSize: 10, color: '#7E7EA0', marginTop: 3 }}>
-          PDF, DOC, XLS, JPG, PNG, ZIP… · Max 50 MB each
+        <div style={{ fontSize: 10, color: color.textSecondary, marginTop: 3 }}>
+          {t('attachments.fileHint')}
         </div>
       </div>
 

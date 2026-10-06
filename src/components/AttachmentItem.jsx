@@ -3,34 +3,30 @@
 // Shows icon · name · size · date · actions (preview / download / delete).
 
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   FileText, Image, FileSpreadsheet, FileType2,
   Archive, Download, Trash2, Eye, ExternalLink,
 } from 'lucide-react'
 import { formatFileSize, isImage, isPDF, isText } from '../constants/fileTypes.js'
+import { useTheme } from '../context/ThemeContext.jsx'
+import { formatDate } from '../lib/formatDate.js'
 
 // ── File type icon ─────────────────────────────────────────────────
 function FileIcon({ ext, size = 18 }) {
+  const { color } = useTheme()
   const e = ext?.toLowerCase()
   if (['jpg','jpeg','png','webp','gif','svg'].includes(e))
-    return <Image size={size} style={{ color: '#7B6FFF' }} />
+    return <Image size={size} style={{ color: color.blue300 }} />
   if (e === 'pdf')
-    return <FileType2 size={size} style={{ color: '#E05555' }} />
+    return <FileType2 size={size} style={{ color: color.terracotta500 }} />
   if (['xls','xlsx','csv'].includes(e))
-    return <FileSpreadsheet size={size} style={{ color: '#4ADE80' }} />
+    return <FileSpreadsheet size={size} style={{ color: color.sage500 }} />
   if (['doc','docx','txt','md'].includes(e))
-    return <FileText size={size} style={{ color: '#60BFFF' }} />
+    return <FileText size={size} style={{ color: color.lavender500 }} />
   if (e === 'zip')
     return <Archive size={size} style={{ color: '#FEBC2E' }} />
-  return <FileText size={size} style={{ color: '#7E7EA0' }} />
-}
-
-// ── Format date for display ───────────────────────────────────────
-function fmtDate(iso) {
-  if (!iso) return ''
-  return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric', year: 'numeric',
-  })
+  return <FileText size={size} style={{ color: color.textSecondary }} />
 }
 
 export default function AttachmentItem({
@@ -39,6 +35,8 @@ export default function AttachmentItem({
   onDownload,
   onDelete,
 }) {
+  const { t } = useTranslation()
+  const { color, radius } = useTheme()
   const [hovered, setHovered] = useState(false)
   const { originalName, extension, size, createdAt } = attachment
 
@@ -53,7 +51,7 @@ export default function AttachmentItem({
         alignItems:     'center',
         gap:            10,
         padding:        '8px 10px',
-        borderRadius:   8,
+        borderRadius:   radius.control-2,
         background:     hovered ? 'rgba(255,255,255,0.04)' : 'transparent',
         transition:     'background 0.12s',
         cursor:         'default',
@@ -64,8 +62,8 @@ export default function AttachmentItem({
         width:          32,
         height:         32,
         borderRadius:   7,
-        background:     '#1A1A35',
-        border:         '1px solid #2A2A48',
+        background:     color.bgElevated,
+        border:         `1px solid ${color.bgBorder}`,
         display:        'flex',
         alignItems:     'center',
         justifyContent: 'center',
@@ -79,15 +77,15 @@ export default function AttachmentItem({
         <div style={{
           fontSize:     12,
           fontWeight:   600,
-          color:        '#E8E8F0',
+          color:        color.textPrimary,
           overflow:     'hidden',
           textOverflow: 'ellipsis',
           whiteSpace:   'nowrap',
         }}>
           {originalName}
         </div>
-        <div style={{ fontSize: 10, color: '#7E7EA0', marginTop: 2 }}>
-          {formatFileSize(size)} · {fmtDate(createdAt)}
+        <div style={{ fontSize: 10, color: color.textSecondary, marginTop: 2 }}>
+          {formatFileSize(size)} · {formatDate(createdAt)}
         </div>
       </div>
 
@@ -102,33 +100,33 @@ export default function AttachmentItem({
         {canPreview && (
           <ActionBtn
             icon={<Eye size={13} />}
-            title="Preview"
+            title={t('attachments.preview')}
             onClick={() => onPreview(attachment)}
-            color="#7B6FFF"
+            color={color.blue300}
           />
         )}
         {/* Open externally (non-previewable) */}
         {!canPreview && (
           <ActionBtn
             icon={<ExternalLink size={13} />}
-            title="Open with system app"
+            title={t('attachments.openWith')}
             onClick={() => onDownload(attachment)}
-            color="#7E7EA0"
+            color={color.textSecondary}
           />
         )}
         {/* Download */}
         <ActionBtn
           icon={<Download size={13} />}
-          title="Save as…"
+          title={t('attachments.save')}
           onClick={() => onDownload(attachment)}
-          color="#7E7EA0"
+          color={color.textSecondary}
         />
         {/* Delete */}
         <ActionBtn
           icon={<Trash2 size={13} />}
-          title="Delete attachment"
+          title={t('attachments.delete')}
           onClick={() => onDelete(attachment)}
-          color="#E05555"
+          color={color.terracotta500}
           danger
         />
       </div>
@@ -154,9 +152,9 @@ function ActionBtn({ icon, title, onClick, color, danger = false }) {
         alignItems:     'center',
         justifyContent: 'center',
         background:     hov
-          ? (danger ? 'rgba(224,85,85,0.15)' : 'rgba(255,255,255,0.08)')
+          ? (danger ? 'rgba(201,123,110,0.15)' : 'rgba(255,255,255,0.08)')
           : 'transparent',
-        color:          hov ? color : '#7E7EA0',
+        color:          hov ? color : '#949CA6',
         transition:     'background 0.12s, color 0.12s',
       }}
     >

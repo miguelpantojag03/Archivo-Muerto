@@ -1,16 +1,18 @@
 import { Search, Plus, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import { useTheme } from '../context/ThemeContext.jsx'
+import { ThemeControl, LanguageControl } from './ThemeLanguageControls.jsx'
 
-const FILTERS  = ['All', 'Visuals', 'Drafts']
-const SORT_OPT = [
-  { field:'date',     label:'Date discarded' },
-  { field:'title',    label:'Title' },
-  { field:'category', label:'Category' },
-  { field:'status',   label:'Status' },
-]
+const FILTERS  = ['all', 'visuals', 'drafts']
+const SORT_OPT = ['date', 'title', 'category', 'status']
 
 export default function TopBar({ search, setSearch, filter, setFilter, onNewRelic, sortField, sortDir, cycleSort }) {
+  const { t } = useTranslation()
+  const { color, radius, font, spring } = useTheme()
   const [sortOpen, setSortOpen] = useState(false)
+  const [focused,  setFocused]  = useState(false)
   const sortRef                 = useRef(null)
 
   useEffect(() => {
@@ -19,73 +21,111 @@ export default function TopBar({ search, setSearch, filter, setFilter, onNewReli
     return () => document.removeEventListener('mousedown', h)
   }, [])
 
-  const currentLabel = SORT_OPT.find(o => o.field === sortField)?.label ?? 'Date discarded'
+  const currentLabel = t(`topbar.sort.${sortField}`) || t('topbar.sort.date')
 
   return (
-    <div style={{
-      display:'flex',alignItems:'center',gap:10,
-      padding:'10px 20px',borderBottom:'1px solid #1E1E3A',
-      background:'#14142B',flexShrink:0,flexWrap:'wrap',
-    }}>
+    <motion.div
+      className="glass glass-blue"
+      animate={{ padding: focused ? '14px 18px' : '10px 18px' }}
+      transition={spring.tap}
+      style={{
+        display:'flex',alignItems:'center',gap:10,
+        borderRadius:radius.glass,
+        position:'sticky',top:14,zIndex:20,
+        margin:'0 20px 18px',flexWrap:'wrap',
+      }}>
       {/* Search */}
       <div style={{flex:1,minWidth:180,position:'relative'}}>
-        <Search size={13} style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',color:'#7E7EA0',pointerEvents:'none'}}/>
+        <Search size={13} style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',color:color.textSecondary,pointerEvents:'none'}}/>
         <input type="text" value={search} onChange={e=>setSearch(e.target.value)}
-          placeholder="Search your museum of ideas…"
-          style={{width:'100%',padding:'8px 12px 8px 32px',borderRadius:8,background:'#0F0F22',border:'1px solid #2A2A48',color:'#E8E8F0',fontSize:13,fontFamily:'inherit',outline:'none'}}
-          onFocus={e=>{e.target.style.borderColor='#5B4BFF';e.target.style.boxShadow='0 0 0 3px rgba(91,75,255,0.12)'}}
-          onBlur={e=>{e.target.style.borderColor='#2A2A48';e.target.style.boxShadow='none'}}/>
+          placeholder={t('topbar.searchPlaceholder')}
+          onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)}
+          style={{
+            width:'100%',padding:'8px 12px 8px 32px',borderRadius:radius.control,
+            background:'rgba(16,16,21,0.4)',border:`1px solid ${focused?color.blue500:'rgba(255,255,255,0.08)'}`,
+            boxShadow:focused?`0 0 0 3px rgba(93,133,168,0.18)`:'none',
+            color:color.textPrimary,fontSize:13,fontFamily:font.ui,outline:'none',
+            transition:'border-color 0.2s,box-shadow 0.2s',
+          }}/>
       </div>
 
       {/* Filter tabs */}
-      <div style={{display:'flex',borderRadius:8,padding:3,background:'#0F0F22',border:'1px solid #2A2A48',flexShrink:0}}>
+      <div style={{display:'flex',borderRadius:radius.control,padding:3,background:'rgba(16,16,21,0.35)',flexShrink:0}}>
         {FILTERS.map(f=>{
-          const active = filter===f.toLowerCase()
+          const active = filter===f
           return (
-            <button key={f} onClick={()=>setFilter(f.toLowerCase())}
-              style={{padding:'5px 12px',borderRadius:6,border:'none',cursor:'pointer',background:active?'#5B4BFF':'transparent',color:active?'#fff':'#7E7EA0',fontSize:12,fontWeight:500,fontFamily:'inherit',transition:'background 0.12s,color 0.12s'}}>
-              {f}
-            </button>
+            <motion.button key={f} whileTap={{scale:0.97}} onClick={()=>setFilter(f)}
+              style={{
+                padding:'5px 12px',borderRadius:radius.chip,border:'none',cursor:'pointer',
+                background:active?color.blue500:'transparent',
+                color:active?color.onPrimary:color.textSecondary,
+                fontSize:12,fontWeight:600,fontFamily:font.ui,transition:'background 0.15s,color 0.15s',
+              }}>
+              {t(`topbar.filters.${f}`)}
+            </motion.button>
           )
         })}
       </div>
 
       {/* Sort dropdown */}
       <div ref={sortRef} style={{position:'relative',flexShrink:0}}>
-        <button onClick={()=>setSortOpen(o=>!o)}
-          style={{display:'flex',alignItems:'center',gap:6,padding:'7px 12px',borderRadius:8,border:'1px solid #2A2A48',background:'#0F0F22',color:'#C8C8E0',fontSize:12,fontWeight:500,fontFamily:'inherit',cursor:'pointer',transition:'border-color 0.12s'}}
-          onMouseEnter={e=>e.currentTarget.style.borderColor='#5B4BFF'}
-          onMouseLeave={e=>{if(!sortOpen)e.currentTarget.style.borderColor='#2A2A48'}}>
+        <motion.button whileTap={{scale:0.97}} onClick={()=>setSortOpen(o=>!o)}
+          style={{
+            display:'flex',alignItems:'center',gap:6,padding:'7px 12px',borderRadius:radius.control,
+            border:`1px solid ${sortOpen?color.blue500:'rgba(255,255,255,0.08)'}`,
+            background:'rgba(16,16,21,0.35)',color:color.textPrimary,
+            fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:'pointer',transition:'border-color 0.15s',
+          }}>
           {sortDir==='asc' ? <ArrowUp size={11}/> : <ArrowDown size={11}/>}
           {currentLabel}
-          <ChevronDown size={11} style={{transform:sortOpen?'rotate(180deg)':'rotate(0)',transition:'transform 0.15s'}}/>
-        </button>
+          <motion.span animate={{rotate:sortOpen?180:0}} transition={spring.tap} style={{display:'flex'}}>
+            <ChevronDown size={11}/>
+          </motion.span>
+        </motion.button>
 
-        {sortOpen && (
-          <div style={{position:'absolute',top:'calc(100% + 6px)',right:0,background:'#1A1A35',border:'1px solid #2A2A48',borderRadius:10,padding:'4px 0',minWidth:168,zIndex:50,boxShadow:'0 8px 24px rgba(0,0,0,0.4)',animation:'tb-fade 0.12s ease'}}>
-            {SORT_OPT.map(o=>(
-              <button key={o.field}
-                onClick={()=>{cycleSort(o.field);setSortOpen(false)}}
-                style={{display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%',padding:'8px 14px',background:'none',border:'none',cursor:'pointer',color:sortField===o.field?'#7B6FFF':'#C8C8E0',fontSize:12,fontFamily:'inherit',transition:'background 0.1s'}}
-                onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.05)'}
-                onMouseLeave={e=>e.currentTarget.style.background='none'}>
-                {o.label}
-                {sortField===o.field && (sortDir==='asc' ? <ArrowUp size={11}/> : <ArrowDown size={11}/>)}
-              </button>
-            ))}
-          </div>
-        )}
+        <AnimatePresence>
+          {sortOpen && (
+            <motion.div
+              initial={{opacity:0,y:-6,scale:0.98}} animate={{opacity:1,y:0,scale:1}} exit={{opacity:0,y:-6,scale:0.98}}
+              transition={spring.tap}
+              className="glass glass-neutral"
+              style={{position:'absolute',top:'calc(100% + 8px)',right:0,borderRadius:radius.card,padding:'4px 0',minWidth:168,zIndex:50}}>
+              {SORT_OPT.map(field=>{
+                const current = sortField===field
+                return (
+                  <button key={field}
+                    onClick={()=>{cycleSort(field);setSortOpen(false)}}
+                    style={{
+                      display:'flex',alignItems:'center',justifyContent:'space-between',width:'100%',
+                      padding:'8px 14px',background:'none',border:'none',cursor:'pointer',
+                      color:current?color.blue500:color.textPrimary,fontSize:12,fontFamily:font.ui,
+                      transition:'background 0.1s',
+                    }}
+                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.05)'}
+                    onMouseLeave={e=>e.currentTarget.style.background='none'}>
+                    {t(`topbar.sort.${field}`)}
+                    {current && (sortDir==='asc' ? <ArrowUp size={11}/> : <ArrowDown size={11}/>)}
+                  </button>
+                )
+              })}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* New Relic */}
-      <button onClick={onNewRelic}
-        style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:8,border:'none',cursor:'pointer',background:'#5B4BFF',color:'white',fontSize:13,fontWeight:600,fontFamily:'inherit',flexShrink:0,transition:'background 0.12s'}}
-        onMouseEnter={e=>e.currentTarget.style.background='#4A3AEE'}
-        onMouseLeave={e=>e.currentTarget.style.background='#5B4BFF'}>
-        <Plus size={14} strokeWidth={2.5}/> New Relic
-      </button>
+      {/* Theme + language quick access */}
+      <ThemeControl/>
+      <LanguageControl/>
 
-      <style>{`@keyframes tb-fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}`}</style>
-    </div>
+      {/* New Relic */}
+      <motion.button whileTap={{scale:0.97}} onClick={onNewRelic}
+        style={{
+          display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:radius.control,
+          border:'none',cursor:'pointer',background:color.blue500,color:color.onPrimary,
+          fontSize:13,fontWeight:700,fontFamily:font.ui,flexShrink:0,
+        }}>
+        <Plus size={14} strokeWidth={2.5}/> {t('topbar.newRelic')}
+      </motion.button>
+    </motion.div>
   )
 }
