@@ -24,7 +24,8 @@ i18n.use(initReactI18next).init({
 
 export function setLanguage(lang) {
   i18n.changeLanguage(lang)
-  try { localStorage.setItem(LANG_KEY, lang) } catch {}
+  // Best-effort persistence — private browsing / storage-disabled shouldn't block language switching
+  try { localStorage.setItem(LANG_KEY, lang) } catch { /* ignored */ }
 }
 
 export default i18n

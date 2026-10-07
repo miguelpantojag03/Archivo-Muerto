@@ -38,7 +38,8 @@ export function ThemeProvider({ children }) {
 
   const setMode = useCallback((next) => {
     setModeState(next)
-    try { localStorage.setItem(THEME_KEY, next) } catch {}
+    // Best-effort persistence — private browsing / storage-disabled shouldn't block theme switching
+    try { localStorage.setItem(THEME_KEY, next) } catch { /* ignored */ }
   }, [])
 
   const value = useMemo(() => ({

@@ -9,6 +9,10 @@ export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([])
   const id = useRef(0)
 
+  const dismiss = useCallback((tid) => {
+    setToasts(prev => prev.filter(t => t.id !== tid))
+  }, [])
+
   const push = useCallback((message, type = 'info', duration = 4000) => {
     const tid = ++id.current
     setToasts(prev => [...prev, { id: tid, message, type }])
@@ -16,11 +20,7 @@ export function ToastProvider({ children }) {
       setTimeout(() => dismiss(tid), duration)
     }
     return tid
-  }, [])
-
-  const dismiss = useCallback((tid) => {
-    setToasts(prev => prev.filter(t => t.id !== tid))
-  }, [])
+  }, [dismiss])
 
   return (
     <ToastContext.Provider value={{ push, dismiss }}>

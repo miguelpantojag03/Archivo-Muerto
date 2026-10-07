@@ -66,7 +66,7 @@ function EmptyState({ onNew, hasSearch, section }) {
 export default function Dashboard() {
   const { t }              = useTranslation()
   const { color, font }    = useTheme()
-  const { user, signOut }  = useAuth()
+  const { user }           = useAuth()
   const { push }           = useToast()
   const navigate           = useNavigate()
   const { confirm, ConfirmModalUI } = useConfirm()
@@ -88,16 +88,16 @@ export default function Dashboard() {
   const [aiLoadingId,   setAiLoadingId]   = useState(null)
   const revivalZoneRef                    = useRef(null)
 
-  // Session expiry
+  // Session expiry — AuthProvider has already signed out by the time this
+  // event fires; this handler only reacts to it (toast + redirect).
   useEffect(() => {
-    async function handleExpired() {
+    function handleExpired() {
       push(t('dashboard.toast.sessionExpired'), 'error', 6000)
-      await signOut()
       navigate('/login', { replace: true })
     }
     window.addEventListener('am:session-expired', handleExpired)
     return () => window.removeEventListener('am:session-expired', handleExpired)
-  }, [signOut, navigate, push, t])
+  }, [navigate, push, t])
 
   // Drag & drop — spring-driven (framer-motion), not native HTML5 DnD
   function isOverRevivalZone(point) {
@@ -119,6 +119,15 @@ export default function Dashboard() {
     setJustRevived(true)
     setTimeout(() => setJustRevived(false), 700)
   }
+
+  // If the window loses focus mid-drag (Alt+Tab, OS stealing the pointer),
+  // framer-motion's onDragEnd never fires — without this, the Revival Zone
+  // can stay highlighted as "drag over" even though nothing is being dragged.
+  useEffect(() => {
+    function resetDragOver() { setDragOver(false) }
+    window.addEventListener('blur', resetDragOver)
+    return () => window.removeEventListener('blur', resetDragOver)
+  }, [])
 
   // Relic actions
   function handleRevive(id) { revive(id); push(t('dashboard.toast.revived'), 'success') }

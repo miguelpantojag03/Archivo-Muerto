@@ -89,35 +89,36 @@ export function useRelics(userId) {
   // CRUD
   const add = useCallback((relic) => {
     if (!userId) return
-    try {
-      const updated = addRelic(userId, relic)
-      setRelics(updated)
-      setSelectedId(relic.id)
-      return updated
-    } catch (err) { throw err }
+    const updated = addRelic(userId, relic)
+    setRelics(updated)
+    setSelectedId(relic.id)
+    return updated
   }, [userId])
 
   const update = useCallback((id, patch) => {
     if (!userId) return
-    try {
-      const updated = updateRelic(userId, id, patch)
-      setRelics(updated)
-      return updated
-    } catch (err) { throw err }
+    const updated = updateRelic(userId, id, patch)
+    setRelics(updated)
+    return updated
   }, [userId])
 
   const remove = useCallback(async (id) => {
     if (!userId) return
-    await deleteAttachmentsForRelic(id)
+    // Drop the relic record first: if the app dies right after this, the
+    // worst case is an orphaned attachment blob (harmless, invisible) —
+    // not a relic card left pointing at attachments that no longer exist.
     const updated = deleteRelic(userId, id)
     setRelics(updated)
     if (selectedId === id) setSelectedId(updated[0]?.id ?? null)
+    await deleteAttachmentsForRelic(id)
     return updated
   }, [userId, selectedId])
 
-  const revive = useCallback((id) => update(id, {
-    revived: true, status: 'revived', revivedAt: new Date().toISOString(),
-  }), [update])
+  const revive = useCallback((id) => {
+    const relic = relics.find(r => r.id === id)
+    if (relic?.revived) return relic
+    return update(id, { revived: true, status: 'revived', revivedAt: new Date().toISOString() })
+  }, [update, relics])
 
   return {
     relics, visible, selected, selectedId, setSelectedId,
