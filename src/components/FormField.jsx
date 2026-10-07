@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 // Generic text/email input with label + inline error
 export function Field({ label, error, children, hint }) {
@@ -32,7 +33,7 @@ export function Input({ register, error, ...props }) {
   const { color, radius, font } = useTheme()
   const inputBase = {
     width: '100%', padding: '9px 12px', borderRadius: radius.control,
-    background: 'rgba(14,17,20,0.04)', border: `1px solid ${color.bgBorder}`,
+    background: alpha(color.bgBase, 0.04), border: `1px solid ${color.bgBorder}`,
     color: color.textPrimary, fontSize: 13, fontFamily: font.ui, outline: 'none',
     transition: 'border-color 0.2s, box-shadow 0.2s',
   }
@@ -47,7 +48,7 @@ export function Input({ register, error, ...props }) {
       }}
       onFocus={e => {
         e.target.style.borderColor = error ? color.terracotta500 : color.blue500
-        e.target.style.boxShadow = `0 0 0 3px ${error ? 'rgba(201,123,110,0.16)' : 'rgba(93,133,168,0.18)'}`
+        e.target.style.boxShadow = `0 0 0 3px ${error ? alpha(color.terracotta500, 0.16) : alpha(color.blue500, 0.18)}`
       }}
       onBlur={e => { e.target.style.borderColor = error ? color.terracotta500 : color.bgBorder; e.target.style.boxShadow = 'none' }}
     />
@@ -59,7 +60,7 @@ export function PasswordInput({ register, error, ...props }) {
   const [show, setShow] = useState(false)
   const inputBase = {
     width: '100%', padding: '9px 12px', borderRadius: radius.control,
-    background: 'rgba(14,17,20,0.04)', border: `1px solid ${color.bgBorder}`,
+    background: alpha(color.bgBase, 0.04), border: `1px solid ${color.bgBorder}`,
     color: color.textPrimary, fontSize: 13, fontFamily: font.ui, outline: 'none',
     transition: 'border-color 0.2s, box-shadow 0.2s',
   }
@@ -77,7 +78,7 @@ export function PasswordInput({ register, error, ...props }) {
         }}
         onFocus={e => {
           e.target.style.borderColor = error ? color.terracotta500 : color.blue500
-          e.target.style.boxShadow = `0 0 0 3px ${error ? 'rgba(201,123,110,0.16)' : 'rgba(93,133,168,0.18)'}`
+          e.target.style.boxShadow = `0 0 0 3px ${error ? alpha(color.terracotta500, 0.16) : alpha(color.blue500, 0.18)}`
         }}
         onBlur={e => { e.target.style.borderColor = error ? color.terracotta500 : color.bgBorder; e.target.style.boxShadow = 'none' }}
       />
@@ -138,9 +139,9 @@ export function GlobalError({ message }) {
       aria-live="assertive"
       style={{
         padding: '8px 12px',
-        borderRadius: radius.control - 2,
-        background: 'rgba(201,123,110,0.1)',
-        border: `1px solid rgba(201,123,110,0.3)`,
+        borderRadius: radius.controlXs,
+        background: alpha(color.terracotta500, 0.1),
+        border: `1px solid ${alpha(color.terracotta500, 0.3)}`,
         color: color.terracotta300,
         fontSize: 12,
         fontFamily: font.ui,

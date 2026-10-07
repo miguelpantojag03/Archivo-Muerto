@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Sparkles, RotateCcw } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 const RevivalZone = forwardRef(function RevivalZone({ isDragOver, justRevived }, ref) {
   const { t } = useTranslation()
@@ -13,7 +14,7 @@ const RevivalZone = forwardRef(function RevivalZone({ isDragOver, justRevived },
       className="glass"
       animate={{
         scale: isDragOver ? 1.015 : 1,
-        borderColor: isDragOver ? 'rgba(169,192,210,0.7)' : 'rgba(93,133,168,0.4)',
+        borderColor: isDragOver ? alpha(color.blue300, 0.7) : alpha(color.blue500, 0.4),
       }}
       transition={spring.tap}
       style={{
@@ -21,14 +22,14 @@ const RevivalZone = forwardRef(function RevivalZone({ isDragOver, justRevived },
         display: 'flex', alignItems: 'center', gap: 14,
         padding: '12px 18px', borderRadius: radius.glass,
         borderStyle: 'dashed', borderWidth: 1.5,
-        background: isDragOver ? 'rgba(93,133,168,0.22)' : 'rgba(93,133,168,0.08)',
-        boxShadow: isDragOver ? '0 0 32px rgba(93,133,168,0.28)' : 'none',
+        background: isDragOver ? alpha(color.blue500, 0.22) : alpha(color.blue500, 0.08),
+        boxShadow: isDragOver ? `0 0 32px ${alpha(color.blue500, 0.28)}` : 'none',
         zIndex: 10,
       }}
     >
       <div style={{
         width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-        background: 'rgba(93,133,168,0.22)', border: '1px solid rgba(93,133,168,0.4)',
+        background: alpha(color.blue500, 0.22), border: `1px solid ${alpha(color.blue500, 0.4)}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <Sparkles size={16} style={{ color: color.blue300 }} />
@@ -58,7 +59,7 @@ const RevivalZone = forwardRef(function RevivalZone({ isDragOver, justRevived },
             transition={{ duration: 0.7, ease: 'easeOut' }}
             style={{
               position: 'absolute', inset: -2, borderRadius: radius.glass,
-              boxShadow: `0 0 0 3px ${color.sage500}, 0 0 40px rgba(127,179,138,0.5)`,
+              boxShadow: `0 0 0 3px ${color.sage500}, 0 0 40px ${alpha(color.sage500, 0.5)}`,
               pointerEvents: 'none',
             }}
           />

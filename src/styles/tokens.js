@@ -11,7 +11,17 @@ export const font = {
 }
 
 export const radius = {
-  chip: 6, control: 10, card: 16, glass: 24, pill: 999,
+  chipSm: 4, chip: 6, controlXs: 8, controlSm: 9, control: 10, card: 16, glass: 24, pill: 999,
+}
+
+// hex → rgba string at a given alpha, so translucent washes stay tied to the
+// active theme's brand colors instead of being hand-copied as literals
+export function alpha(hex, a) {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.slice(0, 2), 16)
+  const g = parseInt(h.slice(2, 4), 16)
+  const b = parseInt(h.slice(4, 6), 16)
+  return `rgba(${r},${g},${b},${a})`
 }
 
 // framer-motion spring presets
@@ -42,6 +52,7 @@ const dark = {
   glassHighlight:  'rgba(255,255,255,0.32)',
   glassBorder:     'rgba(255,255,255,0.06)',
   scrimBg:         'rgba(5,7,9,0.6)',
+  hoverOverlay:    'rgba(255,255,255,0.05)',
 }
 
 // ── Light — "museum by day": paper, not inverted carbon ─────────────
@@ -66,6 +77,7 @@ const light = {
   glassHighlight:  'rgba(255,255,255,0.75)',
   glassBorder:     'rgba(28,27,24,0.07)',
   scrimBg:         'rgba(100,95,85,0.25)',
+  hoverOverlay:    'rgba(28,27,24,0.05)',
 }
 
 export const palettes = { dark, light }

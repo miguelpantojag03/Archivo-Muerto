@@ -12,6 +12,7 @@ import { useAuth } from '../auth/AuthProvider.jsx'
 import { useToast } from '../components/Toast.jsx'
 import { getLoginSchema } from '../lib/validators.js'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 export default function Login() {
   const { t }      = useTranslation()
@@ -142,13 +143,13 @@ export default function Login() {
           onClick={fillDemo}
           style={{
             width: '100%', padding: '7px 0', borderRadius: radius.control,
-            background: 'rgba(93,133,168,0.08)', border: `1px solid rgba(93,133,168,0.25)`,
+            background: alpha(color.blue500, 0.08), border: `1px solid ${alpha(color.blue500, 0.25)}`,
             color: color.blue300, fontSize: 12, fontWeight: 500,
             fontFamily: font.ui, cursor: 'pointer',
             transition: 'background 0.15s',
           }}
-          onMouseEnter={e => e.currentTarget.style.background = 'rgba(93,133,168,0.15)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'rgba(93,133,168,0.08)'}
+          onMouseEnter={e => e.currentTarget.style.background = alpha(color.blue500, 0.15)}
+          onMouseLeave={e => e.currentTarget.style.background = alpha(color.blue500, 0.08)}
         >
           {t('auth.login.demoButton')}
         </button>

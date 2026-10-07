@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Sparkles } from 'lucide-react'
 import AuthLayout from '../components/AuthLayout.jsx'
 import { Field, Input, PrimaryButton, GlobalError } from '../components/FormField.jsx'
@@ -10,19 +10,16 @@ import { useAuth } from '../auth/AuthProvider.jsx'
 import { useToast } from '../components/Toast.jsx'
 import { getOnboardingSchema } from '../lib/validators.js'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 export default function Onboarding() {
   const { t }      = useTranslation()
   const { color, radius, font } = useTheme()
-  // Register now signs in BEFORE navigating here, so user is authenticated.
-  // We only need userId to setActiveProject — no password needed.
-  const { user, setActiveProject } = useAuth()
-  const { push }                   = useToast()
-  const navigate                   = useNavigate()
-  const location                   = useLocation()
-
-  // userId from state (fallback to user from context for resilience)
-  const userId = location.state?.userId ?? user?.id
+  // Register now signs in BEFORE navigating here, so AuthProvider already
+  // has the authenticated user — setActiveProject reads it internally.
+  const { setActiveProject } = useAuth()
+  const { push }             = useToast()
+  const navigate              = useNavigate()
 
   const [loading, setLoading]         = useState(false)
   const [globalError, setGlobalError] = useState('')
@@ -52,7 +49,7 @@ export default function Onboarding() {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
         <div style={{
           width: 56, height: 56, borderRadius: radius.card,
-          background: 'rgba(93,133,168,0.15)', border: '1px solid rgba(93,133,168,0.3)',
+          background: alpha(color.blue500, 0.15), border: `1px solid ${alpha(color.blue500, 0.3)}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <Sparkles size={26} style={{ color: color.blue300 }} />

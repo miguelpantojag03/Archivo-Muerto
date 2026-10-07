@@ -15,6 +15,7 @@ import FileDropZone    from './FileDropZone.jsx'
 import AttachmentItem  from './AttachmentItem.jsx'
 import ImagePreviewModal from './ImagePreviewModal.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 export default function AttachmentList({
   attachments,
@@ -58,7 +59,7 @@ export default function AttachmentList({
             fontSize:       10,
             fontWeight:     700,
             color:          color.blue300,
-            background:     'rgba(93,133,168,0.15)',
+            background:     alpha(color.blue500, 0.15),
             borderRadius:   99,
             padding:        '1px 7px',
           }}>
@@ -75,8 +76,8 @@ export default function AttachmentList({
           style={{
             padding:      '8px 12px',
             borderRadius: 7,
-            background:   'rgba(201,123,110,0.1)',
-            border:       '1px solid rgba(201,123,110,0.3)',
+            background:   alpha(color.terracotta500, 0.1),
+            border:       `1px solid ${alpha(color.terracotta500, 0.3)}`,
             fontSize:     11,
             color:        color.terracotta500,
             whiteSpace:   'pre-line',
@@ -89,7 +90,7 @@ export default function AttachmentList({
       {/* Attachment rows */}
       {attachments.length > 0 && (
         <div style={{
-          borderRadius: radius.control-1,
+          borderRadius: radius.controlSm,
           border:       `1px solid ${color.bgBorder}`,
           overflow:     'hidden',
           background:   color.bgBase,

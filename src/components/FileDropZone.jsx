@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { Upload, FolderOpen } from 'lucide-react'
 import { ALLOWED_EXTENSIONS } from '../constants/fileTypes.js'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 const ACCEPT = ALLOWED_EXTENSIONS.map(e => `.${e}`).join(',')
 
@@ -56,7 +57,7 @@ export default function FileDropZone({ onFiles, disabled = false }) {
         padding:        '18px 12px',
         borderRadius:   radius.control,
         border:         `1.5px dashed ${dragOver ? color.blue300 : color.bgBorder}`,
-        background:     dragOver ? 'rgba(93,133,168,0.1)' : 'rgba(255,255,255,0.02)',
+        background:     dragOver ? alpha(color.blue500, 0.1) : color.hoverOverlay,
         cursor:         disabled ? 'not-allowed' : 'pointer',
         opacity:        disabled ? 0.5 : 1,
         transition:     'border-color 0.15s, background 0.15s',
@@ -67,7 +68,7 @@ export default function FileDropZone({ onFiles, disabled = false }) {
         width:           36,
         height:          36,
         borderRadius:    '50%',
-        background:      dragOver ? 'rgba(93,133,168,0.2)' : 'rgba(93,133,168,0.1)',
+        background:      dragOver ? alpha(color.blue500, 0.2) : alpha(color.blue500, 0.1),
         display:         'flex',
         alignItems:      'center',
         justifyContent:  'center',

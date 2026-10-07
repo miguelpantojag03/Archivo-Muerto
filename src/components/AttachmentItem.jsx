@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { formatFileSize, isImage, isPDF, isText } from '../constants/fileTypes.js'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 import { formatDate } from '../lib/formatDate.js'
 
 // ── File type icon ─────────────────────────────────────────────────
@@ -51,8 +52,8 @@ export default function AttachmentItem({
         alignItems:     'center',
         gap:            10,
         padding:        '8px 10px',
-        borderRadius:   radius.control-2,
-        background:     hovered ? 'rgba(255,255,255,0.04)' : 'transparent',
+        borderRadius:   radius.controlXs,
+        background:     hovered ? color.hoverOverlay : 'transparent',
         transition:     'background 0.12s',
         cursor:         'default',
       }}
@@ -135,6 +136,7 @@ export default function AttachmentItem({
 }
 
 function ActionBtn({ icon, title, onClick, color, danger = false }) {
+  const { color: theme } = useTheme()
   const [hov, setHov] = useState(false)
   return (
     <button
@@ -152,9 +154,9 @@ function ActionBtn({ icon, title, onClick, color, danger = false }) {
         alignItems:     'center',
         justifyContent: 'center',
         background:     hov
-          ? (danger ? 'rgba(201,123,110,0.15)' : 'rgba(255,255,255,0.08)')
+          ? (danger ? alpha(theme.terracotta500, 0.15) : theme.hoverOverlay)
           : 'transparent',
-        color:          hov ? color : '#949CA6',
+        color:          hov ? color : theme.textSecondary,
         transition:     'background 0.12s, color 0.12s',
       }}
     >

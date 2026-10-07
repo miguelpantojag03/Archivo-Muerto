@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 // Abstract night-museum atmosphere: fog, a moonlight glow, and a few
 // blurred silhouettes suggesting distant vitrines — never literal icons.
@@ -11,14 +12,14 @@ function Atmosphere() {
       <div style={{
         position: 'absolute', top: '-10%', left: '8%', width: '55%', height: '70%',
         background: dark
-          ? `radial-gradient(ellipse at center, rgba(93,133,168,0.16) 0%, transparent 65%)`
-          : `radial-gradient(ellipse at center, rgba(61,107,136,0.10) 0%, transparent 65%)`,
+          ? `radial-gradient(ellipse at center, ${alpha(color.blue500, 0.16)} 0%, transparent 65%)`
+          : `radial-gradient(ellipse at center, ${alpha(color.blue500, 0.10)} 0%, transparent 65%)`,
       }} />
       <div style={{
         position: 'absolute', bottom: '-15%', right: '5%', width: '50%', height: '60%',
         background: dark
-          ? `radial-gradient(ellipse at center, rgba(152,147,168,0.12) 0%, transparent 65%)`
-          : `radial-gradient(ellipse at center, rgba(95,90,116,0.08) 0%, transparent 65%)`,
+          ? `radial-gradient(ellipse at center, ${alpha(color.lavender500, 0.12)} 0%, transparent 65%)`
+          : `radial-gradient(ellipse at center, ${alpha(color.lavender500, 0.08)} 0%, transparent 65%)`,
       }} />
       {/* distant silhouettes */}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '38%', display: 'flex', alignItems: 'flex-end', gap: 38, padding: '0 6%', filter: 'blur(3px)' }}>

@@ -12,6 +12,7 @@ import { AlertTriangle, Info } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 // ── Hook ──────────────────────────────────────────────────────────
 export function useConfirm() {
@@ -55,7 +56,7 @@ function ConfirmModal({ title, message, danger, confirmLabel, cancelLabel, onCon
         onClick={e => { if (e.target === e.currentTarget) onCancel() }}
         style={{
           position: 'fixed', inset: 0, zIndex: 400,
-          background: 'rgba(5,7,9,0.6)', backdropFilter: 'blur(3px)',
+          background: color.scrimBg, backdropFilter: 'blur(3px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           padding: 24,
         }}
@@ -74,8 +75,8 @@ function ConfirmModal({ title, message, danger, confirmLabel, cancelLabel, onCon
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
             <div style={{
               width: 38, height: 38, borderRadius: radius.control, flexShrink: 0,
-              background: danger ? 'rgba(201,123,110,0.12)' : 'rgba(93,133,168,0.12)',
-              border: `1px solid ${danger ? 'rgba(201,123,110,0.3)' : 'rgba(93,133,168,0.3)'}`,
+              background: danger ? alpha(color.terracotta500, 0.12) : alpha(color.blue500, 0.12),
+              border: `1px solid ${danger ? alpha(color.terracotta500, 0.3) : alpha(color.blue500, 0.3)}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <Icon size={18} style={{ color: danger ? color.terracotta500 : color.blue300 }} />

@@ -68,7 +68,7 @@ export default function UserMenu({ user, onOpenSettings }) {
                 : (
                   <button key={i} onClick={item.action}
                     style={{display:'flex',alignItems:'center',gap:9,width:'100%',padding:'8px 14px',background:'none',border:'none',cursor:'pointer',color:item.color,fontSize:13,fontFamily:font.ui,transition:'background 0.1s'}}
-                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.05)'}
+                    onMouseEnter={e=>e.currentTarget.style.background=color.hoverOverlay}
                     onMouseLeave={e=>e.currentTarget.style.background='none'}>
                     {item.icon}{item.label}
                   </button>

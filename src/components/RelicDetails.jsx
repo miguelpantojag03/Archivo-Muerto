@@ -4,11 +4,12 @@ import {
   RotateCcw, Trash2, Pencil, Paperclip, Expand,
   Image as ImageIcon, Sparkles, X,
 } from 'lucide-react'
-import { ParchmentImage, getThumbnail } from './Thumbnails.jsx'
+import { getThumbnail } from './Thumbnails.jsx'
 import { useAttachments }  from '../hooks/useAttachments.js'
 import { useAuth }         from '../auth/AuthProvider.jsx'
 import { isImage }         from '../constants/fileTypes.js'
 import { useTheme }        from '../context/ThemeContext.jsx'
+import { alpha }           from '../styles/tokens.js'
 import { formatDate }      from '../lib/formatDate.js'
 
 /* ─── full-screen image viewer ────────────────────────────────────── */
@@ -31,7 +32,7 @@ function ImageViewer({ src, title, onClose }) {
         color: danger ? color.terracotta500 : color.textPrimary, padding: 6, borderRadius: 6,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}
-      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+      onMouseEnter={e => e.currentTarget.style.background = color.hoverOverlay}
       onMouseLeave={e => e.currentTarget.style.background = 'none'}
     >{label === t('imageViewer.close') ? <X size={16}/> : label === t('imageViewer.rotate') ? <span style={{fontSize:13}}>↻</span> : label === '+' ? <span style={{fontSize:16}}>+</span> : <span style={{fontSize:16}}>−</span>}</button>
   )
@@ -45,18 +46,18 @@ function ImageViewer({ src, title, onClose }) {
       }}>
       {/* toolbar */}
       <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:12,width:'100%',maxWidth:800,justifyContent:'space-between'}}>
-        <span style={{fontSize:13,color:'#ECEEF0',fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{title}</span>
+        <span style={{fontSize:13,color:color.textPrimary,fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'60%'}}>{title}</span>
         <div style={{display:'flex',gap:2,alignItems:'center'}}>
           {btn('−',()=>setZoom(z=>Math.max(0.25,+(z-0.25).toFixed(2))))}
-          <span style={{fontSize:11,color:'#949CA6',minWidth:38,textAlign:'center'}}>{Math.round(zoom*100)}%</span>
+          <span style={{fontSize:11,color:color.textSecondary,minWidth:38,textAlign:'center'}}>{Math.round(zoom*100)}%</span>
           {btn('+',()=>setZoom(z=>Math.min(5,+(z+0.25).toFixed(2))))}
           {btn(t('imageViewer.rotate'),()=>setRot(r=>(r+90)%360))}
-          <div style={{width:1,height:20,background:'#26323C',margin:'0 4px'}}/>
+          <div style={{width:1,height:20,background:color.bgBorder,margin:'0 4px'}}/>
           {btn(t('imageViewer.close'),onClose,true)}
         </div>
       </div>
       {/* image */}
-      <div style={{width:'100%',maxWidth:800,flex:1,maxHeight:'calc(100vh-120px)',borderRadius:12,overflow:'auto',display:'flex',alignItems:'center',justifyContent:'center',background:'#0E1114',border:'1px solid #26323C'}}>
+      <div style={{width:'100%',maxWidth:800,flex:1,maxHeight:'calc(100vh-120px)',borderRadius:12,overflow:'auto',display:'flex',alignItems:'center',justifyContent:'center',background:color.bgBase,border:`1px solid ${color.bgBorder}`}}>
         <img src={src} alt={title} style={{maxWidth:'100%',maxHeight:'100%',objectFit:'contain',transform:`scale(${zoom}) rotate(${rot}deg)`,transformOrigin:'center',transition:'transform 0.2s ease',userSelect:'none'}} draggable={false}/>
       </div>
     </div>
@@ -107,13 +108,13 @@ function AIAnalysisBlock({ analysis, loading, onRequest }) {
   const { t } = useTranslation()
   const { color } = useTheme()
   if (loading) return (
-    <div style={{padding:'10px 12px',borderRadius:8,background:'rgba(93,133,168,0.08)',border:'1px solid rgba(93,133,168,0.2)',fontSize:11,color:color.blue300,display:'flex',alignItems:'center',gap:8}}>
+    <div style={{padding:'10px 12px',borderRadius:8,background:alpha(color.blue500, 0.08),border:`1px solid ${alpha(color.blue500, 0.2)}`,fontSize:11,color:color.blue300,display:'flex',alignItems:'center',gap:8}}>
       <Sparkles size={12} style={{animation:'am-spin 1s linear infinite'}}/>
       {t('relicDetails.aiAnalyzing')}
     </div>
   )
   if (analysis) return (
-    <div style={{padding:'10px 12px',borderRadius:8,background:'rgba(93,133,168,0.08)',border:'1px solid rgba(93,133,168,0.2)'}}>
+    <div style={{padding:'10px 12px',borderRadius:8,background:alpha(color.blue500, 0.08),border:`1px solid ${alpha(color.blue500, 0.2)}`}}>
       <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:6}}>
         <Sparkles size={11} style={{color:color.blue300}}/>
         <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:color.blue300}}>{t('relicDetails.aiAnalysisLabel').toUpperCase()}</span>
@@ -124,13 +125,13 @@ function AIAnalysisBlock({ analysis, loading, onRequest }) {
   return (
     <button onClick={onRequest}
       style={{
-        width:'100%',padding:'8px 0',borderRadius:8,border:'1px dashed rgba(93,133,168,0.4)',
+        width:'100%',padding:'8px 0',borderRadius:8,border:`1px dashed ${alpha(color.blue500, 0.4)}`,
         background:'transparent',color:color.blue300,fontSize:12,fontWeight:600,
         fontFamily:'inherit',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6,
         transition:'background 0.12s,border-color 0.12s',
       }}
-      onMouseEnter={e=>{e.currentTarget.style.background='rgba(93,133,168,0.08)';e.currentTarget.style.borderColor=color.blue300}}
-      onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor='rgba(93,133,168,0.4)'}}>
+      onMouseEnter={e=>{e.currentTarget.style.background=alpha(color.blue500, 0.08);e.currentTarget.style.borderColor=color.blue300}}
+      onMouseLeave={e=>{e.currentTarget.style.background='transparent';e.currentTarget.style.borderColor=alpha(color.blue500, 0.4)}}>
       <Sparkles size={13}/> {t('relicDetails.aiAnalyzeButton')}
     </button>
   )
@@ -139,7 +140,7 @@ function AIAnalysisBlock({ analysis, loading, onRequest }) {
 /* ─── main component ──────────────────────────────────────────────── */
 export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnalyze, aiAnalysis, aiLoading }) {
   const { t } = useTranslation()
-  const { color, radius, font } = useTheme()
+  const { color, font } = useTheme()
   const { user } = useAuth()
   const { attachments, getPreviewURL } = useAttachments(relic?.id ?? null, user?.id)
 
@@ -205,7 +206,7 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
                   onMouseEnter={e=>e.currentTarget.style.background='rgba(0,0,0,0.35)'}
                   onMouseLeave={e=>e.currentTarget.style.background='rgba(0,0,0,0)'}
                 >
-                  <div style={{background:'rgba(93,133,168,0.85)',borderRadius:6,padding:'3px 8px',display:'flex',alignItems:'center',gap:5,fontSize:10,color:'white',fontWeight:600}}>
+                  <div style={{background:alpha(color.blue500, 0.85),borderRadius:6,padding:'3px 8px',display:'flex',alignItems:'center',gap:5,fontSize:10,color:'white',fontWeight:600}}>
                     <Expand size={10}/> {t('relicDetails.viewOverlay')}
                   </div>
                 </div>
@@ -235,7 +236,7 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
           {relic.tags?.length > 0 && (
             <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
               {relic.tags.map(tag=>(
-                <span key={tag} style={{fontSize:9,fontWeight:700,letterSpacing:'0.08em',color:color.blue300,background:'rgba(93,133,168,0.15)',borderRadius:99,padding:'2px 8px'}}>
+                <span key={tag} style={{fontSize:9,fontWeight:700,letterSpacing:'0.08em',color:color.blue300,background:alpha(color.blue500, 0.15),borderRadius:99,padding:'2px 8px'}}>
                   {tag}
                 </span>
               ))}
@@ -248,7 +249,7 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
               <div style={{display:'flex',alignItems:'center',gap:6}}>
                 <ImageIcon size={12} style={{color:color.blue300}}/>
                 <span style={{fontSize:11,fontWeight:700,color:color.textPrimary}}>{t('relicDetails.images')}</span>
-                <span style={{fontSize:10,fontWeight:700,color:color.blue300,background:'rgba(93,133,168,0.15)',borderRadius:99,padding:'1px 7px'}}>{imageAtts.length}</span>
+                <span style={{fontSize:10,fontWeight:700,color:color.blue300,background:alpha(color.blue500, 0.15),borderRadius:99,padding:'1px 7px'}}>{imageAtts.length}</span>
               </div>
               <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
                 {visibleImg.map(att=>(
@@ -267,7 +268,7 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
 
           {/* attachments badge */}
           {totalAtts > 0 && (
-            <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 10px',borderRadius:7,background:'rgba(93,133,168,0.1)',border:'1px solid rgba(93,133,168,0.2)'}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 10px',borderRadius:7,background:alpha(color.blue500, 0.1),border:`1px solid ${alpha(color.blue500, 0.2)}`}}>
               <Paperclip size={12} style={{color:color.blue300}}/>
               <span style={{fontSize:11,color:color.blue300,fontWeight:600}}>{t('relicDetails.filesAttached', { count: totalAtts })}</span>
             </div>

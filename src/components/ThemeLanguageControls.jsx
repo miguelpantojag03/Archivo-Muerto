@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { Sun, Moon, MonitorSmartphone, Languages } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 import { setLanguage } from '../i18n/index.js'
 
 const THEME_ICONS = { light: Sun, dark: Moon, auto: MonitorSmartphone }
@@ -27,8 +28,8 @@ function IconDropdown({ icon: Icon, current, options, renderLabel, onPick, align
         style={{
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           width: 32, height: 32, borderRadius: radius.control,
-          border: `1px solid ${open ? color.blue500 : 'rgba(255,255,255,0.08)'}`,
-          background: 'rgba(16,16,21,0.35)', color: color.textPrimary, cursor: 'pointer',
+          border: `1px solid ${open ? color.blue500 : color.bgBorder}`,
+          background: alpha(color.bgBase, 0.35), color: color.textPrimary, cursor: 'pointer',
         }}>
         <Icon size={14} />
       </motion.button>
@@ -53,7 +54,7 @@ function IconDropdown({ icon: Icon, current, options, renderLabel, onPick, align
                     padding: '8px 14px', background: 'none', border: 'none', cursor: 'pointer',
                     color: active ? color.blue500 : color.textPrimary, fontSize: 12, fontFamily: font.ui,
                   }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseEnter={e => e.currentTarget.style.background = color.hoverOverlay}
                   onMouseLeave={e => e.currentTarget.style.background = 'none'}>
                   {renderLabel(opt)}
                 </button>

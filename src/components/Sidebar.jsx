@@ -2,6 +2,7 @@ import { Image, Clock, Trash2, RotateCcw } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import UserMenu from './UserMenu.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 
 const NAV = [
   { id: 'gallery',  Icon: Image },
@@ -44,12 +45,12 @@ export default function Sidebar({ user, activeSection, onSection, onOpenSettings
               style={{
                 display:'flex',alignItems:'center',gap:10,padding:'7px 12px',borderRadius:radius.control,border:'none',
                 cursor:disabled?'not-allowed':'pointer',
-                background:active?'rgba(93,133,168,0.18)':'transparent',
+                background:active?alpha(color.blue500, 0.18):'transparent',
                 color:active?color.blue300:disabled?color.textTertiary:color.textSecondary,
                 fontSize:13,fontWeight:active?600:400,fontFamily:font.ui,textAlign:'left',width:'100%',
                 opacity:disabled?0.5:1,transition:'background 0.12s,color 0.12s',
               }}
-              onMouseEnter={e=>{if(!active&&!disabled){e.currentTarget.style.background='rgba(255,255,255,0.04)';e.currentTarget.style.color=color.textPrimary}}}
+              onMouseEnter={e=>{if(!active&&!disabled){e.currentTarget.style.background=color.hoverOverlay;e.currentTarget.style.color=color.textPrimary}}}
               onMouseLeave={e=>{if(!active&&!disabled){e.currentTarget.style.background='transparent';e.currentTarget.style.color=color.textSecondary}}}>
               <Icon size={15} strokeWidth={active?2.5:1.8}/>
               {label}

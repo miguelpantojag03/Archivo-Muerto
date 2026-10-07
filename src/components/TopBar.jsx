@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 import { ThemeControl, LanguageControl } from './ThemeLanguageControls.jsx'
 
 const FILTERS  = ['all', 'visuals', 'drafts']
@@ -42,15 +43,15 @@ export default function TopBar({ search, setSearch, filter, setFilter, onNewReli
           onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)}
           style={{
             width:'100%',padding:'8px 12px 8px 32px',borderRadius:radius.control,
-            background:'rgba(16,16,21,0.4)',border:`1px solid ${focused?color.blue500:'rgba(255,255,255,0.08)'}`,
-            boxShadow:focused?`0 0 0 3px rgba(93,133,168,0.18)`:'none',
+            background:alpha(color.bgBase, 0.4),border:`1px solid ${focused?color.blue500:color.bgBorder}`,
+            boxShadow:focused?`0 0 0 3px ${alpha(color.blue500, 0.18)}`:'none',
             color:color.textPrimary,fontSize:13,fontFamily:font.ui,outline:'none',
             transition:'border-color 0.2s,box-shadow 0.2s',
           }}/>
       </div>
 
       {/* Filter tabs */}
-      <div style={{display:'flex',borderRadius:radius.control,padding:3,background:'rgba(16,16,21,0.35)',flexShrink:0}}>
+      <div style={{display:'flex',borderRadius:radius.control,padding:3,background:alpha(color.bgBase, 0.35),flexShrink:0}}>
         {FILTERS.map(f=>{
           const active = filter===f
           return (
@@ -72,8 +73,8 @@ export default function TopBar({ search, setSearch, filter, setFilter, onNewReli
         <motion.button whileTap={{scale:0.97}} onClick={()=>setSortOpen(o=>!o)}
           style={{
             display:'flex',alignItems:'center',gap:6,padding:'7px 12px',borderRadius:radius.control,
-            border:`1px solid ${sortOpen?color.blue500:'rgba(255,255,255,0.08)'}`,
-            background:'rgba(16,16,21,0.35)',color:color.textPrimary,
+            border:`1px solid ${sortOpen?color.blue500:color.bgBorder}`,
+            background:alpha(color.bgBase, 0.35),color:color.textPrimary,
             fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:'pointer',transition:'border-color 0.15s',
           }}>
           {sortDir==='asc' ? <ArrowUp size={11}/> : <ArrowDown size={11}/>}
@@ -101,7 +102,7 @@ export default function TopBar({ search, setSearch, filter, setFilter, onNewReli
                       color:current?color.blue500:color.textPrimary,fontSize:12,fontFamily:font.ui,
                       transition:'background 0.1s',
                     }}
-                    onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.05)'}
+                    onMouseEnter={e=>e.currentTarget.style.background=color.hoverOverlay}
                     onMouseLeave={e=>e.currentTarget.style.background='none'}>
                     {t(`topbar.sort.${field}`)}
                     {current && (sortDir==='asc' ? <ArrowUp size={11}/> : <ArrowDown size={11}/>)}
