@@ -65,8 +65,34 @@ Dashboard (Sidebar)
   │  UserMenu desplegable: Profile · Settings · Sign out
   │  Click "Sign out"  →  signOut() limpia localStorage/sessionStorage
   ▼
-/login  (+ toast "Signed out.")
+/login  (+ toast de confirmación, traducido vía i18next)
 ```
+
+### 4b. Settings — ya no es no-op
+
+```
+Dashboard (Sidebar) → ⚙ → "Settings"
+  ▼
+SettingsModal: idioma (es/en) · tema (claro/oscuro/automático) · clave de API de IA · exportar datos
+  │  Cambios se aplican en vivo y persisten en localStorage
+  ▼
+Cierra el modal, el Dashboard ya refleja el nuevo idioma/tema
+```
+
+### 4c. Cerrar la ventana con cambios sin guardar
+
+```
+Usuario tiene "Nueva Reliquia" o "Editar Reliquia" abierto con texto escrito
+  │  Intenta cerrar la ventana nativa (✕, Alt+F4, etc.)
+  ▼
+onCloseRequested (Tauri) detecta cambios sin guardar vía windowCloseGuard.js
+  ▼
+Diálogo de confirmación del sistema: "Tienes cambios sin guardar..."
+  ├── Cancelar  →  la ventana no se cierra, el modal sigue abierto
+  └── Cerrar de todos modos  →  la app se cierra, los cambios se pierden
+```
+
+> Solo corre dentro del shell de Tauri (`npm run tauri dev`/`build`) — en el navegador plano (`npm run dev`) no hace nada.
 
 ### 5. Sesión expirada (7 días)
 
@@ -142,7 +168,7 @@ Redirige a /app  (sin pasar por el formulario)
     │
     └── Sidebar: ⚙ → UserMenu
                        ├── Profile   (no-op en demo)
-                       ├── Settings  (no-op en demo)
+                       ├── Settings  → idioma · tema · clave de IA · exportar
                        └── Sign out ─────────────────► /login
 ```
 
