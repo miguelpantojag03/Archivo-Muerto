@@ -164,15 +164,16 @@ export function Divider({ label }) {
   )
 }
 
-export function Spinner() {
+export function Spinner({ color: strokeColor } = {}) {
   const { color } = useTheme()
+  const stroke = strokeColor ?? color.onPrimary // default matches PrimaryButton's filled background
   return (
     <svg
       width="15" height="15" viewBox="0 0 24 24" fill="none"
       style={{ animation: 'am-spin 0.75s linear infinite' }}
     >
-      <circle cx="12" cy="12" r="10" stroke={color.onPrimary} strokeOpacity="0.3" strokeWidth="3" />
-      <path d="M12 2a10 10 0 0 1 10 10" stroke={color.onPrimary} strokeWidth="3" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="10" stroke={stroke} strokeOpacity="0.3" strokeWidth="3" />
+      <path d="M12 2a10 10 0 0 1 10 10" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
       <style>{`@keyframes am-spin { to { transform: rotate(360deg); } }`}</style>
     </svg>
   )

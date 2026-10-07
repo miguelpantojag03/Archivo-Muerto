@@ -106,6 +106,38 @@ const MockAuthService = {
     return user
   },
 
+  // profile comes from googleOAuth.js's getGoogleProfile() — Google only
+  // confirms identity here, this just finds-or-creates the matching local
+  // account exactly like any password account, keyed by the same email.
+  async signInWithGoogle(profile) {
+    await _demoInit
+    const users = storageGetLocal(USERS_KEY) || {}
+    const key   = profile.email.toLowerCase()
+    let record  = users[key]
+    if (!record) {
+      record = {
+        id:                    `user_google_${profile.sub}`,
+        email:                 key,
+        fullName:              profile.name,
+        plan:                  'Free Plan',
+        avatarInitials:        makeInitials(profile.name),
+        activeProject:         '',
+        activeProjectInitials: '',
+        provider:              'google', // no passwordHash/__hashVersion — doesn't sign in by password
+      }
+      users[key] = record
+      storageSetLocal(USERS_KEY, users)
+    }
+    // If an account with this email already exists (e.g. created with a
+    // password earlier), sign into that same account — email is already
+    // the de facto unique identity key in this system.
+    const { passwordHash: _, __hashVersion: __, ...user } = record
+    const session = makeSession(user, true) // persistent — no "remember me" concept in OAuth
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+    notifyListeners(session)
+    return session
+  },
+
   async signOut() {
     await delay(150)
     localStorage.removeItem(SESSION_KEY)

@@ -34,12 +34,16 @@
       "submitting": "Entrando…",
       "or": "o",
       "googleButton": "Continuar con Google",
-      "googleUnavailable": "El inicio con Google no está disponible en esta demo.",
+      "googleButtonLoading": "Esperando a Google…",
       "demoButton": "Usar cuenta de demostración",
       "noAccount": "¿Primera vez aquí?",
       "createAccount": "Crea una cuenta",
       "welcomeToast": "El archivo te ha dejado entrar.",
-      "errorInvalidCredentials": "Correo o contraseña incorrectos."
+      "errorInvalidCredentials": "Correo o contraseña incorrectos.",
+      "googleErrorDenied": "Cancelaste el acceso con Google.",
+      "googleErrorTimeout": "Se agotó el tiempo esperando a Google. Intentá de nuevo.",
+      "googleErrorNetwork": "No se pudo conectar con Google. Revisá tu conexión.",
+      "googleErrorGeneric": "No se pudo iniciar sesión con Google. Intentá de nuevo."
     },
     "register": {
       "title": "Crea tu archivo",

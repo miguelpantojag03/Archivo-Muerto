@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react'
 import MockAuthService from './MockAuthService.js'
+import { getGoogleProfile } from './googleOAuth.js'
 
 // Swap MockAuthService for SupabaseAuthService / FirebaseAuthService here
 const authService = MockAuthService
@@ -61,6 +62,11 @@ export function AuthProvider({ children }) {
   const signUp = useCallback((email, password, fullName) =>
     authService.signUp(email, password, fullName), [])
 
+  const signInWithGoogle = useCallback(async () => {
+    const profile = await getGoogleProfile()
+    return authService.signInWithGoogle(profile)
+  }, [])
+
   const signOut      = doSignOut
   const resetPassword = useCallback(email => authService.resetPassword(email), [])
 
@@ -70,7 +76,7 @@ export function AuthProvider({ children }) {
   }, [user])
 
   return (
-    <AuthContext.Provider value={{ user, status, signIn, signUp, signOut, resetPassword, setActiveProject }}>
+    <AuthContext.Provider value={{ user, status, signIn, signUp, signInWithGoogle, signOut, resetPassword, setActiveProject }}>
       {children}
     </AuthContext.Provider>
   )

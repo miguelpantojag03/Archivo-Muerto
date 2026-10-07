@@ -12,6 +12,10 @@
     { "identifier": "fs:allow-write-file", "allow": [{ "path": "$APPLOCALDATA/**" }] },
     { "identifier": "fs:allow-mkdir",      "allow": [{ "path": "$APPLOCALDATA/**" }] },
     { "identifier": "fs:allow-remove",     "allow": [{ "path": "$APPLOCALDATA/**" }] },
-    { "identifier": "fs:allow-exists",     "allow": [{ "path": "$APPLOCALDATA/**" }] }
+    { "identifier": "fs:allow-exists",     "allow": [{ "path": "$APPLOCALDATA/**" }] },
+    "opener:allow-open-url",
+    "oauth:allow-start",
+    "oauth:allow-cancel",
+    { "identifier": "http:default", "allow": [{ "url": "https://oauth2.googleapis.com/token" }] }
   ]
 }

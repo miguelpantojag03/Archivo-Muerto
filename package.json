@@ -23,9 +23,12 @@
     "vite": "^8.3.0"
   },
   "dependencies": {
+    "@fabianlars/tauri-plugin-oauth": "^2.1.0",
     "@hookform/resolvers": "^5.9.1",
     "@tauri-apps/api": "^2.12.1",
     "@tauri-apps/plugin-fs": "^2.5.0",
+    "@tauri-apps/plugin-http": "^2.5.0",
+    "@tauri-apps/plugin-opener": "^2.5.0",
     "@tauri-apps/plugin-sql": "^2.5.0",
     "framer-motion": "^14.0.0",
     "i18next": "^26.4.2",

@@ -34,12 +34,16 @@
       "submitting": "Signing in…",
       "or": "or",
       "googleButton": "Continue with Google",
-      "googleUnavailable": "Google sign-in is not available in the demo.",
+      "googleButtonLoading": "Waiting for Google…",
       "demoButton": "Use demo account",
       "noAccount": "New here?",
       "createAccount": "Create an account",
       "welcomeToast": "The archive let you in.",
-      "errorInvalidCredentials": "Invalid email or password."
+      "errorInvalidCredentials": "Invalid email or password.",
+      "googleErrorDenied": "You cancelled the Google sign-in.",
+      "googleErrorTimeout": "Timed out waiting for Google. Please try again.",
+      "googleErrorNetwork": "Could not reach Google. Check your connection.",
+      "googleErrorGeneric": "Could not sign in with Google. Please try again."
     },
     "register": {
       "title": "Create your archive",
