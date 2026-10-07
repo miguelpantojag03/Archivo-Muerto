@@ -5,6 +5,7 @@ import { RotateCcw, PenLine, FileText, Palette, Tag, StickyNote, Paperclip } fro
 import { getThumbnail } from './Thumbnails.jsx'
 import { countAttachments } from '../lib/attachmentStorage.js'
 import { useTheme } from '../context/ThemeContext.jsx'
+import { alpha } from '../styles/tokens.js'
 import { formatDate } from '../lib/formatDate.js'
 
 function CategoryIcon({ cat }) {
@@ -35,10 +36,17 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
       dragSnapToOrigin
       dragElastic={0.12}
       dragMomentum={false}
-      whileDrag={{ scale: 1.05, zIndex: 50, boxShadow: '0 24px 56px -14px rgba(93,133,168,0.45)' }}
+      whileDrag={{ scale: 1.05, zIndex: 50, boxShadow: `0 24px 56px -14px ${alpha(color.blue500, 0.45)}` }}
       onDrag={(e, info) => onCardDrag?.(relic.id, info)}
       onDragEnd={(e, info) => onCardDragEnd?.(relic.id, info)}
       onClick={() => onSelect(relic.id)}
+      tabIndex={0}
+      role="button"
+      aria-pressed={isSelected}
+      aria-label={relic.title}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(relic.id) }
+      }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.88, transition: spring.tap }}
@@ -47,7 +55,7 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
         borderRadius:radius.card, padding:10, cursor:'pointer',
         background:color.bgElevated,
         border: isSelected ? `1.5px solid ${color.blue500}` : `1px solid ${color.bgBorder}`,
-        boxShadow: isSelected ? `0 0 0 3px rgba(93,133,168,0.18),0 4px 24px rgba(93,133,168,0.10)` : 'none',
+        boxShadow: isSelected ? `0 0 0 3px ${alpha(color.blue500, 0.18)},0 4px 24px ${alpha(color.blue500, 0.10)}` : 'none',
         opacity: isSelected ? 1 : 0.72,
         userSelect:'none',
       }}
@@ -72,7 +80,7 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
 
         {/* Revived overlay */}
         {relic.revived && (
-          <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(93,133,168,0.18)'}}>
+          <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:alpha(color.blue500, 0.18)}}>
             <div style={{background:color.blue500,borderRadius:radius.chip,padding:'2px 8px',fontSize:9,fontWeight:600,color:color.onPrimary,display:'flex',alignItems:'center',gap:4,fontFamily:font.mono}}>
               <RotateCcw size={8}/> {t('relicCard.revived')}
             </div>
@@ -82,7 +90,7 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
 
       {/* Meta row */}
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:5}}>
-        <div style={{display:'flex',alignItems:'center',gap:4,background:'rgba(93,133,168,0.12)',borderRadius:radius.chip-2,padding:'2px 6px',fontSize:9,fontWeight:500,color:color.blue300,fontFamily:font.mono,textTransform:'lowercase'}}>
+        <div style={{display:'flex',alignItems:'center',gap:4,background:alpha(color.blue500, 0.12),borderRadius:radius.chipSm,padding:'2px 6px',fontSize:9,fontWeight:500,color:color.blue300,fontFamily:font.mono,textTransform:'lowercase'}}>
           <CategoryIcon cat={relic.category}/>{t(`relicCard.category.${relic.category}`, relic.category)}
         </div>
         <span style={{fontSize:9,color:color.textSecondary,fontFamily:font.mono}}>{formatDate(relic.createdAt)}</span>
@@ -102,7 +110,7 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
       {relic.tags?.length > 0 && (
         <div style={{display:'flex',flexWrap:'wrap',gap:3,marginTop:5}}>
           {relic.tags.slice(0,3).map(tag=>(
-            <span key={tag} style={{fontSize:8,fontWeight:500,color:color.blue300,background:'rgba(93,133,168,0.1)',borderRadius:radius.pill,padding:'1px 6px',fontFamily:font.mono}}>{tag}</span>
+            <span key={tag} style={{fontSize:8,fontWeight:500,color:color.blue300,background:alpha(color.blue500, 0.1),borderRadius:radius.pill,padding:'1px 6px',fontFamily:font.mono}}>{tag}</span>
           ))}
           {relic.tags.length > 3 && <span style={{fontSize:8,color:color.textSecondary,padding:'1px 0',fontFamily:font.mono}}>+{relic.tags.length-3}</span>}
         </div>

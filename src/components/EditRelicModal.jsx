@@ -1,7 +1,7 @@
 // ─── EditRelicModal ───────────────────────────────────────────────
 // Edit relic: all fields + cover image + tags (with AI) + attachments.
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { X, ImagePlus, Sparkles } from 'lucide-react'
 import { useTranslation }   from 'react-i18next'
 import { useAuth }          from '../auth/AuthProvider.jsx'
@@ -17,6 +17,8 @@ import AITagSuggester       from './AITagSuggester.jsx'
 import { CATEGORIES, CATEGORY_FILTER_MAP, CATEGORY_THUMB_MAP } from '../constants/categories.js'
 import { Spinner }          from './FormField.jsx'
 import { useTheme }         from '../context/ThemeContext.jsx'
+import { alpha }            from '../styles/tokens.js'
+import { registerUnsavedChanges } from '../lib/windowCloseGuard.js'
 
 // ── Cover image helpers (same resize logic as NewRelicModal) ──────
 const COVER_MAX_B    = 5 * 1024 * 1024
@@ -74,16 +76,16 @@ function CoverImagePicker({ coverImage, onChange, fallbackThumb }) {
         </div>
         <div style={{display:'flex',flexDirection:'column',gap:6}}>
           <button type="button" onClick={()=>inputRef.current?.click()} disabled={busy}
-            style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:radius.control-1,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textPrimary,fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:busy?'not-allowed':'pointer',transition:'border-color 0.12s'}}
+            style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:radius.controlSm,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textPrimary,fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:busy?'not-allowed':'pointer',transition:'border-color 0.12s'}}
             onMouseEnter={e=>{if(!busy)e.currentTarget.style.borderColor=color.blue500}}
             onMouseLeave={e=>e.currentTarget.style.borderColor=color.bgBorder}>
             <ImagePlus size={13}/>{coverImage?t('modals.newRelic.changeImage'):t('modals.newRelic.uploadImage')}
           </button>
-          {coverImage&&<button type="button" onClick={()=>onChange(null)} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:radius.control-1,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textSecondary,fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:'pointer',transition:'border-color 0.12s,color 0.12s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor=color.terracotta500;e.currentTarget.style.color=color.terracotta500}} onMouseLeave={e=>{e.currentTarget.style.borderColor=color.bgBorder;e.currentTarget.style.color=color.textSecondary}}><X size={13}/>{t('modals.newRelic.remove')}</button>}
+          {coverImage&&<button type="button" onClick={()=>onChange(null)} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:radius.controlSm,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textSecondary,fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:'pointer',transition:'border-color 0.12s,color 0.12s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor=color.terracotta500;e.currentTarget.style.color=color.terracotta500}} onMouseLeave={e=>{e.currentTarget.style.borderColor=color.bgBorder;e.currentTarget.style.color=color.textSecondary}}><X size={13}/>{t('modals.newRelic.remove')}</button>}
           <span style={{fontSize:10,color:color.textSecondary}}>{t('modals.newRelic.imageHint')}</span>
         </div>
       </div>
-      {err&&<span style={{fontSize:11,color:color.terracotta500,padding:'4px 8px',borderRadius:5,background:'rgba(201,123,110,0.1)'}}>{err}</span>}
+      {err&&<span style={{fontSize:11,color:color.terracotta500,padding:'4px 8px',borderRadius:5,background:alpha(color.terracotta500, 0.1)}}>{err}</span>}
       <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp,.gif"
         onChange={e=>{const f=e.target.files[0];if(f)handleFile(f);e.target.value=''}}
         style={{display:'none'}} aria-label="Upload cover image"/>
@@ -110,9 +112,9 @@ function DescriptionEnhancer({ title, description, onApply }) {
   return (
     <div style={{marginTop:5}}>
       <button type="button" onClick={handle} disabled={loading||!title.trim()}
-        style={{display:'flex',alignItems:'center',gap:6,padding:'5px 10px',borderRadius:7,border:'1px solid rgba(93,133,168,0.35)',background:'rgba(93,133,168,0.06)',color:done?color.sage500:color.blue300,fontSize:11,fontWeight:600,fontFamily:'inherit',cursor:loading||!title.trim()?'not-allowed':'pointer',opacity:!title.trim()?0.5:1,transition:'background 0.12s'}}
-        onMouseEnter={e=>{if(!loading&&title.trim())e.currentTarget.style.background='rgba(93,133,168,0.14)'}}
-        onMouseLeave={e=>e.currentTarget.style.background='rgba(93,133,168,0.06)'}>
+        style={{display:'flex',alignItems:'center',gap:6,padding:'5px 10px',borderRadius:7,border:`1px solid ${alpha(color.blue500, 0.35)}`,background:alpha(color.blue500, 0.06),color:done?color.sage500:color.blue300,fontSize:11,fontWeight:600,fontFamily:'inherit',cursor:loading||!title.trim()?'not-allowed':'pointer',opacity:!title.trim()?0.5:1,transition:'background 0.12s'}}
+        onMouseEnter={e=>{if(!loading&&title.trim())e.currentTarget.style.background=alpha(color.blue500, 0.14)}}
+        onMouseLeave={e=>e.currentTarget.style.background=alpha(color.blue500, 0.06)}>
         <Sparkles size={12} style={{animation:loading?'am-spin 0.8s linear infinite':'none'}}/>
         {loading?t('modals.editRelic.enhancing'):done?`✓ ${t('modals.editRelic.applied')}`:`✦ ${t('modals.editRelic.enhanceWithAI')}`}
       </button>
@@ -143,6 +145,24 @@ export default function EditRelicModal({ relic, onClose, onSave }) {
     attachments,loading:attLoading,error:attError,setError:setAttError,
     addFiles,remove:removeAttRaw,download:downloadAtt,getPreviewURL,
   } = useAttachments(relic.id, user?.id)
+
+  // Let the native window-close guard know this form has unsaved edits.
+  // Attachments aren't included — useAttachments persists them immediately,
+  // they're never "unsaved" the way the text fields below are.
+  const isDirty = Boolean(
+    title !== relic.title ||
+    category !== relic.category ||
+    description !== relic.description ||
+    notes !== (relic.notes ?? '') ||
+    responsible !== (relic.responsible ?? '') ||
+    coverImage !== (relic.coverImage ?? null) ||
+    tags.length !== (relic.tags ?? []).length ||
+    tags.some((tag, i) => tag !== (relic.tags ?? [])[i])
+  )
+  useEffect(() => {
+    registerUnsavedChanges(isDirty)
+    return () => registerUnsavedChanges(false)
+  }, [isDirty])
 
   async function handleAddFiles(files){setAttError(null);try{await addFiles(files)}catch(err){setAttError(err.message)}}
 
@@ -178,9 +198,9 @@ export default function EditRelicModal({ relic, onClose, onSave }) {
   }
 
   const S = {
-    input:{width:'100%',padding:'8px 10px',borderRadius:radius.control-1,background:color.bgBase,border:`1px solid ${color.bgBorder}`,color:color.textPrimary,fontSize:13,fontFamily:font.ui,outline:'none'},
+    input:{width:'100%',padding:'8px 10px',borderRadius:radius.controlSm,background:color.bgBase,border:`1px solid ${color.bgBorder}`,color:color.textPrimary,fontSize:13,fontFamily:font.ui,outline:'none'},
     label:{fontSize:12,fontWeight:600,color:color.textPrimary,marginBottom:5,display:'block'},
-    focus:e=>{e.target.style.borderColor=color.blue500;e.target.style.boxShadow='0 0 0 3px rgba(93,133,168,0.12)'},
+    focus:e=>{e.target.style.borderColor=color.blue500;e.target.style.boxShadow=`0 0 0 3px ${alpha(color.blue500, 0.12)}`},
     blur: e=>{e.target.style.borderColor=color.bgBorder;e.target.style.boxShadow='none'},
     sec:{fontSize:10,fontWeight:700,letterSpacing:'0.1em',color:color.textSecondary,textTransform:'uppercase'},
   }
@@ -205,7 +225,7 @@ export default function EditRelicModal({ relic, onClose, onSave }) {
             <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
               {CATEGORIES.map(c=>(
                 <button key={c} type="button" onClick={()=>setCategory(c)}
-                  style={{padding:'4px 10px',borderRadius:6,border:'none',cursor:'pointer',background:category===c?color.blue500:'rgba(93,133,168,0.1)',color:category===c?color.onPrimary:color.blue300,fontSize:10,fontWeight:700,letterSpacing:'0.04em',fontFamily:font.mono,textTransform:'lowercase'}}>
+                  style={{padding:'4px 10px',borderRadius:6,border:'none',cursor:'pointer',background:category===c?color.blue500:alpha(color.blue500, 0.1),color:category===c?color.onPrimary:color.blue300,fontSize:10,fontWeight:700,letterSpacing:'0.04em',fontFamily:font.mono,textTransform:'lowercase'}}>
                   {t(`relicCard.category.${c}`, c)}
                 </button>
               ))}

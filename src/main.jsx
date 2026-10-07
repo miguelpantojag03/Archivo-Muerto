@@ -1,12 +1,36 @@
-import { StrictMode, Component } from 'react'
+import { StrictMode, Component, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
+import { MotionConfig } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import './index.css'
 import './i18n/index.js'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { AuthProvider } from './auth/AuthProvider.jsx'
 import { ToastProvider } from './components/Toast.jsx'
 import AppRouter from './AppRouter.jsx'
+import { hasUnsavedChanges } from './lib/windowCloseGuard.js'
+
+// ── Close guard ─────────────────────────────────────────────────────
+// Blocks a native window close while a modal has unsaved form data, so
+// the desktop app can't silently discard it the way a browser tab would.
+// No-ops outside the Tauri runtime (e.g. `vite dev` in a plain browser).
+function CloseGuard() {
+  const { t } = useTranslation()
+  useEffect(() => {
+    if (!window.__TAURI_INTERNALS__) return
+    let unlisten
+    import('@tauri-apps/api/window').then(({ getCurrentWindow }) => {
+      getCurrentWindow().onCloseRequested((event) => {
+        if (hasUnsavedChanges() && !window.confirm(t('app.unsavedChangesConfirm'))) {
+          event.preventDefault()
+        }
+      }).then(fn => { unlisten = fn })
+    })
+    return () => unlisten?.()
+  }, [t])
+  return null
+}
 
 // ── Error boundary — muestra el error exacto en pantalla ──────────
 class ErrorBoundary extends Component {
@@ -39,15 +63,18 @@ class ErrorBoundary extends Component {
 createRoot(document.getElementById('app')).render(
   <StrictMode>
     <ErrorBoundary>
-      <ThemeProvider>
-        <HashRouter>
-          <AuthProvider>
-            <ToastProvider>
-              <AppRouter />
-            </ToastProvider>
-          </AuthProvider>
-        </HashRouter>
-      </ThemeProvider>
+      <MotionConfig reducedMotion="user">
+        <ThemeProvider>
+          <HashRouter>
+            <AuthProvider>
+              <ToastProvider>
+                <CloseGuard />
+                <AppRouter />
+              </ToastProvider>
+            </AuthProvider>
+          </HashRouter>
+        </ThemeProvider>
+      </MotionConfig>
     </ErrorBoundary>
   </StrictMode>
 )

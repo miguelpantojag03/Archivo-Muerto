@@ -52,13 +52,13 @@ export function getExtension(filename) {
   return filename.split('.').pop()?.toLowerCase() ?? ''
 }
 
-export function validateFile(file) {
+export function validateFile(file, t) {
   const ext = getExtension(file.name)
   if (!ALLOWED_EXTENSIONS.includes(ext)) {
-    return `File type ".${ext}" is not allowed. Allowed types: ${ALLOWED_EXTENSIONS.join(', ')}`
+    return t('attachments.errors.typeNotAllowed', { ext, allowed: ALLOWED_EXTENSIONS.join(', ') })
   }
   if (file.size > MAX_FILE_SIZE_B) {
-    return `File is too large (${formatFileSize(file.size)}). Maximum allowed: ${MAX_FILE_SIZE_MB} MB`
+    return t('attachments.errors.tooLarge', { size: formatFileSize(file.size), max: MAX_FILE_SIZE_MB })
   }
   return null // null = valid
 }

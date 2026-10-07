@@ -8,6 +8,9 @@
     "confirm": "Confirmar",
     "loading": "Cargando…"
   },
+  "app": {
+    "unsavedChangesConfirm": "Tienes cambios sin guardar. Si cierras ahora, se perderán. ¿Cerrar de todos modos?"
+  },
   "theme": {
     "light": "Claro",
     "dark": "Oscuro",
@@ -58,6 +61,7 @@
       "haveAccount": "¿Ya tienes una cuenta?",
       "signIn": "Entrar",
       "successToast": "¡Cuenta creada!",
+      "errorEmailExists": "Ya existe una cuenta con este correo.",
       "strength": {
         "tooWeak": "Muy débil",
         "weak": "Débil",
@@ -266,7 +270,18 @@
     "preview": "Vista previa",
     "openWith": "Abrir con la app del sistema",
     "save": "Guardar como…",
-    "delete": "Eliminar archivo adjunto"
+    "delete": "Eliminar archivo adjunto",
+    "errors": {
+      "loadFailed": "No se pudieron cargar los archivos adjuntos.",
+      "typeNotAllowed": "El tipo de archivo \".{{ext}}\" no está permitido. Tipos permitidos: {{allowed}}",
+      "tooLarge": "El archivo es demasiado grande ({{size}}). Máximo permitido: {{max}} MB",
+      "alreadyAttached_one": "Este archivo ya está adjunto: {{files}}",
+      "alreadyAttached_other": "Estos archivos ya están adjuntos: {{files}}",
+      "saveFailed": "No se pudieron guardar los archivos adjuntos. Inténtalo de nuevo.",
+      "deleteFailed": "No se pudo eliminar el archivo adjunto. Inténtalo de nuevo.",
+      "downloadFailed": "No se pudo descargar el archivo.",
+      "previewFailed": "No se pudo abrir el archivo para vista previa."
+    }
   },
   "ai": {
     "suggestTags": "✦ Sugerir etiquetas con IA",

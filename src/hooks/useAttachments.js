@@ -3,6 +3,7 @@
 // Handles loading, adding, deleting and error states.
 
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   getAttachments,
   addAttachment,
@@ -13,6 +14,7 @@ import {
 import { validateFile } from '../constants/fileTypes.js'
 
 export function useAttachments(relicId, userId) {
+  const { t } = useTranslation()
   const [attachments, setAttachments] = useState([])
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState(null)
@@ -24,9 +26,9 @@ export function useAttachments(relicId, userId) {
     setError(null)
     getAttachments(relicId)
       .then(data => setAttachments(data))
-      .catch(err => setError('Could not load attachments.'))
+      .catch(() => setError(t('attachments.errors.loadFailed')))
       .finally(() => setLoading(false))
-  }, [relicId])
+  }, [relicId, t])
 
   // ── Add one or more files ─────────────────────────────────────
   const addFiles = useCallback(async (files) => {
@@ -36,7 +38,7 @@ export function useAttachments(relicId, userId) {
 
     // Validate each file before storing anything
     for (const file of fileArray) {
-      const err = validateFile(file)
+      const err = validateFile(file, t)
       if (err) { errors.push({ file: file.name, message: err }); }
     }
     if (errors.length) {
@@ -48,9 +50,10 @@ export function useAttachments(relicId, userId) {
     const existing = attachments.map(a => a.originalName.toLowerCase())
     const dupes    = fileArray.filter(f => existing.includes(f.name.toLowerCase()))
     if (dupes.length) {
-      throw new Error(
-        `File${dupes.length > 1 ? 's' : ''} already attached: ${dupes.map(d => d.name).join(', ')}`
-      )
+      throw new Error(t('attachments.errors.alreadyAttached', {
+        count: dupes.length,
+        files: dupes.map(d => d.name).join(', '),
+      }))
     }
 
     setLoading(true)
@@ -62,12 +65,12 @@ export function useAttachments(relicId, userId) {
       setAttachments(prev => [...prev, ...added])
       return added
     } catch (err) {
-      setError('Could not save attachment(s). Please try again.')
+      setError(t('attachments.errors.saveFailed'))
       throw err
     } finally {
       setLoading(false)
     }
-  }, [relicId, userId, attachments])
+  }, [relicId, userId, attachments, t])
 
   // ── Delete ────────────────────────────────────────────────────
   const remove = useCallback(async (attId) => {
@@ -76,29 +79,29 @@ export function useAttachments(relicId, userId) {
       await deleteAttachment(attId)
       setAttachments(prev => prev.filter(a => a.id !== attId))
     } catch (err) {
-      setError('Could not delete the attachment. Please try again.')
+      setError(t('attachments.errors.deleteFailed'))
       throw err
     }
-  }, [])
+  }, [t])
 
   // ── Download (Save As…) ───────────────────────────────────────
   const download = useCallback((att) => {
     try {
       downloadAttachment(att)
     } catch {
-      setError('Could not download the file.')
+      setError(t('attachments.errors.downloadFailed'))
     }
-  }, [])
+  }, [t])
 
   // ── Open for preview (returns a temporary object URL) ─────────
   const getPreviewURL = useCallback((att) => {
     try {
       return createPreviewURL(att)
     } catch {
-      setError('Could not open the file for preview.')
+      setError(t('attachments.errors.previewFailed'))
       return null
     }
-  }, [])
+  }, [t])
 
   return {
     attachments,

@@ -19,6 +19,8 @@ import { Spinner }                   from './FormField.jsx'
 import { ImagePlus }                 from 'lucide-react'
 import AITagSuggester                from './AITagSuggester.jsx'
 import { useTheme }                  from '../context/ThemeContext.jsx'
+import { registerUnsavedChanges }    from '../lib/windowCloseGuard.js'
+import { alpha }                     from '../styles/tokens.js'
 
 // ── cover image helpers ───────────────────────────────────────────
 const COVER_MAX_B    = 5 * 1024 * 1024
@@ -87,16 +89,16 @@ function CoverImagePicker({ coverImage, onChange, fallbackThumb }) {
         </div>
         <div style={{display:'flex',flexDirection:'column',gap:6}}>
           <button type="button" onClick={()=>inputRef.current?.click()} disabled={busy}
-            style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:radius.control-1,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textPrimary,fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:busy?'not-allowed':'pointer',transition:'border-color 0.12s'}}
+            style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:radius.controlSm,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textPrimary,fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:busy?'not-allowed':'pointer',transition:'border-color 0.12s'}}
             onMouseEnter={e=>{if(!busy)e.currentTarget.style.borderColor=color.blue500}}
             onMouseLeave={e=>e.currentTarget.style.borderColor=color.bgBorder}>
             <ImagePlus size={13}/>{coverImage?t('modals.newRelic.changeImage'):t('modals.newRelic.uploadImage')}
           </button>
-          {coverImage&&<button type="button" onClick={()=>onChange(null)} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:radius.control-1,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textSecondary,fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:'pointer',transition:'border-color 0.12s,color 0.12s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor=color.terracotta500;e.currentTarget.style.color=color.terracotta500}} onMouseLeave={e=>{e.currentTarget.style.borderColor=color.bgBorder;e.currentTarget.style.color=color.textSecondary}}><X size={13}/>{t('modals.newRelic.remove')}</button>}
+          {coverImage&&<button type="button" onClick={()=>onChange(null)} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:radius.controlSm,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textSecondary,fontSize:12,fontWeight:500,fontFamily:font.ui,cursor:'pointer',transition:'border-color 0.12s,color 0.12s'}} onMouseEnter={e=>{e.currentTarget.style.borderColor=color.terracotta500;e.currentTarget.style.color=color.terracotta500}} onMouseLeave={e=>{e.currentTarget.style.borderColor=color.bgBorder;e.currentTarget.style.color=color.textSecondary}}><X size={13}/>{t('modals.newRelic.remove')}</button>}
           <span style={{fontSize:10,color:color.textSecondary}}>{t('modals.newRelic.imageHint')}</span>
         </div>
       </div>
-      {err&&<span style={{fontSize:11,color:color.terracotta500,padding:'4px 8px',borderRadius:5,background:'rgba(201,123,110,0.1)'}}>{err}</span>}
+      {err&&<span style={{fontSize:11,color:color.terracotta500,padding:'4px 8px',borderRadius:5,background:alpha(color.terracotta500, 0.1)}}>{err}</span>}
       <input ref={inputRef} type="file" accept=".jpg,.jpeg,.png,.webp,.gif"
         onChange={e=>{const f=e.target.files[0];if(f)handleFile(f);e.target.value=''}}
         style={{display:'none'}} aria-label="Upload cover image"/>
@@ -123,7 +125,7 @@ export function TagsInput({ tags, onChange }) {
     <div>
       <div style={{display:'flex',flexWrap:'wrap',gap:5,marginBottom:6}}>
         {tags.map(tag=>(
-          <span key={tag} style={{display:'flex',alignItems:'center',gap:4,fontSize:10,fontWeight:700,letterSpacing:'0.06em',color:color.blue300,background:'rgba(93,133,168,0.15)',borderRadius:99,padding:'3px 9px'}}>
+          <span key={tag} style={{display:'flex',alignItems:'center',gap:4,fontSize:10,fontWeight:700,letterSpacing:'0.06em',color:color.blue300,background:alpha(color.blue500, 0.15),borderRadius:99,padding:'3px 9px'}}>
             {tag}
             <button type="button" onClick={()=>remove(tag)} style={{background:'none',border:'none',cursor:'pointer',color:color.blue300,padding:0,display:'flex',lineHeight:1}}>
               <X size={9}/>
@@ -136,8 +138,8 @@ export function TagsInput({ tags, onChange }) {
         onChange={e=>setInput(e.target.value)}
         onKeyDown={e=>{if(e.key==='Enter'||e.key===','){e.preventDefault();add(input)}}}
         placeholder={t('modals.newRelic.tagPlaceholder')}
-        style={{width:'100%',padding:'7px 10px',borderRadius:radius.control-1,background:color.bgBase,border:`1px solid ${color.bgBorder}`,color:color.textPrimary,fontSize:12,fontFamily:font.ui,outline:'none'}}
-        onFocus={e=>{e.target.style.borderColor=color.blue500;e.target.style.boxShadow='0 0 0 3px rgba(93,133,168,0.12)'}}
+        style={{width:'100%',padding:'7px 10px',borderRadius:radius.controlSm,background:color.bgBase,border:`1px solid ${color.bgBorder}`,color:color.textPrimary,fontSize:12,fontFamily:font.ui,outline:'none'}}
+        onFocus={e=>{e.target.style.borderColor=color.blue500;e.target.style.boxShadow=`0 0 0 3px ${alpha(color.blue500, 0.12)}`}}
         onBlur={e=>{e.target.style.borderColor=color.bgBorder;e.target.style.boxShadow='none'}}
       />
     </div>
@@ -155,8 +157,7 @@ export default function NewRelicModal({ onClose, onAdd }) {
   const { push }  = useToast()
 
   // Stable tmp id per modal instance (not module-level variable)
-  const tmpIdRef = useRef(makeTmpId())
-  const tmpRelicId = tmpIdRef.current
+  const [tmpRelicId] = useState(makeTmpId)
 
   const [title,       setTitle]       = useState('')
   const [category,    setCategory]    = useState('SKETCH')
@@ -179,6 +180,16 @@ export default function NewRelicModal({ onClose, onAdd }) {
       await deleteAttachmentsForRelic(tmpRelicId)
     }
   }, [attachments.length, tmpRelicId])
+
+  // Let the native window-close guard know this form has unsaved content
+  const isDirty = Boolean(
+    title.trim() || description.trim() || notes.trim() ||
+    tags.length > 0 || coverImage || attachments.length > 0
+  )
+  useEffect(() => {
+    registerUnsavedChanges(isDirty)
+    return () => registerUnsavedChanges(false)
+  }, [isDirty])
 
   function handleClose() {
     cleanupOrphans()
@@ -220,9 +231,9 @@ export default function NewRelicModal({ onClose, onAdd }) {
   }
 
   const S = {
-    input:{width:'100%',padding:'8px 10px',borderRadius:radius.control-1,background:color.bgBase,border:`1px solid ${color.bgBorder}`,color:color.textPrimary,fontSize:13,fontFamily:font.ui,outline:'none'},
+    input:{width:'100%',padding:'8px 10px',borderRadius:radius.controlSm,background:color.bgBase,border:`1px solid ${color.bgBorder}`,color:color.textPrimary,fontSize:13,fontFamily:font.ui,outline:'none'},
     label:{fontSize:12,fontWeight:600,color:color.textPrimary,marginBottom:5,display:'block'},
-    focus:e=>{e.target.style.borderColor=color.blue500;e.target.style.boxShadow='0 0 0 3px rgba(93,133,168,0.12)'},
+    focus:e=>{e.target.style.borderColor=color.blue500;e.target.style.boxShadow=`0 0 0 3px ${alpha(color.blue500, 0.12)}`},
     blur: e=>{e.target.style.borderColor=color.bgBorder;e.target.style.boxShadow='none'},
     sec:{fontSize:10,fontWeight:700,letterSpacing:'0.1em',color:color.textSecondary,textTransform:'uppercase'},
   }
@@ -250,7 +261,7 @@ export default function NewRelicModal({ onClose, onAdd }) {
           <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
             {CATEGORIES.map(c=>(
               <button key={c} type="button" onClick={()=>setCategory(c)}
-                style={{padding:'4px 10px',borderRadius:6,border:'none',cursor:'pointer',background:category===c?color.blue500:'rgba(93,133,168,0.1)',color:category===c?color.onPrimary:color.blue300,fontSize:10,fontWeight:700,letterSpacing:'0.04em',fontFamily:font.mono,textTransform:'lowercase'}}>
+                style={{padding:'4px 10px',borderRadius:6,border:'none',cursor:'pointer',background:category===c?color.blue500:alpha(color.blue500, 0.1),color:category===c?color.onPrimary:color.blue300,fontSize:10,fontWeight:700,letterSpacing:'0.04em',fontFamily:font.mono,textTransform:'lowercase'}}>
                 {t(`relicCard.category.${c}`, c)}
               </button>
             ))}

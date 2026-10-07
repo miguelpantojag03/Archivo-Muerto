@@ -8,6 +8,9 @@
     "confirm": "Confirm",
     "loading": "Loading…"
   },
+  "app": {
+    "unsavedChangesConfirm": "You have unsaved changes. If you close now, they'll be lost. Close anyway?"
+  },
   "theme": {
     "light": "Light",
     "dark": "Dark",
@@ -58,6 +61,7 @@
       "haveAccount": "Already have an account?",
       "signIn": "Sign in",
       "successToast": "Account created!",
+      "errorEmailExists": "An account with this email already exists.",
       "strength": {
         "tooWeak": "Too weak",
         "weak": "Weak",
@@ -266,7 +270,18 @@
     "preview": "Preview",
     "openWith": "Open with system app",
     "save": "Save as…",
-    "delete": "Delete attachment"
+    "delete": "Delete attachment",
+    "errors": {
+      "loadFailed": "Could not load attachments.",
+      "typeNotAllowed": "File type \".{{ext}}\" is not allowed. Allowed types: {{allowed}}",
+      "tooLarge": "File is too large ({{size}}). Maximum allowed: {{max}} MB",
+      "alreadyAttached_one": "File already attached: {{files}}",
+      "alreadyAttached_other": "Files already attached: {{files}}",
+      "saveFailed": "Could not save attachment(s). Please try again.",
+      "deleteFailed": "Could not delete the attachment. Please try again.",
+      "downloadFailed": "Could not download the file.",
+      "previewFailed": "Could not open the file for preview."
+    }
   },
   "ai": {
     "suggestTags": "✦ Suggest tags with AI",

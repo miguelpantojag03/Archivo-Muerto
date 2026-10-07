@@ -68,7 +68,11 @@ export default function Register() {
       // 3. Pass only the non-sensitive userId to onboarding
       navigate('/onboarding', { state: { userId: user.id } })
     } catch (err) {
-      setGlobalError(err.message)
+      setGlobalError(
+        err.message === 'An account with this email already exists.'
+          ? t('auth.register.errorEmailExists')
+          : err.message
+      )
     } finally {
       setLoading(false)
     }
