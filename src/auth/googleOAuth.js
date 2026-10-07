@@ -18,7 +18,7 @@ import { fetch } from '@tauri-apps/plugin-http'
 // (unlike a client secret, which this PKCE flow never needs or sends).
 // Replace with the real value from Google Cloud Console > Google Auth
 // Platform > Clients > a "Desktop app" type OAuth client.
-export const GOOGLE_CLIENT_ID = 'TU_CLIENT_ID.apps.googleusercontent.com'
+export const GOOGLE_CLIENT_ID = '275750301241-6te8u9o1d7h6d7rm3abtak31b3lridfj.apps.googleusercontent.com'
 
 const AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth'
 const TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token'

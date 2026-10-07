@@ -13,7 +13,7 @@
     { "identifier": "fs:allow-mkdir",      "allow": [{ "path": "$APPLOCALDATA/**" }] },
     { "identifier": "fs:allow-remove",     "allow": [{ "path": "$APPLOCALDATA/**" }] },
     { "identifier": "fs:allow-exists",     "allow": [{ "path": "$APPLOCALDATA/**" }] },
-    "opener:allow-open-url",
+    { "identifier": "opener:allow-open-url", "allow": [{ "url": "https://accounts.google.com/*" }] },
     "oauth:allow-start",
     "oauth:allow-cancel",
     { "identifier": "http:default", "allow": [{ "url": "https://oauth2.googleapis.com/token" }] }

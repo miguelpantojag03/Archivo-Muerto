@@ -54,6 +54,7 @@ export default function Login() {
       push(t('auth.login.welcomeToast'), 'success')
       navigate(from, { replace: true })
     } catch (err) {
+      console.error('[Google sign-in]', err.code, err.message, err)
       const msg = {
         denied: t('auth.login.googleErrorDenied'),
         timeout: t('auth.login.googleErrorTimeout'),
