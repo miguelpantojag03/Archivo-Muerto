@@ -15,7 +15,7 @@ archivo-muerto/
 │
 └── src/
     │
-    ├── main.jsx                      # Root: BrowserRouter > AuthProvider > ToastProvider > AppRouter
+    ├── main.jsx                      # Root: MotionConfig > ThemeProvider > HashRouter > AuthProvider > ToastProvider > AppRouter
     ├── AppRouter.jsx                 # Definición de rutas con React Router
     ├── index.css                     # Reset global + tokens CSS + scrollbar + placeholder
     │
@@ -109,14 +109,21 @@ main.jsx
 ## Proveedores globales (árbol de contextos)
 
 ```
-<BrowserRouter>                   react-router-dom
-  <AuthProvider>                  user · status · auth functions
-    <ToastProvider>               push · dismiss
-      <AppRouter />               rutas
-    </ToastProvider>
-  </AuthProvider>
-</BrowserRouter>
+<MotionConfig reducedMotion="user">  framer-motion — respeta reduced-motion del SO
+  <ThemeProvider>                    useTheme() — tema claro/oscuro/automático
+    <HashRouter>                     react-router-dom — hash routing (requerido por Tauri/file://)
+      <AuthProvider>                 user · status · auth functions
+        <ToastProvider>              push · dismiss
+          <CloseGuard />             bloquea el cierre nativo si hay cambios sin guardar
+          <AppRouter />              rutas
+        </ToastProvider>
+      </AuthProvider>
+    </HashRouter>
+  </ThemeProvider>
+</MotionConfig>
 ```
+
+Nota: se usa `HashRouter`, no `BrowserRouter` — la app se empaqueta como app de escritorio con Tauri y carga desde `file://`, donde las rutas basadas en history API no resuelven.
 
 ---
 
