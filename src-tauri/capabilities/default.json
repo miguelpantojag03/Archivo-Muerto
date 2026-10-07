@@ -6,6 +6,12 @@
     "main"
   ],
   "permissions": [
-    "core:default"
+    "core:default",
+    "sql:default",
+    "sql:allow-execute",
+    { "identifier": "fs:allow-write-file", "allow": [{ "path": "$APPLOCALDATA/**" }] },
+    { "identifier": "fs:allow-mkdir",      "allow": [{ "path": "$APPLOCALDATA/**" }] },
+    { "identifier": "fs:allow-remove",     "allow": [{ "path": "$APPLOCALDATA/**" }] },
+    { "identifier": "fs:allow-exists",     "allow": [{ "path": "$APPLOCALDATA/**" }] }
   ]
 }

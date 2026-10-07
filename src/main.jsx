@@ -10,6 +10,7 @@ import { AuthProvider } from './auth/AuthProvider.jsx'
 import { ToastProvider } from './components/Toast.jsx'
 import AppRouter from './AppRouter.jsx'
 import { hasUnsavedChanges } from './lib/windowCloseGuard.js'
+import { migrateLegacyData } from './lib/legacyMigration.js'
 
 // ── Close guard ─────────────────────────────────────────────────────
 // Blocks a native window close while a modal has unsaved form data, so
@@ -58,6 +59,16 @@ class ErrorBoundary extends Component {
     }
     return this.props.children
   }
+}
+
+// The SQLite/filesystem backend only exists inside the Tauri runtime —
+// running `npm run dev` in a plain browser has no IPC bridge to call into,
+// so this would otherwise hard-crash the app on startup with a cryptic
+// IPC error. Skip it there; the real dev loop is `npm run tauri dev`.
+if (window.__TAURI_INTERNALS__) {
+  await migrateLegacyData()
+} else {
+  console.warn('[main] Not running inside Tauri — skipping SQLite migration. Relic/attachment data will not load. Use `npm run tauri dev`.')
 }
 
 createRoot(document.getElementById('app')).render(

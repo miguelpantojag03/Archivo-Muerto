@@ -113,7 +113,7 @@ export default function Dashboard() {
     const hit = isOverRevivalZone(info.point)
     setDragOver(false)
     if (!hit) return
-    revive(id)
+    revive(id).catch(err => push(err.message, 'error'))
     setSelectedId(id)
     push(t('dashboard.toast.revived'), 'success')
     setJustRevived(true)
@@ -130,7 +130,10 @@ export default function Dashboard() {
   }, [])
 
   // Relic actions
-  function handleRevive(id) { revive(id); push(t('dashboard.toast.revived'), 'success') }
+  async function handleRevive(id) {
+    try { await revive(id); push(t('dashboard.toast.revived'), 'success') }
+    catch (err) { push(err.message, 'error') }
+  }
 
   async function handleDelete(id) {
     const relic = relics.find(r => r.id === id)
@@ -148,14 +151,13 @@ export default function Dashboard() {
     }
   }
 
-  function handleAddRelic(relic) {
-    try { add(relic); push(t('dashboard.toast.relicAdded'), 'success') }
-    catch (err) { push(err.message, 'error') }
+  async function handleAddRelic(relic) {
+    await add(relic)
+    push(t('dashboard.toast.relicAdded'), 'success')
   }
 
-  function handleSaveEdit(id, patch) {
-    try { update(id, patch) }
-    catch (err) { push(err.message, 'error') }
+  async function handleSaveEdit(id, patch) {
+    await update(id, patch)
   }
 
   // AI: analyze selected relic

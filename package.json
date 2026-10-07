@@ -25,6 +25,8 @@
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
     "@tauri-apps/api": "^2.12.1",
+    "@tauri-apps/plugin-fs": "^2.5.0",
+    "@tauri-apps/plugin-sql": "^2.5.0",
     "framer-motion": "^14.0.0",
     "i18next": "^26.4.2",
     "idb": "^8.0.3",

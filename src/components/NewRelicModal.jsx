@@ -221,8 +221,8 @@ export default function NewRelicModal({ onClose, onAdd }) {
         revived:false, status:'archived',
         createdAt:now, discardedAt:now, updatedAt:now,
       }
-      onAdd(relic)
-      onClose()  // don't clean orphans — the relic now owns those attachments
+      await onAdd(relic)
+      onClose()  // only reached if onAdd succeeded — don't clean orphans, the relic now owns those attachments
     } catch (err) {
       push(err.message, 'error')
     } finally {

@@ -31,12 +31,15 @@ export function useRelics(userId) {
 
   useEffect(() => {
     if (!userId) return
+    let cancelled = false
     setLoading(true)
-    const data = getRelics(userId)
-    setRelics(data)
-    const revived = data.find(r => r.revived)
-    setSelectedId(revived?.id ?? data[0]?.id ?? null)
-    setLoading(false)
+    getRelics(userId).then(data => {
+      if (cancelled) return
+      setRelics(data)
+      const revived = data.find(r => r.revived)
+      setSelectedId(revived?.id ?? data[0]?.id ?? null)
+    }).finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [userId])
 
   // toggle sort: same field → flip dir; new field → desc
@@ -87,17 +90,17 @@ export function useRelics(userId) {
   }), [relics])
 
   // CRUD
-  const add = useCallback((relic) => {
+  const add = useCallback(async (relic) => {
     if (!userId) return
-    const updated = addRelic(userId, relic)
+    const updated = await addRelic(userId, relic)
     setRelics(updated)
     setSelectedId(relic.id)
     return updated
   }, [userId])
 
-  const update = useCallback((id, patch) => {
+  const update = useCallback(async (id, patch) => {
     if (!userId) return
-    const updated = updateRelic(userId, id, patch)
+    const updated = await updateRelic(userId, id, patch)
     setRelics(updated)
     return updated
   }, [userId])
@@ -107,7 +110,7 @@ export function useRelics(userId) {
     // Drop the relic record first: if the app dies right after this, the
     // worst case is an orphaned attachment blob (harmless, invisible) —
     // not a relic card left pointing at attachments that no longer exist.
-    const updated = deleteRelic(userId, id)
+    const updated = await deleteRelic(userId, id)
     setRelics(updated)
     if (selectedId === id) setSelectedId(updated[0]?.id ?? null)
     await deleteAttachmentsForRelic(id)
@@ -116,8 +119,8 @@ export function useRelics(userId) {
 
   const revive = useCallback((id) => {
     const relic = relics.find(r => r.id === id)
-    if (relic?.revived) return relic
-    return update(id, { revived: true, status: 'revived', revivedAt: new Date().toISOString() })
+    if (relic?.revived) return Promise.resolve(relic)
+    return update(id, { status: 'revived', revivedAt: new Date().toISOString() })
   }, [update, relics])
 
   return {

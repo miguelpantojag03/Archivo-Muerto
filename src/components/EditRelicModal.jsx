@@ -182,14 +182,19 @@ export default function EditRelicModal({ relic, onClose, onSave }) {
     setSaving(true)
     try {
       const now=new Date().toISOString()
-      onSave(relic.id,{
+      const patch = {
         title:title.trim(),category,
         description:description.trim()||'No description.',
         notes:notes.trim(),responsible:responsible.trim(),
-        coverImage:coverImage??null,tags,
+        tags,
         filter:CATEGORY_FILTER_MAP[category],thumbnail:CATEGORY_THUMB_MAP[category],
         updatedAt:now,
-      })
+      }
+      // Only touch the cover-image file on disk if it actually changed —
+      // otherwise an unchanged `asset://` string would get mistaken for
+      // "nothing to persist" and the real file would get deleted.
+      if (coverImage !== (relic.coverImage ?? null)) patch.coverImage = coverImage ?? null
+      await onSave(relic.id, patch)
       push(t('modals.editRelic.relicUpdated'),'success')
       onClose()
     } catch(err){

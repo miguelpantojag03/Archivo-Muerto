@@ -26,8 +26,8 @@ function ExportSection({ userId }) {
   const { color } = useTheme()
   const { push } = useToast()
 
-  function exportJSON() {
-    const relics = getRelics(userId)
+  async function exportJSON() {
+    const relics = await getRelics(userId)
     const blob = new Blob([JSON.stringify(relics, null, 2)], { type: 'application/json' })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
@@ -38,8 +38,8 @@ function ExportSection({ userId }) {
     push(t('modals.settings.exportedJSON'), 'success')
   }
 
-  function exportCSV() {
-    const relics  = getRelics(userId)
+  async function exportCSV() {
+    const relics  = await getRelics(userId)
     const headers = ['id','title','category','description','project','status','createdAt','discardedAt','tags','responsible']
     const rows    = relics.map(r =>
       headers.map(h => {

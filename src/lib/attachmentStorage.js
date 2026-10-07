@@ -1,8 +1,10 @@
-// ─── AttachmentStorage — IndexedDB via idb ────────────────────────
-// Stores file Blobs natively. No base64 inflation, no 5 MB limit.
-// Each attachment is keyed by its own id; relicId is an index.
+// ─── AttachmentStorage — SQLite metadata + files on disk ──────────
+// Metadata lives in the `attachments` table; the actual bytes live as
+// a file under the app's local-data dir, referenced by file_path.
+// Same exported names/signatures as the old IndexedDB version — the
+// `blob` field is gone, replaced by `filePath`.
 //
-// Schema:
+// Schema (app-facing shape, after fromRow()):
 //   id            string    'att_<timestamp>_<random4>'
 //   relicId       string    FK → relic.id
 //   userId        string    FK → user.id
@@ -11,30 +13,30 @@
 //   mimeType      string    'application/pdf'
 //   size          number    bytes
 //   createdAt     string    ISO 8601
-//   blob          Blob      the actual file data
+//   filePath      string    absolute path on disk
 
-import { openDB } from 'idb'
-import { IDB_NAME, IDB_VERSION, IDB_STORE } from '../constants/storageKeys.js'
-
-// ── Open / upgrade DB ─────────────────────────────────────────────
-function getDB() {
-  return openDB(IDB_NAME, IDB_VERSION, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(IDB_STORE)) {
-        const store = db.createObjectStore(IDB_STORE, { keyPath: 'id' })
-        store.createIndex('byRelic',  'relicId',         { unique: false })
-        store.createIndex('byUser',   'userId',          { unique: false })
-        store.createIndex('byRelicUser', ['relicId', 'userId'], { unique: false })
-      }
-    },
-  })
-}
+import { getDb } from './db.js'
+import { getAttachmentsDir } from './fsPaths.js'
+import { writeFile, remove, mkdir } from '@tauri-apps/plugin-fs'
+import { convertFileSrc } from '@tauri-apps/api/core'
 
 function makeId() {
   return `att_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
 }
 
-// ── Public API ────────────────────────────────────────────────────
+function fromRow(row) {
+  return {
+    id: row.id,
+    relicId: row.relic_id,
+    userId: row.user_id,
+    originalName: row.original_name,
+    extension: row.extension,
+    mimeType: row.mime_type,
+    size: row.size,
+    createdAt: row.created_at,
+    filePath: row.file_path,
+  }
+}
 
 /**
  * Store a new attachment.
@@ -44,21 +46,24 @@ function makeId() {
  * @returns {Promise<Attachment>}
  */
 export async function addAttachment(relicId, userId, file) {
-  const db  = await getDB()
+  const db  = await getDb()
+  const id  = makeId()
   const ext = file.name.split('.').pop()?.toLowerCase() ?? ''
-  const att = {
-    id:           makeId(),
-    relicId,
-    userId,
-    originalName: file.name,
-    extension:    ext,
-    mimeType:     file.type || `application/${ext}`,
-    size:         file.size,
-    createdAt:    new Date().toISOString(),
-    blob:         file,            // IndexedDB stores Blob natively
-  }
-  await db.put(IDB_STORE, att)
-  return att
+  const dir = `${await getAttachmentsDir()}/${relicId}`
+  await mkdir(dir, { recursive: true })
+  const path = `${dir}/${id}.${ext}`
+
+  const bytes = new Uint8Array(await file.arrayBuffer())
+  await writeFile(path, bytes)
+
+  const createdAt = new Date().toISOString()
+  const mimeType  = file.type || `application/${ext}`
+  await db.execute(
+    `INSERT INTO attachments (id,relic_id,user_id,original_name,extension,mime_type,size,file_path,created_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`,
+    [id, relicId, userId, file.name, ext, mimeType, file.size, path, createdAt]
+  )
+  return { id, relicId, userId, originalName: file.name, extension: ext, mimeType, size: file.size, createdAt, filePath: path }
 }
 
 /**
@@ -66,8 +71,9 @@ export async function addAttachment(relicId, userId, file) {
  * @returns {Promise<Attachment[]>}
  */
 export async function getAttachments(relicId) {
-  const db = await getDB()
-  return db.getAllFromIndex(IDB_STORE, 'byRelic', relicId)
+  const db = await getDb()
+  const rows = await db.select(`SELECT * FROM attachments WHERE relic_id=$1 ORDER BY created_at ASC`, [relicId])
+  return rows.map(fromRow)
 }
 
 /**
@@ -75,38 +81,39 @@ export async function getAttachments(relicId) {
  * @returns {Promise<Attachment|undefined>}
  */
 export async function getAttachment(id) {
-  const db = await getDB()
-  return db.get(IDB_STORE, id)
+  const db = await getDb()
+  const [row] = await db.select(`SELECT * FROM attachments WHERE id=$1`, [id])
+  return row ? fromRow(row) : undefined
 }
 
 /**
  * Delete a single attachment.
  */
 export async function deleteAttachment(id) {
-  const db = await getDB()
-  await db.delete(IDB_STORE, id)
+  const db = await getDb()
+  const [row] = await db.select(`SELECT file_path FROM attachments WHERE id=$1`, [id])
+  await db.execute(`DELETE FROM attachments WHERE id=$1`, [id])
+  if (row) { try { await remove(row.file_path) } catch { /* best effort */ } }
 }
 
 /**
  * Delete all attachments for a relic (called when a relic is deleted).
  */
 export async function deleteAttachmentsForRelic(relicId) {
-  const db   = await getDB()
-  const atts = await db.getAllFromIndex(IDB_STORE, 'byRelic', relicId)
-  const tx   = db.transaction(IDB_STORE, 'readwrite')
-  await Promise.all([
-    ...atts.map(a => tx.store.delete(a.id)),
-    tx.done,
-  ])
+  const db = await getDb()
+  const rows = await db.select(`SELECT file_path FROM attachments WHERE relic_id=$1`, [relicId])
+  await db.execute(`DELETE FROM attachments WHERE relic_id=$1`, [relicId])
+  await Promise.all(rows.map(r => remove(r.file_path).catch(() => {})))
 }
 
 /**
- * Count attachments for a relic (lightweight — no blob transfer).
+ * Count attachments for a relic (lightweight — no file I/O).
  * @returns {Promise<number>}
  */
 export async function countAttachments(relicId) {
-  const db = await getDB()
-  return db.countFromIndex(IDB_STORE, 'byRelic', relicId)
+  const db = await getDb()
+  const [row] = await db.select(`SELECT COUNT(*) as n FROM attachments WHERE relic_id=$1`, [relicId])
+  return row?.n ?? 0
 }
 
 /**
@@ -115,31 +122,30 @@ export async function countAttachments(relicId) {
  * @returns {Promise<Record<string,number>>}
  */
 export async function getAttachmentCounts(relicIds) {
-  const db      = await getDB()
-  const entries = await Promise.all(
-    relicIds.map(async id => [id, await db.countFromIndex(IDB_STORE, 'byRelic', id)])
-  )
+  const entries = await Promise.all(relicIds.map(async id => [id, await countAttachments(id)]))
   return Object.fromEntries(entries)
 }
 
 /**
- * Create an object URL for preview (caller must revoke when done).
+ * Build a loadable URL for preview. Sync — just a string transform,
+ * no file I/O, so callers that don't await this keep working.
  * @returns {string}
  */
 export function createPreviewURL(attachment) {
-  return URL.createObjectURL(attachment.blob)
+  return convertFileSrc(attachment.filePath)
 }
 
 /**
- * Trigger a "Save As…" download dialog for an attachment.
+ * Trigger a "Save As…" download for an attachment. Sync, same reason
+ * as createPreviewURL above.
  */
 export function downloadAttachment(attachment) {
-  const url = URL.createObjectURL(attachment.blob)
+  const url = convertFileSrc(attachment.filePath)
   const a   = document.createElement('a')
   a.href     = url
   a.download = attachment.originalName
   document.body.appendChild(a)
   a.click()
   document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  // No URL.revokeObjectURL here — asset:// URLs aren't object URLs.
 }

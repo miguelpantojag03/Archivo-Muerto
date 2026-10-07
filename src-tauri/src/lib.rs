@@ -1,7 +1,17 @@
 use tauri::Manager;
+use tauri_plugin_sql::{Migration, MigrationKind};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+  let migrations = vec![
+    Migration {
+      version: 1,
+      description: "create_initial_tables",
+      sql: include_str!("../migrations/0001_init.sql"),
+      kind: MigrationKind::Up,
+    },
+  ];
+
   tauri::Builder::default()
     // Must be the first plugin registered. A second launch hands its args
     // to this callback instead of opening its own window/storage context —
@@ -13,6 +23,12 @@ pub fn run() {
         let _ = window.set_focus();
       }
     }))
+    .plugin(
+      tauri_plugin_sql::Builder::default()
+        .add_migrations("sqlite:archivo_muerto.db", migrations)
+        .build(),
+    )
+    .plugin(tauri_plugin_fs::init())
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(
