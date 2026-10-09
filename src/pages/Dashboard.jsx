@@ -49,6 +49,7 @@ function EmptyState({ onNew, hasSearch, section }) {
     ? t('dashboard.empty.search')
     : section === 'revived' ? t('dashboard.empty.revived')
     : section === 'recent'  ? t('dashboard.empty.recent')
+    : section === 'search'  ? t('dashboard.empty.searchPrompt')
     : t('dashboard.empty.archiveDark')
   return (
     <div style={{marginTop:32,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,minHeight:200,borderRadius:16,border:`1px dashed ${color.bgBorder}`,color:color.textTertiary,padding:32}}>
@@ -76,8 +77,14 @@ export default function Dashboard() {
     relics, visible, selected, selectedId, setSelectedId,
     filter, setFilter, section, setSection,
     search, setSearch, sortField, sortDir, cycleSort,
+    searchCategory, setSearchCategory, searchStatus, setSearchStatus,
+    searchDateFrom, setSearchDateFrom, searchDateTo, setSearchDateTo,
     stats, add, update, remove, revive,
   } = useRelics(user?.id)
+
+  const hasSearchActivity = section === 'search'
+    ? !!search || searchCategory !== 'all' || searchStatus !== 'all' || !!searchDateFrom || !!searchDateTo
+    : !!search
 
   const [dragOver,      setDragOver]      = useState(false)
   const [justRevived,   setJustRevived]   = useState(false)
@@ -201,6 +208,11 @@ export default function Dashboard() {
             <TopBar
               search={search} setSearch={setSearch}
               filter={filter} setFilter={setFilter}
+              section={section}
+              searchCategory={searchCategory} setSearchCategory={setSearchCategory}
+              searchStatus={searchStatus} setSearchStatus={setSearchStatus}
+              searchDateFrom={searchDateFrom} setSearchDateFrom={setSearchDateFrom}
+              searchDateTo={searchDateTo} setSearchDateTo={setSearchDateTo}
               onNewRelic={()=>setShowNew(true)}
               sortField={sortField} sortDir={sortDir} cycleSort={cycleSort}
             />
@@ -229,7 +241,7 @@ export default function Dashboard() {
 
               {/* Grid — responsive */}
               {visible.length === 0 ? (
-                <EmptyState onNew={()=>setShowNew(true)} hasSearch={!!search} section={section}/>
+                <EmptyState onNew={()=>setShowNew(true)} hasSearch={hasSearchActivity} section={section}/>
               ) : (
                 <div style={{
                   display:'grid',

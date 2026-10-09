@@ -1,4 +1,4 @@
-import { Image, Clock, Trash2, RotateCcw } from 'lucide-react'
+import { Image, Clock, Trash2, RotateCcw, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import UserMenu from './UserMenu.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
@@ -6,6 +6,7 @@ import { alpha } from '../styles/tokens.js'
 
 const NAV = [
   { id: 'gallery',  Icon: Image },
+  { id: 'search',   Icon: Search },
   { id: 'recent',   Icon: Clock },
   { id: 'revived',  Icon: RotateCcw },
   { id: 'deleted',  Icon: Trash2 },

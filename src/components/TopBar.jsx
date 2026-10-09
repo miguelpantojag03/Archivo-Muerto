@@ -1,20 +1,90 @@
-import { Search, Plus, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { Search, Plus, ChevronDown, ArrowUp, ArrowDown, X } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { alpha } from '../styles/tokens.js'
 import { ThemeControl, LanguageControl } from './ThemeLanguageControls.jsx'
+import { CATEGORIES } from '../constants/categories.js'
 
 const FILTERS  = ['all', 'visuals', 'drafts']
 const SORT_OPT = ['date', 'title', 'category', 'status']
 
-export default function TopBar({ search, setSearch, filter, setFilter, onNewRelic, sortField, sortDir, cycleSort }) {
+function SelectControl({ value, onChange, children }) {
+  const { color, radius, font } = useTheme()
+  return (
+    <select value={value} onChange={e => onChange(e.target.value)}
+      style={{
+        padding:'7px 10px',borderRadius:radius.control,border:`1px solid ${color.bgBorder}`,
+        background:alpha(color.bgBase, 0.35),color:color.textPrimary,
+        fontSize:12,fontFamily:font.ui,cursor:'pointer',outline:'none',flexShrink:0,
+      }}>
+      {children}
+    </select>
+  )
+}
+
+function DateInput({ value, onChange, title }) {
+  const { color, radius, font } = useTheme()
+  return (
+    <input type="date" value={value} title={title} onChange={e => onChange(e.target.value)}
+      style={{
+        padding:'6px 8px',borderRadius:radius.control,border:`1px solid ${color.bgBorder}`,
+        background:alpha(color.bgBase, 0.35),color:color.textPrimary,
+        fontSize:12,fontFamily:font.ui,outline:'none',flexShrink:0,colorScheme:'auto',
+      }}/>
+  )
+}
+
+// Global search filter row — category / status / date range. Separate from
+// the gallery-only visuals/drafts tabs: this searches across every status.
+function SearchFilters({
+  searchCategory, setSearchCategory, searchStatus, setSearchStatus,
+  searchDateFrom, setSearchDateFrom, searchDateTo, setSearchDateTo,
+}) {
+  const { t } = useTranslation()
+  const { color, font } = useTheme()
+  const active = searchCategory !== 'all' || searchStatus !== 'all' || searchDateFrom || searchDateTo
+
+  function clear() {
+    setSearchCategory('all'); setSearchStatus('all'); setSearchDateFrom(''); setSearchDateTo('')
+  }
+
+  return (
+    <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+      <SelectControl value={searchCategory} onChange={setSearchCategory}>
+        <option value="all">{t('topbar.searchFilters.allCategories')}</option>
+        {CATEGORIES.map(c => <option key={c} value={c}>{t(`relicCard.category.${c}`)}</option>)}
+      </SelectControl>
+      <SelectControl value={searchStatus} onChange={setSearchStatus}>
+        <option value="all">{t('topbar.searchFilters.allStatuses')}</option>
+        <option value="archived">{t('topbar.searchFilters.archived')}</option>
+        <option value="revived">{t('topbar.searchFilters.revived')}</option>
+      </SelectControl>
+      <DateInput value={searchDateFrom} onChange={setSearchDateFrom} title={t('topbar.searchFilters.dateFrom')}/>
+      <span style={{color:color.textTertiary,fontSize:12,fontFamily:font.ui}}>–</span>
+      <DateInput value={searchDateTo} onChange={setSearchDateTo} title={t('topbar.searchFilters.dateTo')}/>
+      {active && (
+        <button onClick={clear} title={t('topbar.searchFilters.clear')}
+          style={{display:'flex',alignItems:'center',gap:4,padding:'6px 10px',borderRadius:8,border:'none',background:'none',cursor:'pointer',color:color.textSecondary,fontSize:12,fontFamily:font.ui}}>
+          <X size={12}/>{t('topbar.searchFilters.clear')}
+        </button>
+      )}
+    </div>
+  )
+}
+
+export default function TopBar({
+  search, setSearch, filter, setFilter, onNewRelic, sortField, sortDir, cycleSort, section,
+  searchCategory, setSearchCategory, searchStatus, setSearchStatus,
+  searchDateFrom, setSearchDateFrom, searchDateTo, setSearchDateTo,
+}) {
   const { t } = useTranslation()
   const { color, radius, font, spring } = useTheme()
   const [sortOpen, setSortOpen] = useState(false)
   const [focused,  setFocused]  = useState(false)
   const sortRef                 = useRef(null)
+  const isSearch = section === 'search'
 
   useEffect(() => {
     function h(e) { if (sortRef.current && !sortRef.current.contains(e.target)) setSortOpen(false) }
@@ -39,7 +109,7 @@ export default function TopBar({ search, setSearch, filter, setFilter, onNewReli
       <div style={{flex:1,minWidth:180,position:'relative'}}>
         <Search size={13} style={{position:'absolute',left:11,top:'50%',transform:'translateY(-50%)',color:color.textSecondary,pointerEvents:'none'}}/>
         <input type="text" value={search} onChange={e=>setSearch(e.target.value)}
-          placeholder={t('topbar.searchPlaceholder')}
+          placeholder={isSearch ? t('topbar.globalSearchPlaceholder') : t('topbar.searchPlaceholder')}
           onFocus={()=>setFocused(true)} onBlur={()=>setFocused(false)}
           style={{
             width:'100%',padding:'8px 12px 8px 32px',borderRadius:radius.control,
@@ -50,23 +120,32 @@ export default function TopBar({ search, setSearch, filter, setFilter, onNewReli
           }}/>
       </div>
 
-      {/* Filter tabs */}
-      <div style={{display:'flex',borderRadius:radius.control,padding:3,background:alpha(color.bgBase, 0.35),flexShrink:0}}>
-        {FILTERS.map(f=>{
-          const active = filter===f
-          return (
-            <motion.button key={f} whileTap={{scale:0.97}} onClick={()=>setFilter(f)}
-              style={{
-                padding:'5px 12px',borderRadius:radius.chip,border:'none',cursor:'pointer',
-                background:active?color.blue500:'transparent',
-                color:active?color.onPrimary:color.textSecondary,
-                fontSize:12,fontWeight:600,fontFamily:font.ui,transition:'background 0.15s,color 0.15s',
-              }}>
-              {t(`topbar.filters.${f}`)}
-            </motion.button>
-          )
-        })}
-      </div>
+      {/* Filter tabs (gallery) or global search filters */}
+      {isSearch ? (
+        <SearchFilters
+          searchCategory={searchCategory} setSearchCategory={setSearchCategory}
+          searchStatus={searchStatus} setSearchStatus={setSearchStatus}
+          searchDateFrom={searchDateFrom} setSearchDateFrom={setSearchDateFrom}
+          searchDateTo={searchDateTo} setSearchDateTo={setSearchDateTo}
+        />
+      ) : (
+        <div style={{display:'flex',borderRadius:radius.control,padding:3,background:alpha(color.bgBase, 0.35),flexShrink:0}}>
+          {FILTERS.map(f=>{
+            const active = filter===f
+            return (
+              <motion.button key={f} whileTap={{scale:0.97}} onClick={()=>setFilter(f)}
+                style={{
+                  padding:'5px 12px',borderRadius:radius.chip,border:'none',cursor:'pointer',
+                  background:active?color.blue500:'transparent',
+                  color:active?color.onPrimary:color.textSecondary,
+                  fontSize:12,fontWeight:600,fontFamily:font.ui,transition:'background 0.15s,color 0.15s',
+                }}>
+                {t(`topbar.filters.${f}`)}
+              </motion.button>
+            )
+          })}
+        </div>
+      )}
 
       {/* Sort dropdown */}
       <div ref={sortRef} style={{position:'relative',flexShrink:0}}>

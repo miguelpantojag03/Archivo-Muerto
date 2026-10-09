@@ -112,6 +112,8 @@
     "nav": {
       "archive": "The Archive",
       "archiveDesc": "All relics",
+      "search": "Search",
+      "searchDesc": "Across the whole archive, any status",
       "recent": "Recent Relics",
       "recentDesc": "Last 10 added",
       "revived": "Revived",
@@ -127,16 +129,27 @@
   },
   "topbar": {
     "searchPlaceholder": "Search your museum of ideas…",
+    "globalSearchPlaceholder": "Search the whole archive, any status…",
     "filters": { "all": "All", "visuals": "Visuals", "drafts": "Drafts" },
+    "searchFilters": {
+      "allCategories": "All categories",
+      "allStatuses": "Any status",
+      "archived": "Archived",
+      "revived": "Revived",
+      "dateFrom": "From",
+      "dateTo": "To",
+      "clear": "Clear filters"
+    },
     "sort": { "date": "Date discarded", "title": "Title", "category": "Category", "status": "Status" },
     "newRelic": "New Relic",
     "theme": "Theme",
     "language": "Language"
   },
   "dashboard": {
-    "sectionTitle": { "gallery": "The Archive", "recent": "Recent Relics", "revived": "Revived", "deleted": "Permanently Deleted" },
+    "sectionTitle": { "gallery": "The Archive", "search": "Search", "recent": "Recent Relics", "revived": "Revived", "deleted": "Permanently Deleted" },
     "sectionDesc": {
       "gallery": "Review discarded drafts from '{{project}}' and other projects.",
+      "search": "Search by text, category, status or date — across the whole archive at once.",
       "recent": "Your 10 most recently added relics.",
       "revived": "Ideas brought back to life.",
       "deleted": "Relics deleted forever."
@@ -144,6 +157,7 @@
     "stats": { "total": "Total", "revived": "Revived", "archived": "Archived" },
     "empty": {
       "search": "No relics match your search.",
+      "searchPrompt": "Type something or pick a filter to search the whole archive.",
       "revived": "Nothing revived yet — drag a relic into the Revival Zone.",
       "recent": "No relics added yet.",
       "archiveDark": "Your archive is empty. No ideas have died here yet.",

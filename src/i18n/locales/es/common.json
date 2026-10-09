@@ -112,6 +112,8 @@
     "nav": {
       "archive": "El Archivo",
       "archiveDesc": "Todas las reliquias",
+      "search": "Buscar",
+      "searchDesc": "En todo el archivo, cualquier estado",
       "recent": "Reliquias Recientes",
       "recentDesc": "Últimas 10 añadidas",
       "revived": "Revividas",
@@ -127,16 +129,27 @@
   },
   "topbar": {
     "searchPlaceholder": "Busca en tu museo de ideas…",
+    "globalSearchPlaceholder": "Buscar en todo el archivo, cualquier estado…",
     "filters": { "all": "Todas", "visuals": "Visuales", "drafts": "Borradores" },
+    "searchFilters": {
+      "allCategories": "Todas las categorías",
+      "allStatuses": "Cualquier estado",
+      "archived": "Archivadas",
+      "revived": "Revividas",
+      "dateFrom": "Desde",
+      "dateTo": "Hasta",
+      "clear": "Limpiar filtros"
+    },
     "sort": { "date": "Fecha de descarte", "title": "Título", "category": "Categoría", "status": "Estado" },
     "newRelic": "Nueva Reliquia",
     "theme": "Tema",
     "language": "Idioma"
   },
   "dashboard": {
-    "sectionTitle": { "gallery": "El Archivo", "recent": "Reliquias Recientes", "revived": "Revividas", "deleted": "Eliminado Permanentemente" },
+    "sectionTitle": { "gallery": "El Archivo", "search": "Buscar", "recent": "Reliquias Recientes", "revived": "Revividas", "deleted": "Eliminado Permanentemente" },
     "sectionDesc": {
       "gallery": "Revisa los borradores descartados de «{{project}}» y otros proyectos.",
+      "search": "Buscá por texto, categoría, estado o fecha — en todo el archivo a la vez.",
       "recent": "Tus 10 reliquias más recientes.",
       "revived": "Ideas que volvieron a la vida.",
       "deleted": "Reliquias eliminadas para siempre."
@@ -144,6 +157,7 @@
     "stats": { "total": "Total", "revived": "Revividas", "archived": "Archivadas" },
     "empty": {
       "search": "Ninguna reliquia coincide con tu búsqueda.",
+      "searchPrompt": "Escribí algo o elegí un filtro para buscar en todo el archivo.",
       "revived": "Todavía no revives nada. Arrastra una reliquia a la Zona de Revival.",
       "recent": "Aún no se ha archivado ninguna reliquia.",
       "archiveDark": "Tu archivo está vacío. Todavía no ha muerto ninguna idea aquí.",

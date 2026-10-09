@@ -23,8 +23,16 @@ export function useRelics(userId) {
   const [relics,     setRelics]     = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [filter,     setFilter]     = useState('all')      // 'all'|'visuals'|'drafts'
-  const [section,    setSection]    = useState('gallery')  // 'gallery'|'recent'|'revived'|'deleted'
+  const [section,    setSection]    = useState('gallery')  // 'gallery'|'recent'|'revived'|'deleted'|'search'
   const [search,     setSearch]     = useState('')
+
+  // Global search filters — only applied when section === 'search'. Kept
+  // separate from `filter` above: that one is a gallery-only visuals/drafts
+  // shortcut, this is a real cross-status/cross-date query.
+  const [searchCategory, setSearchCategory] = useState('all')
+  const [searchStatus,   setSearchStatus]   = useState('all')   // 'all'|'archived'|'revived'
+  const [searchDateFrom, setSearchDateFrom] = useState('')
+  const [searchDateTo,   setSearchDateTo]   = useState('')
   const [sortField,  setSortField]  = useState('date')     // 'date'|'title'|'category'|'status'
   const [sortDir,    setSortDir]    = useState('desc')     // 'asc'|'desc'
   const [loading,    setLoading]    = useState(true)
@@ -52,7 +60,9 @@ export function useRelics(userId) {
   const visible = useMemo(() => {
     let list = relics
 
-    // section filter
+    // section filter — 'search' deliberately skips all of this and starts
+    // from the full, unscoped list: the whole point is to look across every
+    // status/project at once, not just the current section.
     if (section === 'recent')  list = [...list].sort(sortFn('date','desc')).slice(0, 10)
     else if (section === 'revived') list = list.filter(r => r.revived)
     else if (section === 'deleted') list = [] // placeholder for soft-delete feature
@@ -61,6 +71,14 @@ export function useRelics(userId) {
     if (section === 'gallery') {
       if (filter === 'visuals') list = list.filter(r => r.filter === 'visuals')
       else if (filter === 'drafts') list = list.filter(r => r.filter === 'drafts')
+    }
+
+    // global search filters
+    if (section === 'search') {
+      if (searchCategory !== 'all') list = list.filter(r => r.category === searchCategory)
+      if (searchStatus   !== 'all') list = list.filter(r => r.status === searchStatus)
+      if (searchDateFrom) list = list.filter(r => (r.discardedAt ?? '') >= searchDateFrom)
+      if (searchDateTo)   list = list.filter(r => (r.discardedAt ?? '') <= `${searchDateTo}T23:59:59.999Z`)
     }
 
     // search
@@ -77,7 +95,7 @@ export function useRelics(userId) {
     if (section !== 'recent') list = [...list].sort(sortFn(sortField, sortDir))
 
     return list
-  }, [relics, section, filter, search, sortField, sortDir])
+  }, [relics, section, filter, search, sortField, sortDir, searchCategory, searchStatus, searchDateFrom, searchDateTo])
 
   const selected = useMemo(() => relics.find(r => r.id === selectedId) ?? null, [relics, selectedId])
 
@@ -128,6 +146,10 @@ export function useRelics(userId) {
     filter, setFilter,
     section, setSection,
     search, setSearch,
+    searchCategory, setSearchCategory,
+    searchStatus,   setSearchStatus,
+    searchDateFrom, setSearchDateFrom,
+    searchDateTo,   setSearchDateTo,
     sortField, sortDir, cycleSort,
     loading, stats,
     add, update, remove, revive,
