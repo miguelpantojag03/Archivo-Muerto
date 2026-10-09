@@ -274,6 +274,8 @@ export default function Dashboard() {
         {/* Right panel */}
         <RelicDetails
           relic={selected}
+          relics={relics}
+          onSelectRelic={setSelectedId}
           onRevive={handleRevive}
           onDelete={handleDelete}
           onEdit={relic=>setEditRelic(relic)}
@@ -293,7 +295,7 @@ export default function Dashboard() {
         />
       )}
       {editRelic && (
-        <EditRelicModal relic={editRelic} onClose={()=>setEditRelic(null)} onSave={handleSaveEdit}/>
+        <EditRelicModal relic={editRelic} onClose={()=>setEditRelic(null)} onSave={handleSaveEdit} relics={relics}/>
       )}
       {showSettings && (
         <SettingsModal userId={user?.id} onClose={()=>setShowSettings(false)}/>

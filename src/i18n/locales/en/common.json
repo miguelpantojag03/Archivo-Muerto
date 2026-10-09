@@ -7,7 +7,8 @@
     "close": "Close",
     "confirm": "Confirm",
     "loading": "Loading…",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "noResults": "No results"
   },
   "app": {
     "unsavedChangesConfirm": "You have unsaved changes. If you close now, they'll be lost. Close anyway?"
@@ -211,7 +212,14 @@
     "aiAnalyzeButton": "Analyze this relic",
     "reviveNow": "Revive Now",
     "deleteForever": "Delete Forever",
-    "viewOverlay": "View"
+    "viewOverlay": "View",
+    "lineage": {
+      "title": "Lineage",
+      "replaces": "Replaces",
+      "replacedBy": "Replaced by",
+      "inspiredBy": "Inspired by",
+      "inspired": "Inspired"
+    }
   },
   "imageViewer": { "close": "Close", "rotate": "Rotate" },
   "modals": {
@@ -246,7 +254,11 @@
         "viewAction": "View archived relic",
         "statusArchived": "archived",
         "statusRevived": "revived"
-      }
+      },
+      "lineage": "Lineage",
+      "replaces": "Replaces",
+      "inspiredBy": "Inspired by",
+      "lineagePlaceholder": "Search by title… (optional)"
     },
     "editRelic": {
       "title": "Edit Relic",

@@ -7,7 +7,8 @@
     "close": "Cerrar",
     "confirm": "Confirmar",
     "loading": "Cargando…",
-    "dismiss": "Descartar"
+    "dismiss": "Descartar",
+    "noResults": "Sin resultados"
   },
   "app": {
     "unsavedChangesConfirm": "Tienes cambios sin guardar. Si cierras ahora, se perderán. ¿Cerrar de todos modos?"
@@ -211,7 +212,14 @@
     "aiAnalyzeButton": "Analizar esta reliquia",
     "reviveNow": "Revivir Ahora",
     "deleteForever": "Eliminar para Siempre",
-    "viewOverlay": "Ver"
+    "viewOverlay": "Ver",
+    "lineage": {
+      "title": "Linaje",
+      "replaces": "Reemplaza a",
+      "replacedBy": "Reemplazada por",
+      "inspiredBy": "Inspirada en",
+      "inspired": "Inspiró a"
+    }
   },
   "imageViewer": { "close": "Cerrar", "rotate": "Girar" },
   "modals": {
@@ -246,7 +254,11 @@
         "viewAction": "Ver reliquia archivada",
         "statusArchived": "archivada",
         "statusRevived": "revivida"
-      }
+      },
+      "lineage": "Linaje",
+      "replaces": "Reemplaza a",
+      "inspiredBy": "Inspirada en",
+      "lineagePlaceholder": "Buscar por título… (opcional)"
     },
     "editRelic": {
       "title": "Editar Reliquia",

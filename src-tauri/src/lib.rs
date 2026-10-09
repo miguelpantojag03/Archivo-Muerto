@@ -12,6 +12,12 @@ pub fn run() {
       sql: include_str!("../migrations/0001_init.sql"),
       kind: MigrationKind::Up,
     },
+    Migration {
+      version: 2,
+      description: "add_lineage_columns",
+      sql: include_str!("../migrations/0002_lineage.sql"),
+      kind: MigrationKind::Up,
+    },
   ];
 
   tauri::Builder::default()

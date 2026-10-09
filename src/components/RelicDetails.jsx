@@ -137,8 +137,55 @@ function AIAnalysisBlock({ analysis, loading, onRequest }) {
   )
 }
 
+/* ─── lineage ──────────────────────────────────────────────────────── */
+function LineageRow({ label, relics, onSelect, color, font }) {
+  if (!relics.length) return null
+  return (
+    <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',gap:10,padding:'8px 12px',background:color.bgElevated}}>
+      <span style={{fontSize:11,color:color.textSecondary,flexShrink:0,marginTop:1}}>{label}</span>
+      <div style={{display:'flex',flexDirection:'column',gap:3,alignItems:'flex-end'}}>
+        {relics.map(r => (
+          <button key={r.id} onClick={() => onSelect(r.id)}
+            style={{background:'none',border:'none',padding:0,cursor:'pointer',color:color.blue300,fontSize:11,fontWeight:500,fontFamily:font.ui,textAlign:'right',textDecoration:'underline',maxWidth:150,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+            {r.title}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function LineageSection({ relic, relics, onSelectRelic, color, font, t }) {
+  const replacesRelic    = relics.find(r => r.id === relic.replacesId)
+  const inspiredByRelic  = relics.find(r => r.id === relic.inspiredById)
+  const replacedByRelics = relics.filter(r => r.replacesId === relic.id)
+  const inspiredRelics   = relics.filter(r => r.inspiredById === relic.id)
+
+  const rows = [
+    { label: t('relicDetails.lineage.replaces'),    relics: replacesRelic ? [replacesRelic] : [] },
+    { label: t('relicDetails.lineage.replacedBy'),   relics: replacedByRelics },
+    { label: t('relicDetails.lineage.inspiredBy'),   relics: inspiredByRelic ? [inspiredByRelic] : [] },
+    { label: t('relicDetails.lineage.inspired'),     relics: inspiredRelics },
+  ].filter(r => r.relics.length > 0)
+
+  if (rows.length === 0) return null
+
+  return (
+    <div style={{border:`1px solid ${color.bgBorder}`,borderRadius:10,overflow:'hidden'}}>
+      <div style={{padding:'7px 12px',background:color.bgElevated,borderBottom:`1px solid ${color.bgBorder}`,fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:color.textSecondary}}>
+        {t('relicDetails.lineage.title').toUpperCase()}
+      </div>
+      {rows.map((row, i) => (
+        <div key={row.label} style={{borderBottom: i < rows.length - 1 ? `1px solid ${color.bgBorder}` : 'none'}}>
+          <LineageRow label={row.label} relics={row.relics} onSelect={onSelectRelic} color={color} font={font}/>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 /* ─── main component ──────────────────────────────────────────────── */
-export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnalyze, aiAnalysis, aiLoading }) {
+export default function RelicDetails({ relic, relics = [], onSelectRelic, onRevive, onDelete, onEdit, onAnalyze, aiAnalysis, aiLoading }) {
   const { t } = useTranslation()
   const { color, font } = useTheme()
   const { user } = useAuth()
@@ -289,6 +336,9 @@ export default function RelicDetails({ relic, onRevive, onDelete, onEdit, onAnal
               </div>
             ))}
           </div>
+
+          {/* lineage */}
+          <LineageSection relic={relic} relics={relics} onSelectRelic={onSelectRelic} color={color} font={font} t={t}/>
 
           {/* notes */}
           {relic.notes && (

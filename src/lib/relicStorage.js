@@ -30,6 +30,8 @@ function toRow(relic) {
     created_at: relic.createdAt,
     discarded_at: relic.discardedAt,
     updated_at: relic.updatedAt,
+    replaces_id: relic.replacesId ?? null,
+    inspired_by_id: relic.inspiredById ?? null,
   }
 }
 
@@ -53,6 +55,8 @@ function fromRow(row) {
     discardedAt: row.discarded_at,
     updatedAt: row.updated_at,
     revivalCount: row.revival_count ?? 0,
+    replacesId: row.replaces_id ?? null,
+    inspiredById: row.inspired_by_id ?? null,
   }
 }
 
@@ -87,11 +91,12 @@ async function insertRelicRow(db, userId, relic, coverImagePath) {
   const row = toRow({ ...relic, userId })
   await db.execute(
     `INSERT INTO relics (id,user_id,category,title,description,notes,responsible,project,
-       filter,thumbnail,cover_image_path,tags,status,revived_at,created_at,discarded_at,updated_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)`,
+       filter,thumbnail,cover_image_path,tags,status,revived_at,created_at,discarded_at,updated_at,
+       replaces_id,inspired_by_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
     [row.id, row.user_id, row.category, row.title, row.description, row.notes, row.responsible,
      row.project, row.filter, row.thumbnail, coverImagePath, row.tags, row.status, row.revived_at,
-     row.created_at, row.discarded_at, row.updated_at]
+     row.created_at, row.discarded_at, row.updated_at, row.replaces_id, row.inspired_by_id]
   )
   await recordStatusTransition(db, relic.id, null, 'archived', row.created_at)
 }
@@ -141,6 +146,7 @@ export async function updateRelic(userId, id, patch) {
     title: 'title', category: 'category', description: 'description', notes: 'notes',
     responsible: 'responsible', project: 'project', filter: 'filter', thumbnail: 'thumbnail',
     status: 'status', revivedAt: 'revived_at', updatedAt: 'updated_at',
+    replacesId: 'replaces_id', inspiredById: 'inspired_by_id',
   }
   const sets = []
   const vals = []

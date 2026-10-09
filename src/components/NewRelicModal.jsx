@@ -20,6 +20,7 @@ import { ImagePlus }                 from 'lucide-react'
 import AITagSuggester                from './AITagSuggester.jsx'
 import DejaVuWarning                 from './DejaVuWarning.jsx'
 import { findSimilarRelics }         from '../lib/similarity.js'
+import RelicPicker                   from './RelicPicker.jsx'
 import { useTheme }                  from '../context/ThemeContext.jsx'
 import { registerUnsavedChanges }    from '../lib/windowCloseGuard.js'
 import { alpha }                     from '../styles/tokens.js'
@@ -168,6 +169,8 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
   const [responsible, setResponsible] = useState(user?.fullName??'')
   const [tags,        setTags]        = useState([])
   const [coverImage,  setCoverImage]  = useState(null)
+  const [replacesId,   setReplacesId]   = useState(null)
+  const [inspiredById, setInspiredById] = useState(null)
   const [titleError,  setTitleError]  = useState('')
   const [saving,      setSaving]      = useState(false)
   const [dejaVu,      setDejaVu]      = useState([])
@@ -197,7 +200,8 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
   // Let the native window-close guard know this form has unsaved content
   const isDirty = Boolean(
     title.trim() || description.trim() || notes.trim() ||
-    tags.length > 0 || coverImage || attachments.length > 0
+    tags.length > 0 || coverImage || attachments.length > 0 ||
+    replacesId || inspiredById
   )
   useEffect(() => {
     registerUnsavedChanges(isDirty)
@@ -237,6 +241,7 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
         project:     user?.activeProject||'General',
         filter:      CATEGORY_FILTER_MAP[category],
         thumbnail:   CATEGORY_THUMB_MAP[category],
+        replacesId, inspiredById,
         revived:false, status:'archived',
         createdAt:now, discardedAt:now, updatedAt:now,
       }
@@ -330,6 +335,19 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
             currentTags={tags}
             onAdd={suggested=>setTags(prev=>[...new Set([...prev,...suggested])])}
           />
+        </div>
+
+        {/* Lineage */}
+        <div style={{borderTop:`1px solid ${color.bgBorder}`,paddingTop:14,display:'flex',flexDirection:'column',gap:10}}>
+          <div style={S.sec}>{t('modals.newRelic.lineage')}</div>
+          <div>
+            <label style={S.label}>{t('modals.newRelic.replaces')}</label>
+            <RelicPicker relics={relics} value={replacesId} onChange={setReplacesId} placeholder={t('modals.newRelic.lineagePlaceholder')}/>
+          </div>
+          <div>
+            <label style={S.label}>{t('modals.newRelic.inspiredBy')}</label>
+            <RelicPicker relics={relics} value={inspiredById} onChange={setInspiredById} placeholder={t('modals.newRelic.lineagePlaceholder')}/>
+          </div>
         </div>
 
         {/* Attachments */}

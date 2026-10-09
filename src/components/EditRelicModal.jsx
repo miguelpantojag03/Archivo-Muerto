@@ -14,6 +14,7 @@ import { useAI }            from '../hooks/useAI.js'
 import { getThumbnail }     from './Thumbnails.jsx'
 import { TagsInput }        from './NewRelicModal.jsx'
 import AITagSuggester       from './AITagSuggester.jsx'
+import RelicPicker          from './RelicPicker.jsx'
 import { CATEGORIES, CATEGORY_FILTER_MAP, CATEGORY_THUMB_MAP } from '../constants/categories.js'
 import { Spinner }          from './FormField.jsx'
 import { useTheme }         from '../context/ThemeContext.jsx'
@@ -124,7 +125,7 @@ function DescriptionEnhancer({ title, description, onApply }) {
 }
 
 // ── Main modal ────────────────────────────────────────────────────
-export default function EditRelicModal({ relic, onClose, onSave }) {
+export default function EditRelicModal({ relic, onClose, onSave, relics = [] }) {
   const { t }      = useTranslation()
   const { color, radius, font } = useTheme()
   const { user }   = useAuth()
@@ -138,8 +139,11 @@ export default function EditRelicModal({ relic, onClose, onSave }) {
   const [responsible, setResponsible] = useState(relic.responsible??'')
   const [tags,        setTags]        = useState(relic.tags??[])
   const [coverImage,  setCoverImage]  = useState(relic.coverImage??null)
+  const [replacesId,   setReplacesId]   = useState(relic.replacesId??null)
+  const [inspiredById, setInspiredById] = useState(relic.inspiredById??null)
   const [titleError,  setTitleError]  = useState('')
   const [saving,      setSaving]      = useState(false)
+  const pickableRelics = relics.filter(r => r.id !== relic.id)
 
   const {
     attachments,loading:attLoading,error:attError,setError:setAttError,
@@ -157,7 +161,9 @@ export default function EditRelicModal({ relic, onClose, onSave }) {
     responsible !== (relic.responsible ?? '') ||
     coverImage !== (relic.coverImage ?? null) ||
     tags.length !== (relic.tags ?? []).length ||
-    tags.some((tag, i) => tag !== (relic.tags ?? [])[i])
+    tags.some((tag, i) => tag !== (relic.tags ?? [])[i]) ||
+    replacesId !== (relic.replacesId ?? null) ||
+    inspiredById !== (relic.inspiredById ?? null)
   )
   useEffect(() => {
     registerUnsavedChanges(isDirty)
@@ -188,6 +194,7 @@ export default function EditRelicModal({ relic, onClose, onSave }) {
         notes:notes.trim(),responsible:responsible.trim(),
         tags,
         filter:CATEGORY_FILTER_MAP[category],thumbnail:CATEGORY_THUMB_MAP[category],
+        replacesId,inspiredById,
         updatedAt:now,
       }
       // Only touch the cover-image file on disk if it actually changed —
@@ -266,6 +273,19 @@ export default function EditRelicModal({ relic, onClose, onSave }) {
             <div style={{...S.sec,marginBottom:10}}>{t('modals.newRelic.tags')}</div>
             <TagsInput tags={tags} onChange={setTags}/>
             <AITagSuggester title={title} description={description} category={category} currentTags={tags} onAdd={suggested=>setTags(prev=>[...new Set([...prev,...suggested])])}/>
+          </div>
+
+          {/* Lineage */}
+          <div style={{borderTop:`1px solid ${color.bgBorder}`,paddingTop:14,display:'flex',flexDirection:'column',gap:10}}>
+            <div style={S.sec}>{t('modals.newRelic.lineage')}</div>
+            <div>
+              <label style={S.label}>{t('modals.newRelic.replaces')}</label>
+              <RelicPicker relics={pickableRelics} value={replacesId} onChange={setReplacesId} placeholder={t('modals.newRelic.lineagePlaceholder')}/>
+            </div>
+            <div>
+              <label style={S.label}>{t('modals.newRelic.inspiredBy')}</label>
+              <RelicPicker relics={pickableRelics} value={inspiredById} onChange={setInspiredById} placeholder={t('modals.newRelic.lineagePlaceholder')}/>
+            </div>
           </div>
 
           {/* Attachments */}
