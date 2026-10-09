@@ -168,6 +168,7 @@
     "toast": {
       "revived": "Relic revived! 🎉",
       "relicAdded": "Relic added to the archive.",
+      "relicForked": "Variant created — the original stays archived as-is.",
       "sessionExpired": "Your session expired. Please sign in again.",
       "deleteTitle": "Delete relic forever?",
       "deleteMessage": "\"{{title}}\" and all its attachments will be permanently removed.",
@@ -212,6 +213,7 @@
     "aiAnalysisLabel": "AI Analysis",
     "aiAnalyzeButton": "Analyze this relic",
     "reviveNow": "Revive Now",
+    "createFork": "Create Variant",
     "deleteForever": "Delete Forever",
     "viewOverlay": "View",
     "lineage": {
@@ -219,7 +221,9 @@
       "replaces": "Replaces",
       "replacedBy": "Replaced by",
       "inspiredBy": "Inspired by",
-      "inspired": "Inspired"
+      "inspired": "Inspired",
+      "forkedFrom": "Forked from",
+      "forks": "Forks"
     },
     "linkedFile": {
       "title": "Linked File",
@@ -278,6 +282,7 @@
       "linkedFile": "Linked File",
       "linkFile": "Link a file",
       "linkFileChange": "Change",
+      "forkedFromLabel": "Forked from: «{{title}}»",
       "secureCopy": "Keep an internal backup copy"
     },
     "editRelic": {

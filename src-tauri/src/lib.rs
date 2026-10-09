@@ -24,6 +24,12 @@ pub fn run() {
       sql: include_str!("../migrations/0003_external_links.sql"),
       kind: MigrationKind::Up,
     },
+    Migration {
+      version: 4,
+      description: "add_fork_column",
+      sql: include_str!("../migrations/0004_fork.sql"),
+      kind: MigrationKind::Up,
+    },
   ];
 
   tauri::Builder::default()

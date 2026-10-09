@@ -16,7 +16,7 @@ import { getThumbnail }              from './Thumbnails.jsx'
 import { deleteAttachmentsForRelic } from '../lib/attachmentStorage.js'
 import { CATEGORIES, CATEGORY_FILTER_MAP, CATEGORY_THUMB_MAP } from '../constants/categories.js'
 import { Spinner }                   from './FormField.jsx'
-import { ImagePlus }                 from 'lucide-react'
+import { ImagePlus, GitFork }        from 'lucide-react'
 import AITagSuggester                from './AITagSuggester.jsx'
 import DejaVuWarning                 from './DejaVuWarning.jsx'
 import { findSimilarRelics }         from '../lib/similarity.js'
@@ -155,7 +155,7 @@ export function TagsInput({ tags, onChange }) {
 function makeTmpId() { return `relic_${Date.now()}_${Math.random().toString(36).slice(2,5)}` }
 
 // ── Main modal ────────────────────────────────────────────────────
-export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExisting }) {
+export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExisting, forkFrom = null }) {
   const { t }     = useTranslation()
   const { color, radius, font } = useTheme()
   const { user }  = useAuth()
@@ -164,12 +164,12 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
   // Stable tmp id per modal instance (not module-level variable)
   const [tmpRelicId] = useState(makeTmpId)
 
-  const [title,       setTitle]       = useState('')
-  const [category,    setCategory]    = useState('SKETCH')
-  const [description, setDesc]        = useState('')
-  const [notes,       setNotes]       = useState('')
+  const [title,       setTitle]       = useState(forkFrom?.title ?? '')
+  const [category,    setCategory]    = useState(forkFrom?.category ?? 'SKETCH')
+  const [description, setDesc]        = useState(forkFrom?.description ?? '')
+  const [notes,       setNotes]       = useState(forkFrom?.notes ?? '')
   const [responsible, setResponsible] = useState(user?.fullName??'')
-  const [tags,        setTags]        = useState([])
+  const [tags,        setTags]        = useState(forkFrom?.tags ?? [])
   const [coverImage,  setCoverImage]  = useState(null)
   const [replacesId,   setReplacesId]   = useState(null)
   const [inspiredById, setInspiredById] = useState(null)
@@ -255,6 +255,7 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
         filter:      CATEGORY_FILTER_MAP[category],
         thumbnail:   CATEGORY_THUMB_MAP[category],
         replacesId, inspiredById,
+        forkedFromId: forkFrom?.id ?? null,
         linkedFilePath: linkedFile?.path ?? null,
         linkedFileMtime: linkedFile?.mtime ?? null,
         linkedFileCopiedPath,
@@ -283,6 +284,14 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
       <div style={{display:'flex',flexDirection:'column',gap:14,maxHeight:'72vh',overflowY:'auto',paddingRight:2}}>
 
         <div style={S.sec}>{t('modals.newRelic.generalInfo')}</div>
+
+        {/* Fork origin — informational, not editable here */}
+        {forkFrom && (
+          <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 12px',borderRadius:radius.controlSm,background:alpha(color.blue500, 0.08),border:`1px solid ${alpha(color.blue500, 0.25)}`,fontSize:12,color:color.textSecondary,fontFamily:font.ui}}>
+            <GitFork size={13} style={{color:color.blue300,flexShrink:0}}/>
+            {t('modals.newRelic.forkedFromLabel', { title: forkFrom.title })}
+          </div>
+        )}
 
         {/* Title */}
         <div>

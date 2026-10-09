@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import {
   RotateCcw, Trash2, Pencil, Paperclip, Expand,
   Image as ImageIcon, Sparkles, X,
-  Link2, ExternalLink, RefreshCw, ShieldCheck, AlertTriangle,
+  Link2, ExternalLink, RefreshCw, ShieldCheck, AlertTriangle, GitFork,
 } from 'lucide-react'
 import { getThumbnail } from './Thumbnails.jsx'
 import { useAttachments }  from '../hooks/useAttachments.js'
@@ -163,12 +163,16 @@ function LineageSection({ relic, relics, onSelectRelic, color, font, t }) {
   const inspiredByRelic  = relics.find(r => r.id === relic.inspiredById)
   const replacedByRelics = relics.filter(r => r.replacesId === relic.id)
   const inspiredRelics   = relics.filter(r => r.inspiredById === relic.id)
+  const forkedFromRelic  = relics.find(r => r.id === relic.forkedFromId)
+  const forkRelics       = relics.filter(r => r.forkedFromId === relic.id)
 
   const rows = [
     { label: t('relicDetails.lineage.replaces'),    relics: replacesRelic ? [replacesRelic] : [] },
     { label: t('relicDetails.lineage.replacedBy'),   relics: replacedByRelics },
     { label: t('relicDetails.lineage.inspiredBy'),   relics: inspiredByRelic ? [inspiredByRelic] : [] },
     { label: t('relicDetails.lineage.inspired'),     relics: inspiredRelics },
+    { label: t('relicDetails.lineage.forkedFrom'),   relics: forkedFromRelic ? [forkedFromRelic] : [] },
+    { label: t('relicDetails.lineage.forks'),        relics: forkRelics },
   ].filter(r => r.relics.length > 0)
 
   if (rows.length === 0) return null
@@ -290,7 +294,7 @@ function LinkedFileSection({ relic, onUpdateRelic, color, font, t, push }) {
 }
 
 /* ─── main component ──────────────────────────────────────────────── */
-export default function RelicDetails({ relic, relics = [], onSelectRelic, onUpdateRelic, onRevive, onDelete, onEdit, onAnalyze, aiAnalysis, aiLoading }) {
+export default function RelicDetails({ relic, relics = [], onSelectRelic, onUpdateRelic, onRevive, onDelete, onEdit, onFork, onAnalyze, aiAnalysis, aiLoading }) {
   const { t } = useTranslation()
   const { color, font } = useTheme()
   const { user } = useAuth()
@@ -466,6 +470,12 @@ export default function RelicDetails({ relic, relics = [], onSelectRelic, onUpda
             onMouseEnter={e=>e.currentTarget.style.background=color.blue600}
             onMouseLeave={e=>e.currentTarget.style.background=color.blue500}>
             <RotateCcw size={13}/> {t('relicDetails.reviveNow')}
+          </button>
+          <button onClick={()=>onFork?.(relic)}
+            style={{width:'100%',padding:'10px 0',borderRadius:8,background:'transparent',color:color.textPrimary,fontSize:13,fontWeight:600,fontFamily:font.ui,cursor:'pointer',border:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'border-color 0.12s,color 0.12s'}}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor=color.blue500;e.currentTarget.style.color=color.blue300}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor=color.bgBorder;e.currentTarget.style.color=color.textPrimary}}>
+            <GitFork size={13}/> {t('relicDetails.createFork')}
           </button>
           <button onClick={()=>onDelete(relic.id)}
             style={{width:'100%',padding:'10px 0',borderRadius:8,background:'transparent',color:color.textSecondary,fontSize:13,fontWeight:600,fontFamily:font.ui,cursor:'pointer',border:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'border-color 0.12s,color 0.12s'}}

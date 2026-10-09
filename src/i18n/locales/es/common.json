@@ -168,6 +168,7 @@
     "toast": {
       "revived": "¡Reliquia revivida! 🎉",
       "relicAdded": "Reliquia añadida al archivo.",
+      "relicForked": "Variante creada — la original sigue archivada tal cual.",
       "sessionExpired": "Tu sesión expiró. Vuelve a iniciar sesión.",
       "deleteTitle": "¿Eliminar esta reliquia para siempre?",
       "deleteMessage": "«{{title}}» y todos sus archivos adjuntos se eliminarán para siempre.",
@@ -212,6 +213,7 @@
     "aiAnalysisLabel": "Análisis de IA",
     "aiAnalyzeButton": "Analizar esta reliquia",
     "reviveNow": "Revivir Ahora",
+    "createFork": "Crear Variante",
     "deleteForever": "Eliminar para Siempre",
     "viewOverlay": "Ver",
     "lineage": {
@@ -219,7 +221,9 @@
       "replaces": "Reemplaza a",
       "replacedBy": "Reemplazada por",
       "inspiredBy": "Inspirada en",
-      "inspired": "Inspiró a"
+      "inspired": "Inspiró a",
+      "forkedFrom": "Bifurcada de",
+      "forks": "Bifurcaciones"
     },
     "linkedFile": {
       "title": "Archivo Vinculado",
@@ -278,7 +282,8 @@
       "linkedFile": "Archivo Vinculado",
       "linkFile": "Vincular archivo",
       "linkFileChange": "Cambiar",
-      "secureCopy": "Asegurar una copia interna"
+      "secureCopy": "Asegurar una copia interna",
+      "forkedFromLabel": "Bifurcada de: «{{title}}»"
     },
     "editRelic": {
       "title": "Editar Reliquia",

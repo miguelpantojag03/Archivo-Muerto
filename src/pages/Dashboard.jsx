@@ -89,6 +89,7 @@ export default function Dashboard() {
   const [dragOver,      setDragOver]      = useState(false)
   const [justRevived,   setJustRevived]   = useState(false)
   const [showNew,       setShowNew]       = useState(false)
+  const [forkSeed,      setForkSeed]      = useState(null)
   const [editRelic,     setEditRelic]     = useState(null)
   const [showSettings,  setShowSettings]  = useState(false)
   const [aiAnalysis,    setAiAnalysis]    = useState({})  // { [relicId]: string }
@@ -160,7 +161,17 @@ export default function Dashboard() {
 
   async function handleAddRelic(relic) {
     await add(relic)
-    push(t('dashboard.toast.relicAdded'), 'success')
+    push(relic.forkedFromId ? t('dashboard.toast.relicForked') : t('dashboard.toast.relicAdded'), 'success')
+  }
+
+  function handleForkRelic(relic) {
+    setForkSeed(relic)
+    setShowNew(true)
+  }
+
+  function handleCloseNew() {
+    setShowNew(false)
+    setForkSeed(null)
   }
 
   async function handleSaveEdit(id, patch) {
@@ -280,6 +291,7 @@ export default function Dashboard() {
           onRevive={handleRevive}
           onDelete={handleDelete}
           onEdit={relic=>setEditRelic(relic)}
+          onFork={handleForkRelic}
           onAnalyze={handleAnalyze}
           aiAnalysis={selected ? aiAnalysis[selected.id] : null}
           aiLoading={aiLoadingId === selected?.id}
@@ -289,10 +301,11 @@ export default function Dashboard() {
       {/* Modals */}
       {showNew && (
         <NewRelicModal
-          onClose={()=>setShowNew(false)}
+          onClose={handleCloseNew}
           onAdd={handleAddRelic}
           relics={relics}
           onViewExisting={setSelectedId}
+          forkFrom={forkSeed}
         />
       )}
       {editRelic && (
