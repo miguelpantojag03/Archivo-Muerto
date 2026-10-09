@@ -1,6 +1,8 @@
 use tauri::Manager;
 use tauri_plugin_sql::{Migration, MigrationKind};
 
+mod backup;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   let migrations = vec![
@@ -32,7 +34,15 @@ pub fn run() {
     .plugin(tauri_plugin_opener::init())
     .plugin(tauri_plugin_oauth::init())
     .plugin(tauri_plugin_http::init())
+    .plugin(tauri_plugin_dialog::init())
+    .plugin(tauri_plugin_process::init())
+    .invoke_handler(tauri::generate_handler![
+      backup::export_backup,
+      backup::import_backup
+    ])
     .setup(|app| {
+      // Must run before the frontend's first Database.load() call.
+      backup::apply_pending_restore(app.handle());
       if cfg!(debug_assertions) {
         app.handle().plugin(
           tauri_plugin_log::Builder::default()

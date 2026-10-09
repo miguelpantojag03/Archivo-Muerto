@@ -16,6 +16,8 @@
     { "identifier": "opener:allow-open-url", "allow": [{ "url": "https://accounts.google.com/*" }] },
     "oauth:allow-start",
     "oauth:allow-cancel",
-    { "identifier": "http:default", "allow": [{ "url": "https://oauth2.googleapis.com/token" }] }
+    { "identifier": "http:default", "allow": [{ "url": "https://oauth2.googleapis.com/token" }] },
+    "dialog:default",
+    "process:allow-restart"
   ]
 }

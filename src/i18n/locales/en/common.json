@@ -257,7 +257,20 @@
       "exportedJSON": "Exported as JSON.",
       "exportedCSV": "Exported as CSV.",
       "language": "Language",
-      "theme": "Theme"
+      "theme": "Theme",
+      "backupTitle": "Backup",
+      "backupDescription": "Includes every idea, its history, and all attachments — a single .zip you can save anywhere.",
+      "backupExport": "Export full backup",
+      "backupExporting": "Exporting…",
+      "backupExported": "Backup saved.",
+      "backupExportError": "Could not create the backup.",
+      "backupRestore": "Restore from a file",
+      "backupRestoring": "Restoring…",
+      "backupRestoreError": "Could not restore that backup.",
+      "backupRestoreInvalid": "That file isn't a valid Archivo Muerto backup.",
+      "backupRestoreConfirmTitle": "Restore this backup?",
+      "backupRestoreConfirmMessage": "This will replace ALL current ideas and attachments with the ones from the chosen backup, and restart the app. This action can't be undone.",
+      "backupRestoreConfirmAction": "Restore and restart"
     },
     "imagePreview": {
       "zoomOut": "Zoom out", "zoomIn": "Zoom in", "rotate": "Rotate 90°",
