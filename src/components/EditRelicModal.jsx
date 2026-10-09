@@ -15,6 +15,8 @@ import { getThumbnail }     from './Thumbnails.jsx'
 import { TagsInput }        from './NewRelicModal.jsx'
 import AITagSuggester       from './AITagSuggester.jsx'
 import RelicPicker          from './RelicPicker.jsx'
+import LinkedFilePicker     from './LinkedFilePicker.jsx'
+import { pickFileToLink, secureCopy } from '../lib/fileLinks.js'
 import { CATEGORIES, CATEGORY_FILTER_MAP, CATEGORY_THUMB_MAP } from '../constants/categories.js'
 import { Spinner }          from './FormField.jsx'
 import { useTheme }         from '../context/ThemeContext.jsx'
@@ -141,6 +143,10 @@ export default function EditRelicModal({ relic, onClose, onSave, relics = [] }) 
   const [coverImage,  setCoverImage]  = useState(relic.coverImage??null)
   const [replacesId,   setReplacesId]   = useState(relic.replacesId??null)
   const [inspiredById, setInspiredById] = useState(relic.inspiredById??null)
+  const [linkedFile, setLinkedFile] = useState(
+    relic.linkedFilePath ? { path: relic.linkedFilePath, mtime: relic.linkedFileMtime } : null
+  )
+  const [secureCopyFlag, setSecureCopyFlag] = useState(!!relic.linkedFileCopiedPath)
   const [titleError,  setTitleError]  = useState('')
   const [saving,      setSaving]      = useState(false)
   const pickableRelics = relics.filter(r => r.id !== relic.id)
@@ -163,7 +169,9 @@ export default function EditRelicModal({ relic, onClose, onSave, relics = [] }) 
     tags.length !== (relic.tags ?? []).length ||
     tags.some((tag, i) => tag !== (relic.tags ?? [])[i]) ||
     replacesId !== (relic.replacesId ?? null) ||
-    inspiredById !== (relic.inspiredById ?? null)
+    inspiredById !== (relic.inspiredById ?? null) ||
+    (linkedFile?.path ?? null) !== (relic.linkedFilePath ?? null) ||
+    secureCopyFlag !== !!relic.linkedFileCopiedPath
   )
   useEffect(() => {
     registerUnsavedChanges(isDirty)
@@ -171,6 +179,11 @@ export default function EditRelicModal({ relic, onClose, onSave, relics = [] }) 
   }, [isDirty])
 
   async function handleAddFiles(files){setAttError(null);try{await addFiles(files)}catch(err){setAttError(err.message)}}
+
+  async function handlePickFile() {
+    const picked = await pickFileToLink()
+    if (picked) setLinkedFile(picked)
+  }
 
   async function handleDeleteAtt(att) {
     const ok = await confirm({
@@ -188,6 +201,14 @@ export default function EditRelicModal({ relic, onClose, onSave, relics = [] }) 
     setSaving(true)
     try {
       const now=new Date().toISOString()
+      let linkedFileCopiedPath = relic.linkedFileCopiedPath ?? null
+      if (!linkedFile) {
+        linkedFileCopiedPath = null
+      } else if (secureCopyFlag && (!linkedFileCopiedPath || linkedFile.path !== relic.linkedFilePath)) {
+        linkedFileCopiedPath = await secureCopy({ id: relic.id, linkedFilePath: linkedFile.path })
+      } else if (!secureCopyFlag) {
+        linkedFileCopiedPath = null
+      }
       const patch = {
         title:title.trim(),category,
         description:description.trim()||'No description.',
@@ -195,6 +216,9 @@ export default function EditRelicModal({ relic, onClose, onSave, relics = [] }) 
         tags,
         filter:CATEGORY_FILTER_MAP[category],thumbnail:CATEGORY_THUMB_MAP[category],
         replacesId,inspiredById,
+        linkedFilePath: linkedFile?.path ?? null,
+        linkedFileMtime: linkedFile?.mtime ?? null,
+        linkedFileCopiedPath,
         updatedAt:now,
       }
       // Only touch the cover-image file on disk if it actually changed —
@@ -273,6 +297,15 @@ export default function EditRelicModal({ relic, onClose, onSave, relics = [] }) 
             <div style={{...S.sec,marginBottom:10}}>{t('modals.newRelic.tags')}</div>
             <TagsInput tags={tags} onChange={setTags}/>
             <AITagSuggester title={title} description={description} category={category} currentTags={tags} onAdd={suggested=>setTags(prev=>[...new Set([...prev,...suggested])])}/>
+          </div>
+
+          {/* Linked file */}
+          <div style={{borderTop:`1px solid ${color.bgBorder}`,paddingTop:14}}>
+            <div style={{...S.sec,marginBottom:10}}>{t('modals.newRelic.linkedFile')}</div>
+            <LinkedFilePicker
+              linkedFile={linkedFile} onPick={handlePickFile} onClear={()=>{setLinkedFile(null);setSecureCopyFlag(false)}}
+              secureCopy={secureCopyFlag} onSecureCopyChange={setSecureCopyFlag}
+            />
           </div>
 
           {/* Lineage */}

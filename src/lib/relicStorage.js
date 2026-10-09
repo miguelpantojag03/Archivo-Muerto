@@ -32,6 +32,9 @@ function toRow(relic) {
     updated_at: relic.updatedAt,
     replaces_id: relic.replacesId ?? null,
     inspired_by_id: relic.inspiredById ?? null,
+    linked_file_path: relic.linkedFilePath ?? null,
+    linked_file_mtime: relic.linkedFileMtime ?? null,
+    linked_file_copied_path: relic.linkedFileCopiedPath ?? null,
   }
 }
 
@@ -57,6 +60,9 @@ function fromRow(row) {
     revivalCount: row.revival_count ?? 0,
     replacesId: row.replaces_id ?? null,
     inspiredById: row.inspired_by_id ?? null,
+    linkedFilePath: row.linked_file_path ?? null,
+    linkedFileMtime: row.linked_file_mtime ?? null,
+    linkedFileCopiedPath: row.linked_file_copied_path ?? null,
   }
 }
 
@@ -92,11 +98,12 @@ async function insertRelicRow(db, userId, relic, coverImagePath) {
   await db.execute(
     `INSERT INTO relics (id,user_id,category,title,description,notes,responsible,project,
        filter,thumbnail,cover_image_path,tags,status,revived_at,created_at,discarded_at,updated_at,
-       replaces_id,inspired_by_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)`,
+       replaces_id,inspired_by_id,linked_file_path,linked_file_mtime,linked_file_copied_path)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)`,
     [row.id, row.user_id, row.category, row.title, row.description, row.notes, row.responsible,
      row.project, row.filter, row.thumbnail, coverImagePath, row.tags, row.status, row.revived_at,
-     row.created_at, row.discarded_at, row.updated_at, row.replaces_id, row.inspired_by_id]
+     row.created_at, row.discarded_at, row.updated_at, row.replaces_id, row.inspired_by_id,
+     row.linked_file_path, row.linked_file_mtime, row.linked_file_copied_path]
   )
   await recordStatusTransition(db, relic.id, null, 'archived', row.created_at)
 }
@@ -147,6 +154,8 @@ export async function updateRelic(userId, id, patch) {
     responsible: 'responsible', project: 'project', filter: 'filter', thumbnail: 'thumbnail',
     status: 'status', revivedAt: 'revived_at', updatedAt: 'updated_at',
     replacesId: 'replaces_id', inspiredById: 'inspired_by_id',
+    linkedFilePath: 'linked_file_path', linkedFileMtime: 'linked_file_mtime',
+    linkedFileCopiedPath: 'linked_file_copied_path',
   }
   const sets = []
   const vals = []

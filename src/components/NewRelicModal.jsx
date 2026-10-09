@@ -21,6 +21,8 @@ import AITagSuggester                from './AITagSuggester.jsx'
 import DejaVuWarning                 from './DejaVuWarning.jsx'
 import { findSimilarRelics }         from '../lib/similarity.js'
 import RelicPicker                   from './RelicPicker.jsx'
+import LinkedFilePicker              from './LinkedFilePicker.jsx'
+import { pickFileToLink, secureCopy } from '../lib/fileLinks.js'
 import { useTheme }                  from '../context/ThemeContext.jsx'
 import { registerUnsavedChanges }    from '../lib/windowCloseGuard.js'
 import { alpha }                     from '../styles/tokens.js'
@@ -171,6 +173,8 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
   const [coverImage,  setCoverImage]  = useState(null)
   const [replacesId,   setReplacesId]   = useState(null)
   const [inspiredById, setInspiredById] = useState(null)
+  const [linkedFile,     setLinkedFile]     = useState(null) // {path, mtime} | null
+  const [secureCopyFlag, setSecureCopyFlag] = useState(false)
   const [titleError,  setTitleError]  = useState('')
   const [saving,      setSaving]      = useState(false)
   const [dejaVu,      setDejaVu]      = useState([])
@@ -201,7 +205,7 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
   const isDirty = Boolean(
     title.trim() || description.trim() || notes.trim() ||
     tags.length > 0 || coverImage || attachments.length > 0 ||
-    replacesId || inspiredById
+    replacesId || inspiredById || linkedFile
   )
   useEffect(() => {
     registerUnsavedChanges(isDirty)
@@ -211,6 +215,11 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
   function handleClose() {
     cleanupOrphans()
     onClose()
+  }
+
+  async function handlePickFile() {
+    const picked = await pickFileToLink()
+    if (picked) setLinkedFile(picked)
   }
 
   function handleViewExisting(relicId) {
@@ -229,6 +238,10 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
     setSaving(true)
     try {
       const now = new Date().toISOString()
+      let linkedFileCopiedPath = null
+      if (linkedFile && secureCopyFlag) {
+        linkedFileCopiedPath = await secureCopy({ id: tmpRelicId, linkedFilePath: linkedFile.path })
+      }
       const relic = {
         id:          tmpRelicId,
         category,
@@ -242,6 +255,9 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
         filter:      CATEGORY_FILTER_MAP[category],
         thumbnail:   CATEGORY_THUMB_MAP[category],
         replacesId, inspiredById,
+        linkedFilePath: linkedFile?.path ?? null,
+        linkedFileMtime: linkedFile?.mtime ?? null,
+        linkedFileCopiedPath,
         revived:false, status:'archived',
         createdAt:now, discardedAt:now, updatedAt:now,
       }
@@ -334,6 +350,15 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
             description={description}
             currentTags={tags}
             onAdd={suggested=>setTags(prev=>[...new Set([...prev,...suggested])])}
+          />
+        </div>
+
+        {/* Linked file */}
+        <div style={{borderTop:`1px solid ${color.bgBorder}`,paddingTop:14}}>
+          <div style={{...S.sec,marginBottom:10}}>{t('modals.newRelic.linkedFile')}</div>
+          <LinkedFilePicker
+            linkedFile={linkedFile} onPick={handlePickFile} onClear={()=>{setLinkedFile(null);setSecureCopyFlag(false)}}
+            secureCopy={secureCopyFlag} onSecureCopyChange={setSecureCopyFlag}
           />
         </div>
 

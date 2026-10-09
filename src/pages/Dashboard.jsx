@@ -276,6 +276,7 @@ export default function Dashboard() {
           relic={selected}
           relics={relics}
           onSelectRelic={setSelectedId}
+          onUpdateRelic={update}
           onRevive={handleRevive}
           onDelete={handleDelete}
           onEdit={relic=>setEditRelic(relic)}

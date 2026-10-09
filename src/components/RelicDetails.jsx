@@ -3,14 +3,17 @@ import { useTranslation } from 'react-i18next'
 import {
   RotateCcw, Trash2, Pencil, Paperclip, Expand,
   Image as ImageIcon, Sparkles, X,
+  Link2, ExternalLink, RefreshCw, ShieldCheck, AlertTriangle,
 } from 'lucide-react'
 import { getThumbnail } from './Thumbnails.jsx'
 import { useAttachments }  from '../hooks/useAttachments.js'
 import { useAuth }         from '../auth/AuthProvider.jsx'
+import { useToast }        from './Toast.jsx'
 import { isImage }         from '../constants/fileTypes.js'
 import { useTheme }        from '../context/ThemeContext.jsx'
 import { alpha }           from '../styles/tokens.js'
 import { formatDate }      from '../lib/formatDate.js'
+import { getLinkStatus, openLinkedFile, openCopiedFile, pickFileToLink, secureCopy, basename } from '../lib/fileLinks.js'
 
 /* ─── full-screen image viewer ────────────────────────────────────── */
 function ImageViewer({ src, title, onClose }) {
@@ -184,11 +187,114 @@ function LineageSection({ relic, relics, onSelectRelic, color, font, t }) {
   )
 }
 
+/* ─── linked external file ────────────────────────────────────────── */
+function LinkedFileSection({ relic, onUpdateRelic, color, font, t, push }) {
+  const [status, setStatus] = useState('none')
+  const [busy,   setBusy]   = useState(false)
+
+  useEffect(() => {
+    if (!relic.linkedFilePath) return
+    let cancelled = false
+    getLinkStatus(relic).then(s => { if (!cancelled) setStatus(s) })
+    return () => { cancelled = true }
+  }, [relic.id, relic.linkedFilePath, relic.linkedFileMtime])
+
+  if (!relic.linkedFilePath) return null
+
+  async function handleOpen() {
+    try { await openLinkedFile(relic) }
+    catch { push(t('relicDetails.linkedFile.openError'), 'error') }
+  }
+
+  async function handleOpenCopy() {
+    try { await openCopiedFile(relic) }
+    catch { push(t('relicDetails.linkedFile.openError'), 'error') }
+  }
+
+  async function handleRelink() {
+    const picked = await pickFileToLink()
+    if (!picked) return
+    setBusy(true)
+    try {
+      await onUpdateRelic(relic.id, { linkedFilePath: picked.path, linkedFileMtime: picked.mtime })
+      push(t('relicDetails.linkedFile.relinked'), 'success')
+    } finally { setBusy(false) }
+  }
+
+  async function handleSecureCopy() {
+    setBusy(true)
+    try {
+      const path = await secureCopy(relic)
+      await onUpdateRelic(relic.id, { linkedFileCopiedPath: path })
+      push(t('relicDetails.linkedFile.copySecured'), 'success')
+    } catch { push(t('relicDetails.linkedFile.copyError'), 'error') }
+    finally { setBusy(false) }
+  }
+
+  const statusLabel = {
+    ok:       t('relicDetails.linkedFile.statusOk'),
+    modified: t('relicDetails.linkedFile.statusModified'),
+    broken:   t('relicDetails.linkedFile.statusBroken'),
+    none:     '',
+  }[status]
+  const statusColor = status === 'broken' ? color.terracotta500 : status === 'modified' ? color.blue300 : color.sage500
+
+  return (
+    <div style={{border:`1px solid ${color.bgBorder}`,borderRadius:10,overflow:'hidden'}}>
+      <div style={{padding:'7px 12px',background:color.bgElevated,borderBottom:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',gap:6}}>
+        <Link2 size={11} style={{color:color.textSecondary}}/>
+        <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:color.textSecondary}}>{t('relicDetails.linkedFile.title').toUpperCase()}</span>
+      </div>
+      <div style={{padding:'10px 12px',display:'flex',flexDirection:'column',gap:8}}>
+        <div style={{display:'flex',alignItems:'center',gap:6}}>
+          {status === 'broken' && <AlertTriangle size={12} style={{color:statusColor,flexShrink:0}}/>}
+          <span style={{fontSize:11,color:color.textPrimary,fontFamily:font.mono,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}} title={relic.linkedFilePath}>
+            {basename(relic.linkedFilePath)}
+          </span>
+        </div>
+        <div style={{display:'flex',alignItems:'center',gap:6,fontSize:10,color:statusColor,fontWeight:600}}>
+          {statusLabel}
+          {relic.linkedFileCopiedPath && (
+            <span style={{display:'flex',alignItems:'center',gap:3,color:color.sage500}}>
+              <ShieldCheck size={11}/>{t('relicDetails.linkedFile.hasCopy')}
+            </span>
+          )}
+        </div>
+        <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+          <button onClick={handleOpen} disabled={status==='broken'||busy}
+            style={{display:'flex',alignItems:'center',gap:5,padding:'5px 10px',borderRadius:7,border:`1px solid ${color.bgBorder}`,background:'transparent',color:status==='broken'?color.textTertiary:color.textPrimary,fontSize:11,fontWeight:500,fontFamily:font.ui,cursor:status==='broken'||busy?'not-allowed':'pointer'}}>
+            <ExternalLink size={11}/>{t('relicDetails.linkedFile.open')}
+          </button>
+          {status === 'broken' && (
+            <button onClick={handleRelink} disabled={busy}
+              style={{display:'flex',alignItems:'center',gap:5,padding:'5px 10px',borderRadius:7,border:`1px solid ${alpha(color.blue500, 0.4)}`,background:alpha(color.blue500, 0.08),color:color.blue300,fontSize:11,fontWeight:600,fontFamily:font.ui,cursor:busy?'not-allowed':'pointer'}}>
+              <RefreshCw size={11}/>{t('relicDetails.linkedFile.relink')}
+            </button>
+          )}
+          {status === 'broken' && relic.linkedFileCopiedPath && (
+            <button onClick={handleOpenCopy} disabled={busy}
+              style={{display:'flex',alignItems:'center',gap:5,padding:'5px 10px',borderRadius:7,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textPrimary,fontSize:11,fontWeight:500,fontFamily:font.ui,cursor:busy?'not-allowed':'pointer'}}>
+              <ShieldCheck size={11}/>{t('relicDetails.linkedFile.openCopy')}
+            </button>
+          )}
+          {!relic.linkedFileCopiedPath && status !== 'broken' && (
+            <button onClick={handleSecureCopy} disabled={busy}
+              style={{display:'flex',alignItems:'center',gap:5,padding:'5px 10px',borderRadius:7,border:`1px solid ${color.bgBorder}`,background:'transparent',color:color.textSecondary,fontSize:11,fontWeight:500,fontFamily:font.ui,cursor:busy?'not-allowed':'pointer'}}>
+              <ShieldCheck size={11}/>{t('relicDetails.linkedFile.secureCopy')}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ─── main component ──────────────────────────────────────────────── */
-export default function RelicDetails({ relic, relics = [], onSelectRelic, onRevive, onDelete, onEdit, onAnalyze, aiAnalysis, aiLoading }) {
+export default function RelicDetails({ relic, relics = [], onSelectRelic, onUpdateRelic, onRevive, onDelete, onEdit, onAnalyze, aiAnalysis, aiLoading }) {
   const { t } = useTranslation()
   const { color, font } = useTheme()
   const { user } = useAuth()
+  const { push } = useToast()
   const { attachments, getPreviewURL } = useAttachments(relic?.id ?? null, user?.id)
 
   const [viewer,  setViewer]  = useState(null)  // { src, title }
@@ -320,6 +426,9 @@ export default function RelicDetails({ relic, relics = [], onSelectRelic, onRevi
               <span style={{fontSize:11,color:color.blue300,fontWeight:600}}>{t('relicDetails.filesAttached', { count: totalAtts })}</span>
             </div>
           )}
+
+          {/* linked external file */}
+          <LinkedFileSection relic={relic} onUpdateRelic={onUpdateRelic} color={color} font={font} t={t} push={push}/>
 
           {/* metadata */}
           <div style={{border:`1px solid ${color.bgBorder}`,borderRadius:10,overflow:'hidden'}}>

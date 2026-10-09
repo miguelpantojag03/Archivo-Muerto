@@ -178,6 +178,7 @@
   },
   "relicCard": {
     "revived": "revived",
+    "linkBroken": "Broken link",
     "category": {
       "SKETCH": "sketch",
       "COPYWRITING": "copywriting",
@@ -219,6 +220,21 @@
       "replacedBy": "Replaced by",
       "inspiredBy": "Inspired by",
       "inspired": "Inspired"
+    },
+    "linkedFile": {
+      "title": "Linked File",
+      "statusOk": "Link active",
+      "statusModified": "Modified since you linked it",
+      "statusBroken": "Broken link — the file isn't there anymore",
+      "hasCopy": "internal copy saved",
+      "open": "Open",
+      "openCopy": "Open internal copy",
+      "relink": "Re-link",
+      "secureCopy": "Secure a copy",
+      "openError": "Could not open the file.",
+      "relinked": "Link updated.",
+      "copySecured": "Internal copy saved.",
+      "copyError": "Could not save the copy."
     }
   },
   "imageViewer": { "close": "Close", "rotate": "Rotate" },
@@ -258,7 +274,11 @@
       "lineage": "Lineage",
       "replaces": "Replaces",
       "inspiredBy": "Inspired by",
-      "lineagePlaceholder": "Search by title… (optional)"
+      "lineagePlaceholder": "Search by title… (optional)",
+      "linkedFile": "Linked File",
+      "linkFile": "Link a file",
+      "linkFileChange": "Change",
+      "secureCopy": "Keep an internal backup copy"
     },
     "editRelic": {
       "title": "Edit Relic",

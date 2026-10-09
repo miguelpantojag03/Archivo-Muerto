@@ -18,6 +18,12 @@ pub fn run() {
       sql: include_str!("../migrations/0002_lineage.sql"),
       kind: MigrationKind::Up,
     },
+    Migration {
+      version: 3,
+      description: "add_external_link_columns",
+      sql: include_str!("../migrations/0003_external_links.sql"),
+      kind: MigrationKind::Up,
+    },
   ];
 
   tauri::Builder::default()

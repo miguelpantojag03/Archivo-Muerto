@@ -8,6 +8,7 @@ import { mkdir } from '@tauri-apps/plugin-fs'
 
 let attachmentsRoot = null
 let coversRoot = null
+let linkedCopiesRoot = null
 
 export async function getAttachmentsDir() {
   if (!attachmentsRoot) {
@@ -23,4 +24,13 @@ export async function getCoversDir() {
     await mkdir(coversRoot, { recursive: true })
   }
   return coversRoot
+}
+
+// Internal backup copies of externally-linked files ("Asegurar copia").
+export async function getLinkedCopiesDir() {
+  if (!linkedCopiesRoot) {
+    linkedCopiesRoot = await join(await appLocalDataDir(), 'linked_copies')
+    await mkdir(linkedCopiesRoot, { recursive: true })
+  }
+  return linkedCopiesRoot
 }

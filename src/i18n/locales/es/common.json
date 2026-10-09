@@ -178,6 +178,7 @@
   },
   "relicCard": {
     "revived": "revivida",
+    "linkBroken": "Vínculo roto",
     "category": {
       "SKETCH": "boceto",
       "COPYWRITING": "redacción",
@@ -219,6 +220,21 @@
       "replacedBy": "Reemplazada por",
       "inspiredBy": "Inspirada en",
       "inspired": "Inspiró a"
+    },
+    "linkedFile": {
+      "title": "Archivo Vinculado",
+      "statusOk": "Vínculo activo",
+      "statusModified": "Modificado desde que lo vinculaste",
+      "statusBroken": "Vínculo roto — el archivo ya no está ahí",
+      "hasCopy": "copia interna guardada",
+      "open": "Abrir",
+      "openCopy": "Abrir copia interna",
+      "relink": "Volver a vincular",
+      "secureCopy": "Asegurar copia",
+      "openError": "No se pudo abrir el archivo.",
+      "relinked": "Vínculo actualizado.",
+      "copySecured": "Copia interna guardada.",
+      "copyError": "No se pudo guardar la copia."
     }
   },
   "imageViewer": { "close": "Cerrar", "rotate": "Girar" },
@@ -258,7 +274,11 @@
       "lineage": "Linaje",
       "replaces": "Reemplaza a",
       "inspiredBy": "Inspirada en",
-      "lineagePlaceholder": "Buscar por título… (opcional)"
+      "lineagePlaceholder": "Buscar por título… (opcional)",
+      "linkedFile": "Archivo Vinculado",
+      "linkFile": "Vincular archivo",
+      "linkFileChange": "Cambiar",
+      "secureCopy": "Asegurar una copia interna"
     },
     "editRelic": {
       "title": "Editar Reliquia",

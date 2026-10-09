@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { RotateCcw, PenLine, FileText, Palette, Tag, StickyNote, Paperclip } from 'lucide-react'
+import { RotateCcw, PenLine, FileText, Palette, Tag, StickyNote, Paperclip, Link2 } from 'lucide-react'
 import { getThumbnail } from './Thumbnails.jsx'
 import { countAttachments } from '../lib/attachmentStorage.js'
+import { getLinkStatus } from '../lib/fileLinks.js'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { alpha } from '../styles/tokens.js'
 import { formatDate } from '../lib/formatDate.js'
@@ -23,12 +24,20 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
   const { t } = useTranslation()
   const { color, radius, font, spring } = useTheme()
   const [attCount, setAttCount] = useState(0)
+  const [linkBroken, setLinkBroken] = useState(false)
 
   // Load attachment count asynchronously (lightweight, no blob transfer)
   useEffect(() => {
     if (!relic?.id) return
     countAttachments(relic.id).then(setAttCount).catch(() => {})
   }, [relic?.id])
+
+  useEffect(() => {
+    if (!relic?.linkedFilePath) return
+    let cancelled = false
+    getLinkStatus(relic).then(s => { if (!cancelled) setLinkBroken(s === 'broken') }).catch(() => {})
+    return () => { cancelled = true }
+  }, [relic?.id, relic?.linkedFilePath, relic?.linkedFileMtime])
 
   return (
     <motion.div
@@ -75,6 +84,17 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
             fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.85)',fontFamily:font.mono,
           }}>
             <Paperclip size={8}/>{attCount}
+          </div>
+        )}
+
+        {/* Linked external file badge — only when broken, it's the one state worth a glance */}
+        {relic.linkedFilePath && linkBroken && (
+          <div title={t('relicCard.linkBroken')} style={{
+            position:'absolute',top:5,left:5,
+            display:'flex',alignItems:'center',justifyContent:'center',
+            background:alpha(color.terracotta500, 0.9),borderRadius:radius.pill,padding:4,
+          }}>
+            <Link2 size={9} style={{color:'white'}}/>
           </div>
         )}
 
