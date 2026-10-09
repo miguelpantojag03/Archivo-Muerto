@@ -77,14 +77,20 @@
     },
     "forgotPassword": {
       "title": "Restablece tu contraseña",
-      "subtitle": "Ingresa tu correo y te enviaremos un enlace.",
+      "subtitle": "Esta app es local — no hay email real. Confirmá tu correo y elegí una contraseña nueva.",
       "emailLabel": "Correo",
       "emailPlaceholder": "tu@ejemplo.com",
-      "submit": "Enviar enlace",
-      "submitting": "Enviando…",
+      "newPasswordLabel": "Contraseña nueva",
+      "newPasswordPlaceholder": "Elegí una contraseña fuerte",
+      "confirmPasswordLabel": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Repetí la contraseña",
+      "submit": "Actualizar contraseña",
+      "submitting": "Actualizando…",
       "backToSignIn": "Volver a iniciar sesión",
-      "sentTitle": "Revisa tu bandeja de entrada",
-      "sentMessage": "Si <strong>{{email}}</strong> está registrado, te enviamos un enlace para restablecer tu contraseña. Revisa también la carpeta de spam."
+      "sentTitle": "Contraseña actualizada",
+      "sentMessage": "Ya podés iniciar sesión con tu contraseña nueva.",
+      "errorNoAccount": "No hay ninguna cuenta con ese correo.",
+      "errorGoogleOnly": "Esa cuenta inicia sesión con Google — no tiene contraseña para restablecer."
     },
     "onboarding": {
       "title": "Nombra tu primer proyecto",

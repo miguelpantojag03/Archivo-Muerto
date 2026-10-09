@@ -39,6 +39,12 @@ export function AuthProvider({ children }) {
       } else {
         setStatus('unauthenticated')
       }
+    }).catch(err => {
+      // Fail closed, not silent-forever: an unreadable session is treated
+      // as "not logged in" rather than leaving the app stuck on the
+      // loading screen with no way out and no visible error.
+      console.error('[AuthProvider] Failed to restore session:', err)
+      setStatus('unauthenticated')
     })
 
     const unsub = authService.onAuthStateChange(session => {
@@ -68,7 +74,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   const signOut      = doSignOut
-  const resetPassword = useCallback(email => authService.resetPassword(email), [])
+  const resetPassword = useCallback((email, newPassword) => authService.resetPassword(email, newPassword), [])
 
   const setActiveProject = useCallback((projectName) => {
     if (!user) return

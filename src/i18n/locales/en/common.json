@@ -77,14 +77,20 @@
     },
     "forgotPassword": {
       "title": "Reset your password",
-      "subtitle": "Enter your email and we'll send a reset link.",
+      "subtitle": "This app is local — there's no real email. Confirm your email and pick a new password.",
       "emailLabel": "Email",
       "emailPlaceholder": "you@example.com",
-      "submit": "Send reset link",
-      "submitting": "Sending…",
+      "newPasswordLabel": "New password",
+      "newPasswordPlaceholder": "Pick a strong password",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "Repeat the password",
+      "submit": "Update password",
+      "submitting": "Updating…",
       "backToSignIn": "Back to sign in",
-      "sentTitle": "Check your inbox",
-      "sentMessage": "If <strong>{{email}}</strong> is registered, we've sent a reset link. Check your spam folder too."
+      "sentTitle": "Password updated",
+      "sentMessage": "You can now sign in with your new password.",
+      "errorNoAccount": "No account found with that email.",
+      "errorGoogleOnly": "That account signs in with Google — there's no password to reset."
     },
     "onboarding": {
       "title": "Name your first project",

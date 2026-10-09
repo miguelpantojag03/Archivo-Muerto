@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useTranslation, Trans } from 'react-i18next'
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router-dom'
 import { CheckCircle, ArrowLeft } from 'lucide-react'
 import AuthLayout from '../components/AuthLayout.jsx'
-import { Field, Input, PrimaryButton, GlobalError } from '../components/FormField.jsx'
+import { Field, Input, PasswordInput, PrimaryButton, GlobalError } from '../components/FormField.jsx'
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { getForgotSchema } from '../lib/validators.js'
 import { useTheme } from '../context/ThemeContext.jsx'
@@ -19,19 +19,26 @@ export default function ForgotPassword() {
   const [globalError, setGlobalError] = useState('')
 
   const forgotSchema = useMemo(() => getForgotSchema(t), [t])
-  const { register, handleSubmit, getValues, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(forgotSchema),
-    defaultValues: { email: '' },
+    defaultValues: { email: '', newPassword: '', confirmPassword: '' },
   })
 
+  // There's no real backend or email delivery in this local-first app, so
+  // this sets the new password directly instead of pretending to email a
+  // reset link that would never actually arrive.
   async function onSubmit(data) {
     setGlobalError('')
     setLoading(true)
     try {
-      await resetPassword(data.email)
+      await resetPassword(data.email, data.newPassword)
       setSent(true)
     } catch (err) {
-      setGlobalError(err.message)
+      const known = {
+        'No account found with that email.': t('auth.forgotPassword.errorNoAccount'),
+        'This account signs in with Google — there is no password to reset.': t('auth.forgotPassword.errorGoogleOnly'),
+      }
+      setGlobalError(known[err.message] ?? err.message)
     } finally {
       setLoading(false)
     }
@@ -53,8 +60,7 @@ export default function ForgotPassword() {
               {t('auth.forgotPassword.sentTitle')}
             </h2>
             <p style={{ fontSize: 13, color: color.textSecondary, lineHeight: 1.6 }}>
-              <Trans i18nKey="auth.forgotPassword.sentMessage" values={{ email: getValues('email') }}
-                components={{ strong: <strong style={{ color: color.textPrimary }} /> }} />
+              {t('auth.forgotPassword.sentMessage')}
             </p>
           </div>
           <Link
@@ -87,6 +93,16 @@ export default function ForgotPassword() {
                 autoComplete="email"
                 error={errors.email}
               />
+            </Field>
+
+            <Field label={t('auth.forgotPassword.newPasswordLabel')} error={errors.newPassword?.message}>
+              <PasswordInput register={register('newPassword')} placeholder={t('auth.forgotPassword.newPasswordPlaceholder')}
+                autoComplete="new-password" error={errors.newPassword} />
+            </Field>
+
+            <Field label={t('auth.forgotPassword.confirmPasswordLabel')} error={errors.confirmPassword?.message}>
+              <PasswordInput register={register('confirmPassword')} placeholder={t('auth.forgotPassword.confirmPasswordPlaceholder')}
+                autoComplete="new-password" error={errors.confirmPassword} />
             </Field>
 
             <GlobalError message={globalError} />

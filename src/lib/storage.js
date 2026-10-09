@@ -10,7 +10,7 @@ export function storageGet(key) {
 
 export function storageSet(key, value, persistent = true) {
   const store = persistent ? localStorage : sessionStorage
-  store.setItem(key, JSON.stringify(value))
+  try { store.setItem(key, JSON.stringify(value)) } catch { /* quota exceeded or storage disabled — best effort */ }
 }
 
 export function storageRemove(key) {

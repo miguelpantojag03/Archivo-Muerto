@@ -80,6 +80,11 @@ const MockAuthService = {
     const { passwordHash: _, __hashVersion: __, ...user } = record
     const session = makeSession(user, remember)
     const store   = remember ? localStorage : sessionStorage
+    const other   = remember ? sessionStorage : localStorage
+    // Clear whichever store isn't the chosen one — otherwise a stale
+    // session left there can outrank this one (getSession reads
+    // localStorage first) or get collaterally wiped if it's expired.
+    other.removeItem(SESSION_KEY)
     store.setItem(SESSION_KEY, JSON.stringify(session))
     notifyListeners(session)
     return session
@@ -161,14 +166,26 @@ const MockAuthService = {
     } catch { return null }
   },
 
-  async resetPassword(_email) {
+  // There's no real backend or email delivery here, so pretending to
+  // "send a reset link" would just be a dead end for the user. Instead
+  // this sets the new password directly on the matching local account.
+  async resetPassword(email, newPassword) {
     await _demoInit
     await delay()
-    // In a real app this sends an email. We always succeed silently.
+    const users  = storageGetLocal(USERS_KEY) || {}
+    const key    = email.toLowerCase()
+    const record = users[key]
+    if (!record) throw new Error('No account found with that email.')
+    if (!record.passwordHash) throw new Error('This account signs in with Google — there is no password to reset.')
+    record.passwordHash  = await hashPassword(newPassword)
+    record.__hashVersion = 2
+    users[key] = record
+    storageSetLocal(USERS_KEY, users)
     return true
   },
 
   async setActiveProject(userId, projectName) {
+    await _demoInit
     const users  = storageGetLocal(USERS_KEY) || {}
     const record = Object.values(users).find(u => u.id === userId)
     if (!record) return

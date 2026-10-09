@@ -32,6 +32,16 @@ export function getRegisterSchema(t) {
 export function getForgotSchema(t) {
   return z.object({
     email: z.string().min(1, t('auth.validation.emailRequired')).email(t('auth.validation.emailInvalid')),
+    newPassword: z
+      .string()
+      .min(8, t('auth.validation.passwordMin'))
+      .regex(/[A-Z]/, t('auth.validation.passwordUppercase'))
+      .regex(/[0-9]/, t('auth.validation.passwordNumber'))
+      .regex(/[^A-Za-z0-9]/, t('auth.validation.passwordSpecial')),
+    confirmPassword: z.string().min(1, t('auth.validation.confirmRequired')),
+  }).refine(d => d.newPassword === d.confirmPassword, {
+    message: t('auth.validation.passwordsMismatch'),
+    path: ['confirmPassword'],
   })
 }
 
