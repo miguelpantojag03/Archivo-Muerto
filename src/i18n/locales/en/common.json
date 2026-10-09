@@ -6,7 +6,8 @@
     "delete": "Delete",
     "close": "Close",
     "confirm": "Confirm",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "dismiss": "Dismiss"
   },
   "app": {
     "unsavedChangesConfirm": "You have unsaved changes. If you close now, they'll be lost. Close anyway?"
@@ -238,7 +239,14 @@
       "save": "Save Relic",
       "imageTypeError": "Only JPG, PNG, WEBP or GIF.",
       "imageSizeError": "Max 5 MB per image.",
-      "imageProcessError": "Could not process image."
+      "imageProcessError": "Could not process image.",
+      "dejaVu": {
+        "message": "This looks like «{{title}}», which you already archived.",
+        "moreCount": "(and {{count}} more like it)",
+        "viewAction": "View archived relic",
+        "statusArchived": "archived",
+        "statusRevived": "revived"
+      }
     },
     "editRelic": {
       "title": "Edit Relic",

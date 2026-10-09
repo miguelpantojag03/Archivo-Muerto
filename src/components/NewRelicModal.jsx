@@ -18,6 +18,8 @@ import { CATEGORIES, CATEGORY_FILTER_MAP, CATEGORY_THUMB_MAP } from '../constant
 import { Spinner }                   from './FormField.jsx'
 import { ImagePlus }                 from 'lucide-react'
 import AITagSuggester                from './AITagSuggester.jsx'
+import DejaVuWarning                 from './DejaVuWarning.jsx'
+import { findSimilarRelics }         from '../lib/similarity.js'
 import { useTheme }                  from '../context/ThemeContext.jsx'
 import { registerUnsavedChanges }    from '../lib/windowCloseGuard.js'
 import { alpha }                     from '../styles/tokens.js'
@@ -150,7 +152,7 @@ export function TagsInput({ tags, onChange }) {
 function makeTmpId() { return `relic_${Date.now()}_${Math.random().toString(36).slice(2,5)}` }
 
 // ── Main modal ────────────────────────────────────────────────────
-export default function NewRelicModal({ onClose, onAdd }) {
+export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExisting }) {
   const { t }     = useTranslation()
   const { color, radius, font } = useTheme()
   const { user }  = useAuth()
@@ -168,6 +170,17 @@ export default function NewRelicModal({ onClose, onAdd }) {
   const [coverImage,  setCoverImage]  = useState(null)
   const [titleError,  setTitleError]  = useState('')
   const [saving,      setSaving]      = useState(false)
+  const [dejaVu,      setDejaVu]      = useState([])
+  const [dejaVuDismissedFor, setDejaVuDismissedFor] = useState(null)
+
+  // Debounced, offline déjà-vu check — compares against every relic
+  // regardless of status, not just this project/section.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDejaVu(findSimilarRelics(title, description, relics, { excludeId: tmpRelicId }))
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [title, description, relics, tmpRelicId])
 
   const {
     attachments, loading:attLoading, error:attError, setError:setAttError,
@@ -194,6 +207,12 @@ export default function NewRelicModal({ onClose, onAdd }) {
   function handleClose() {
     cleanupOrphans()
     onClose()
+  }
+
+  function handleViewExisting(relicId) {
+    cleanupOrphans()
+    onClose()
+    onViewExisting?.(relicId)
   }
 
   async function handleAddFiles(files) {
@@ -254,6 +273,15 @@ export default function NewRelicModal({ onClose, onAdd }) {
             onKeyDown={e=>e.key==='Enter'&&handleSave()}/>
           {titleError&&<span style={{fontSize:11,color:color.terracotta500,marginTop:4,display:'block'}}>{titleError}</span>}
         </div>
+
+        {/* Déjà vu — offline lexical check against the whole archive */}
+        {dejaVu.length > 0 && dejaVu[0].relic.id !== dejaVuDismissedFor && (
+          <DejaVuWarning
+            matches={dejaVu}
+            onView={handleViewExisting}
+            onDismiss={() => setDejaVuDismissedFor(dejaVu[0].relic.id)}
+          />
+        )}
 
         {/* Category */}
         <div>

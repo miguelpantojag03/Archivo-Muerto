@@ -6,7 +6,8 @@
     "delete": "Eliminar",
     "close": "Cerrar",
     "confirm": "Confirmar",
-    "loading": "Cargando…"
+    "loading": "Cargando…",
+    "dismiss": "Descartar"
   },
   "app": {
     "unsavedChangesConfirm": "Tienes cambios sin guardar. Si cierras ahora, se perderán. ¿Cerrar de todos modos?"
@@ -238,7 +239,14 @@
       "save": "Guardar Reliquia",
       "imageTypeError": "Solo JPG, PNG, WEBP o GIF.",
       "imageSizeError": "Máx 5 MB por imagen.",
-      "imageProcessError": "No se pudo procesar la imagen."
+      "imageProcessError": "No se pudo procesar la imagen.",
+      "dejaVu": {
+        "message": "Esto se parece a «{{title}}», que ya archivaste.",
+        "moreCount": "(y {{count}} más parecidas)",
+        "viewAction": "Ver reliquia archivada",
+        "statusArchived": "archivada",
+        "statusRevived": "revivida"
+      }
     },
     "editRelic": {
       "title": "Editar Reliquia",

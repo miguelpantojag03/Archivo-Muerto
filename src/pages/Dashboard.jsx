@@ -285,7 +285,12 @@ export default function Dashboard() {
 
       {/* Modals */}
       {showNew && (
-        <NewRelicModal onClose={()=>setShowNew(false)} onAdd={handleAddRelic}/>
+        <NewRelicModal
+          onClose={()=>setShowNew(false)}
+          onAdd={handleAddRelic}
+          relics={relics}
+          onViewExisting={setSelectedId}
+        />
       )}
       {editRelic && (
         <EditRelicModal relic={editRelic} onClose={()=>setEditRelic(null)} onSave={handleSaveEdit}/>
