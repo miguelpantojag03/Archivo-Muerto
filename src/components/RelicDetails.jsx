@@ -3,12 +3,15 @@ import { useTranslation } from 'react-i18next'
 import {
   RotateCcw, Trash2, Pencil, Paperclip, Expand,
   Image as ImageIcon, Sparkles, X,
-  Link2, ExternalLink, RefreshCw, ShieldCheck, AlertTriangle, GitFork,
+  Link2, ExternalLink, RefreshCw, ShieldCheck, AlertTriangle,
+  Layers, Plus, ChevronDown, ChevronUp, ArrowUpCircle, Archive,
 } from 'lucide-react'
 import { getThumbnail } from './Thumbnails.jsx'
 import { useAttachments }  from '../hooks/useAttachments.js'
+import { useDrafts }       from '../hooks/useDrafts.js'
 import { useAuth }         from '../auth/AuthProvider.jsx'
 import { useToast }        from './Toast.jsx'
+import { useConfirm }      from './ConfirmModal.jsx'
 import { isImage }         from '../constants/fileTypes.js'
 import { useTheme }        from '../context/ThemeContext.jsx'
 import { alpha }           from '../styles/tokens.js'
@@ -163,16 +166,12 @@ function LineageSection({ relic, relics, onSelectRelic, color, font, t }) {
   const inspiredByRelic  = relics.find(r => r.id === relic.inspiredById)
   const replacedByRelics = relics.filter(r => r.replacesId === relic.id)
   const inspiredRelics   = relics.filter(r => r.inspiredById === relic.id)
-  const forkedFromRelic  = relics.find(r => r.id === relic.forkedFromId)
-  const forkRelics       = relics.filter(r => r.forkedFromId === relic.id)
 
   const rows = [
     { label: t('relicDetails.lineage.replaces'),    relics: replacesRelic ? [replacesRelic] : [] },
     { label: t('relicDetails.lineage.replacedBy'),   relics: replacedByRelics },
     { label: t('relicDetails.lineage.inspiredBy'),   relics: inspiredByRelic ? [inspiredByRelic] : [] },
     { label: t('relicDetails.lineage.inspired'),     relics: inspiredRelics },
-    { label: t('relicDetails.lineage.forkedFrom'),   relics: forkedFromRelic ? [forkedFromRelic] : [] },
-    { label: t('relicDetails.lineage.forks'),        relics: forkRelics },
   ].filter(r => r.relics.length > 0)
 
   if (rows.length === 0) return null
@@ -293,8 +292,127 @@ function LinkedFileSection({ relic, onUpdateRelic, color, font, t, push }) {
   )
 }
 
+/* ─── drafts ───────────────────────────────────────────────────────── */
+function DraftEditor({ draft, onChange, color, font, t }) {
+  const [title, setTitle] = useState(draft.title)
+  const [description, setDescription] = useState(draft.description)
+  const [notes, setNotes] = useState(draft.notes)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (title !== draft.title || description !== draft.description || notes !== draft.notes) {
+        onChange({ title, description, notes })
+      }
+    }, 600)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, description, notes])
+
+  const inputStyle = { width:'100%', padding:'6px 8px', borderRadius:6, background:color.bgBase, border:`1px solid ${color.bgBorder}`, color:color.textPrimary, fontSize:11, fontFamily:font.ui, outline:'none' }
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:6, padding:'8px 10px 10px', background:color.bgBase, borderRadius:7 }}>
+      <input value={title} onChange={e=>setTitle(e.target.value)} placeholder={t('relicDetails.drafts.titlePlaceholder')} style={inputStyle}/>
+      <textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder={t('relicDetails.drafts.descriptionPlaceholder')} rows={2} style={{...inputStyle, resize:'vertical'}}/>
+      <textarea value={notes} onChange={e=>setNotes(e.target.value)} placeholder={t('relicDetails.drafts.notesPlaceholder')} rows={2} style={{...inputStyle, resize:'vertical'}}/>
+      <span style={{ fontSize:9, color:color.textTertiary }}>{t('relicDetails.drafts.autosaveHint')}</span>
+    </div>
+  )
+}
+
+function DraftsSection({ relic, onUpdateRelic, color, font, t, push }) {
+  const { user } = useAuth()
+  const { drafts, create, update, remove, archive } = useDrafts(relic.id, user?.id)
+  const { confirm, ConfirmModalUI } = useConfirm()
+  const [expandedId, setExpandedId] = useState(null)
+  const [showArchived, setShowArchived] = useState(false)
+
+  const open = drafts.filter(d => d.status === 'open')
+  const archived = drafts.filter(d => d.status === 'archived')
+
+  async function handleCreate() {
+    const draft = await create({
+      label: t('relicDetails.drafts.defaultLabel', { n: drafts.length + 1 }),
+      title: relic.title, description: relic.description, notes: relic.notes,
+    })
+    setExpandedId(draft.id)
+  }
+
+  async function handlePromote(draft) {
+    await onUpdateRelic(relic.id, { title: draft.title, description: draft.description, notes: draft.notes })
+    await archive(draft.id, t('relicDetails.drafts.promotedReason'))
+    const others = open.filter(d => d.id !== draft.id)
+    if (others.length > 0) {
+      const ok = await confirm({
+        title: t('relicDetails.drafts.archiveOthersTitle'),
+        message: t('relicDetails.drafts.archiveOthersMessage', { count: others.length }),
+        confirmLabel: t('relicDetails.drafts.archiveOthersConfirm'),
+        cancelLabel: t('relicDetails.drafts.archiveOthersCancel'),
+      })
+      if (ok) await Promise.all(others.map(d => archive(d.id, t('relicDetails.drafts.archivedWithPromotion'))))
+    }
+    push(t('relicDetails.drafts.promoted'), 'success')
+  }
+
+  return (
+    <div style={{border:`1px solid ${color.bgBorder}`,borderRadius:10,overflow:'hidden'}}>
+      <ConfirmModalUI/>
+      <div style={{padding:'7px 12px',background:color.bgElevated,borderBottom:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',gap:6}}>
+        <Layers size={11} style={{color:color.textSecondary}}/>
+        <span style={{fontSize:10,fontWeight:700,letterSpacing:'0.08em',color:color.textSecondary,flex:1}}>{t('relicDetails.drafts.title').toUpperCase()}</span>
+        <button onClick={handleCreate} style={{display:'flex',alignItems:'center',gap:4,background:'none',border:'none',cursor:'pointer',color:color.blue300,fontSize:10,fontWeight:600,fontFamily:font.ui}}>
+          <Plus size={11}/>{t('relicDetails.drafts.new')}
+        </button>
+      </div>
+      <div style={{padding:open.length||archived.length?'8px 10px':'10px 12px',display:'flex',flexDirection:'column',gap:6}}>
+        {open.length === 0 && archived.length === 0 && (
+          <span style={{fontSize:11,color:color.textTertiary}}>{t('relicDetails.drafts.empty')}</span>
+        )}
+        {open.map(d => (
+          <div key={d.id} style={{display:'flex',flexDirection:'column',gap:0,border:`1px solid ${color.bgBorder}`,borderRadius:8,overflow:'hidden'}}>
+            <div style={{display:'flex',alignItems:'center',gap:6,padding:'6px 8px',cursor:'pointer'}}
+              onClick={() => setExpandedId(expandedId===d.id?null:d.id)}>
+              <span style={{flex:1,fontSize:11,color:color.textPrimary,fontWeight:500,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                {d.label || d.title || t('relicDetails.drafts.untitled')}
+              </span>
+              <button onClick={e=>{e.stopPropagation();handlePromote(d)}} title={t('relicDetails.drafts.promote')}
+                style={{background:'none',border:'none',cursor:'pointer',color:color.sage500,padding:3,display:'flex'}}>
+                <ArrowUpCircle size={13}/>
+              </button>
+              <button onClick={e=>{e.stopPropagation();archive(d.id, t('relicDetails.drafts.archivedManually'))}} title={t('relicDetails.drafts.archive')}
+                style={{background:'none',border:'none',cursor:'pointer',color:color.textSecondary,padding:3,display:'flex'}}>
+                <Archive size={12}/>
+              </button>
+              <button onClick={e=>{e.stopPropagation();remove(d.id)}} title={t('common.delete')}
+                style={{background:'none',border:'none',cursor:'pointer',color:color.textSecondary,padding:3,display:'flex'}}>
+                <Trash2 size={12}/>
+              </button>
+              {expandedId===d.id ? <ChevronUp size={12} style={{color:color.textSecondary}}/> : <ChevronDown size={12} style={{color:color.textSecondary}}/>}
+            </div>
+            {expandedId === d.id && (
+              <DraftEditor draft={d} onChange={patch => update(d.id, patch)} color={color} font={font} t={t}/>
+            )}
+          </div>
+        ))}
+        {archived.length > 0 && (
+          <button onClick={()=>setShowArchived(s=>!s)} style={{background:'none',border:'none',cursor:'pointer',color:color.textSecondary,fontSize:10,textAlign:'left',padding:0}}>
+            {showArchived ? t('relicDetails.drafts.hideArchived') : t('relicDetails.drafts.showArchived', { count: archived.length })}
+          </button>
+        )}
+        {showArchived && archived.map(d => (
+          <div key={d.id} style={{display:'flex',alignItems:'center',gap:6,padding:'5px 8px',opacity:0.6}}>
+            <span style={{flex:1,fontSize:11,color:color.textSecondary,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+              {d.label || d.title || t('relicDetails.drafts.untitled')}
+            </span>
+            <span style={{fontSize:9,color:color.textTertiary}}>{d.archivedReason}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /* ─── main component ──────────────────────────────────────────────── */
-export default function RelicDetails({ relic, relics = [], onSelectRelic, onUpdateRelic, onRevive, onDelete, onEdit, onFork, onAnalyze, aiAnalysis, aiLoading }) {
+export default function RelicDetails({ relic, relics = [], onSelectRelic, onUpdateRelic, onRevive, onDelete, onEdit, onAnalyze, aiAnalysis, aiLoading }) {
   const { t } = useTranslation()
   const { color, font } = useTheme()
   const { user } = useAuth()
@@ -431,6 +549,10 @@ export default function RelicDetails({ relic, relics = [], onSelectRelic, onUpda
             </div>
           )}
 
+          {/* drafts — in-progress variants of this idea's content, usable
+              from any status (archived or revived) */}
+          <DraftsSection relic={relic} onUpdateRelic={onUpdateRelic} color={color} font={font} t={t} push={push}/>
+
           {/* linked external file */}
           <LinkedFileSection relic={relic} onUpdateRelic={onUpdateRelic} color={color} font={font} t={t} push={push}/>
 
@@ -470,12 +592,6 @@ export default function RelicDetails({ relic, relics = [], onSelectRelic, onUpda
             onMouseEnter={e=>e.currentTarget.style.background=color.blue600}
             onMouseLeave={e=>e.currentTarget.style.background=color.blue500}>
             <RotateCcw size={13}/> {t('relicDetails.reviveNow')}
-          </button>
-          <button onClick={()=>onFork?.(relic)}
-            style={{width:'100%',padding:'10px 0',borderRadius:8,background:'transparent',color:color.textPrimary,fontSize:13,fontWeight:600,fontFamily:font.ui,cursor:'pointer',border:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'border-color 0.12s,color 0.12s'}}
-            onMouseEnter={e=>{e.currentTarget.style.borderColor=color.blue500;e.currentTarget.style.color=color.blue300}}
-            onMouseLeave={e=>{e.currentTarget.style.borderColor=color.bgBorder;e.currentTarget.style.color=color.textPrimary}}>
-            <GitFork size={13}/> {t('relicDetails.createFork')}
           </button>
           <button onClick={()=>onDelete(relic.id)}
             style={{width:'100%',padding:'10px 0',borderRadius:8,background:'transparent',color:color.textSecondary,fontSize:13,fontWeight:600,fontFamily:font.ui,cursor:'pointer',border:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',justifyContent:'center',gap:6,transition:'border-color 0.12s,color 0.12s'}}

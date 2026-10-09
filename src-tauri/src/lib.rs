@@ -30,6 +30,24 @@ pub fn run() {
       sql: include_str!("../migrations/0004_fork.sql"),
       kind: MigrationKind::Up,
     },
+    Migration {
+      version: 5,
+      description: "add_projects",
+      sql: include_str!("../migrations/0005_projects.sql"),
+      kind: MigrationKind::Up,
+    },
+    Migration {
+      version: 6,
+      description: "add_drafts",
+      sql: include_str!("../migrations/0006_drafts.sql"),
+      kind: MigrationKind::Up,
+    },
+    Migration {
+      version: 7,
+      description: "remove_fork_column",
+      sql: include_str!("../migrations/0007_remove_fork.sql"),
+      kind: MigrationKind::Up,
+    },
   ];
 
   tauri::Builder::default()

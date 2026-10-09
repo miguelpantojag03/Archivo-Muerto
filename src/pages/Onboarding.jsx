@@ -9,6 +9,7 @@ import { Field, Input, PrimaryButton, GlobalError } from '../components/FormFiel
 import { useAuth } from '../auth/AuthProvider.jsx'
 import { useToast } from '../components/Toast.jsx'
 import { getOnboardingSchema } from '../lib/validators.js'
+import { createProject } from '../lib/projectStorage.js'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { alpha } from '../styles/tokens.js'
 
@@ -17,7 +18,7 @@ export default function Onboarding() {
   const { color, radius, font } = useTheme()
   // Register now signs in BEFORE navigating here, so AuthProvider already
   // has the authenticated user — setActiveProject reads it internally.
-  const { setActiveProject } = useAuth()
+  const { user, setActiveProject } = useAuth()
   const { push }             = useToast()
   const navigate              = useNavigate()
 
@@ -35,6 +36,7 @@ export default function Onboarding() {
     setLoading(true)
     try {
       await setActiveProject(data.projectName)
+      if (user?.id) await createProject(user.id, data.projectName)
       push(t('auth.onboarding.successToast'), 'success')
       navigate('/app', { replace: true })
     } catch (err) {

@@ -19,7 +19,7 @@ function sortFn(field, dir) {
   }
 }
 
-export function useRelics(userId) {
+export function useRelics(userId, currentProjectId) {
   const [relics,     setRelics]     = useState([])
   const [selectedId, setSelectedId] = useState(null)
   const [filter,     setFilter]     = useState('all')      // 'all'|'visuals'|'drafts'
@@ -60,6 +60,12 @@ export function useRelics(userId) {
   const visible = useMemo(() => {
     let list = relics
 
+    // project scope — every section except the cross-project global
+    // search stays scoped to whichever project is currently open.
+    if (section !== 'search' && currentProjectId) {
+      list = list.filter(r => r.projectId === currentProjectId)
+    }
+
     // section filter — 'search' deliberately skips all of this and starts
     // from the full, unscoped list: the whole point is to look across every
     // status/project at once, not just the current section.
@@ -95,17 +101,29 @@ export function useRelics(userId) {
     if (section !== 'recent') list = [...list].sort(sortFn(sortField, sortDir))
 
     return list
-  }, [relics, section, filter, search, sortField, sortDir, searchCategory, searchStatus, searchDateFrom, searchDateTo])
+  }, [relics, section, filter, search, sortField, sortDir, searchCategory, searchStatus, searchDateFrom, searchDateTo, currentProjectId])
 
-  const selected = useMemo(() => relics.find(r => r.id === selectedId) ?? null, [relics, selectedId])
+  const projectRelics = useMemo(
+    () => currentProjectId ? relics.filter(r => r.projectId === currentProjectId) : relics,
+    [relics, currentProjectId]
+  )
 
-  // stats
+  // Derived, not mirrored into state: if the stored selectedId doesn't
+  // belong to the current project (e.g. right after switching projects),
+  // fall back to a sensible default within it instead of showing nothing.
+  const selected = useMemo(() => {
+    const direct = relics.find(r => r.id === selectedId)
+    if (direct && (!currentProjectId || direct.projectId === currentProjectId)) return direct
+    return projectRelics.find(r => r.revived) ?? projectRelics[0] ?? null
+  }, [relics, selectedId, currentProjectId, projectRelics])
+
+  // stats — scoped to the current project, same as everything else in view
   const stats = useMemo(() => ({
-    total:        relics.length,
-    revived:      relics.filter(r => r.revived).length,
-    archived:     relics.filter(r => !r.revived).length,
-    withCover:    relics.filter(r => r.coverImage).length,
-  }), [relics])
+    total:        projectRelics.length,
+    revived:      projectRelics.filter(r => r.revived).length,
+    archived:     projectRelics.filter(r => !r.revived).length,
+    withCover:    projectRelics.filter(r => r.coverImage).length,
+  }), [projectRelics])
 
   // CRUD
   const add = useCallback(async (relic) => {

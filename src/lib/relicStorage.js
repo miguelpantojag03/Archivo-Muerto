@@ -35,7 +35,7 @@ function toRow(relic) {
     linked_file_path: relic.linkedFilePath ?? null,
     linked_file_mtime: relic.linkedFileMtime ?? null,
     linked_file_copied_path: relic.linkedFileCopiedPath ?? null,
-    forked_from_id: relic.forkedFromId ?? null,
+    project_id: relic.projectId ?? null,
   }
 }
 
@@ -64,7 +64,7 @@ function fromRow(row) {
     linkedFilePath: row.linked_file_path ?? null,
     linkedFileMtime: row.linked_file_mtime ?? null,
     linkedFileCopiedPath: row.linked_file_copied_path ?? null,
-    forkedFromId: row.forked_from_id ?? null,
+    projectId: row.project_id ?? null,
   }
 }
 
@@ -101,12 +101,13 @@ async function insertRelicRow(db, userId, relic, coverImagePath) {
     `INSERT INTO relics (id,user_id,category,title,description,notes,responsible,project,
        filter,thumbnail,cover_image_path,tags,status,revived_at,created_at,discarded_at,updated_at,
        replaces_id,inspired_by_id,linked_file_path,linked_file_mtime,linked_file_copied_path,
-       forked_from_id)
+       project_id)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23)`,
     [row.id, row.user_id, row.category, row.title, row.description, row.notes, row.responsible,
      row.project, row.filter, row.thumbnail, coverImagePath, row.tags, row.status, row.revived_at,
      row.created_at, row.discarded_at, row.updated_at, row.replaces_id, row.inspired_by_id,
-     row.linked_file_path, row.linked_file_mtime, row.linked_file_copied_path, row.forked_from_id]
+     row.linked_file_path, row.linked_file_mtime, row.linked_file_copied_path,
+     row.project_id]
   )
   await recordStatusTransition(db, relic.id, null, 'archived', row.created_at)
 }
@@ -159,7 +160,7 @@ export async function updateRelic(userId, id, patch) {
     replacesId: 'replaces_id', inspiredById: 'inspired_by_id',
     linkedFilePath: 'linked_file_path', linkedFileMtime: 'linked_file_mtime',
     linkedFileCopiedPath: 'linked_file_copied_path',
-    forkedFromId: 'forked_from_id',
+    projectId: 'project_id',
   }
   const sets = []
   const vals = []

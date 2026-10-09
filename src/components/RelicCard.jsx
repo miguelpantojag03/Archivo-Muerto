@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { RotateCcw, PenLine, FileText, Palette, Tag, StickyNote, Paperclip, Link2 } from 'lucide-react'
+import { RotateCcw, PenLine, FileText, Palette, Tag, StickyNote, Paperclip, Link2, Layers } from 'lucide-react'
 import { getThumbnail } from './Thumbnails.jsx'
 import { countAttachments } from '../lib/attachmentStorage.js'
+import { countOpenDrafts } from '../lib/draftStorage.js'
 import { getLinkStatus } from '../lib/fileLinks.js'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { alpha } from '../styles/tokens.js'
@@ -24,12 +25,18 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
   const { t } = useTranslation()
   const { color, radius, font, spring } = useTheme()
   const [attCount, setAttCount] = useState(0)
+  const [draftCount, setDraftCount] = useState(0)
   const [linkBroken, setLinkBroken] = useState(false)
 
   // Load attachment count asynchronously (lightweight, no blob transfer)
   useEffect(() => {
     if (!relic?.id) return
     countAttachments(relic.id).then(setAttCount).catch(() => {})
+  }, [relic?.id])
+
+  useEffect(() => {
+    if (!relic?.id) return
+    countOpenDrafts(relic.id).then(setDraftCount).catch(() => {})
   }, [relic?.id])
 
   useEffect(() => {
@@ -84,6 +91,18 @@ export default function RelicCard({ relic, isSelected, onSelect, onCardDrag, onC
             fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.85)',fontFamily:font.mono,
           }}>
             <Paperclip size={8}/>{attCount}
+          </div>
+        )}
+
+        {/* Open draft count badge — stacks below attachments if both present */}
+        {draftCount > 0 && (
+          <div title={t('relicCard.draftsCount', { count: draftCount })} style={{
+            position:'absolute',top:attCount>0?26:5,right:5,
+            display:'flex',alignItems:'center',gap:3,
+            background:'rgba(0,0,0,0.7)',borderRadius:radius.pill,padding:'2px 6px',
+            fontSize:9,fontWeight:700,color:'rgba(255,255,255,0.85)',fontFamily:font.mono,
+          }}>
+            <Layers size={8}/>{draftCount}
           </div>
         )}
 

@@ -126,6 +126,14 @@
     },
     "activeProject": "proyecto activo",
     "projectVersion": "v2.4 activo",
+    "projects": {
+      "new": "Nuevo proyecto",
+      "newPlaceholder": "Nombre del proyecto…",
+      "rename": "Renombrar",
+      "delete": "Eliminar proyecto",
+      "deleteConfirmTitle": "¿Eliminar este proyecto?",
+      "deleteConfirmMessage": "«{{name}}» se va a eliminar. Sus ideas NO se borran — quedan sin proyecto, visibles en Buscar."
+    },
     "userFallback": "Usuario",
     "freePlan": "Plan Gratuito"
   },
@@ -150,7 +158,7 @@
   "dashboard": {
     "sectionTitle": { "gallery": "El Archivo", "search": "Buscar", "recent": "Reliquias Recientes", "revived": "Revividas", "deleted": "Eliminado Permanentemente" },
     "sectionDesc": {
-      "gallery": "Revisa los borradores descartados de «{{project}}» y otros proyectos.",
+      "gallery": "Revisa las ideas descartadas de «{{project}}».",
       "search": "Buscá por texto, categoría, estado o fecha — en todo el archivo a la vez.",
       "recent": "Tus 10 reliquias más recientes.",
       "revived": "Ideas que volvieron a la vida.",
@@ -168,7 +176,6 @@
     "toast": {
       "revived": "¡Reliquia revivida! 🎉",
       "relicAdded": "Reliquia añadida al archivo.",
-      "relicForked": "Variante creada — la original sigue archivada tal cual.",
       "sessionExpired": "Tu sesión expiró. Vuelve a iniciar sesión.",
       "deleteTitle": "¿Eliminar esta reliquia para siempre?",
       "deleteMessage": "«{{title}}» y todos sus archivos adjuntos se eliminarán para siempre.",
@@ -180,6 +187,7 @@
   "relicCard": {
     "revived": "revivida",
     "linkBroken": "Vínculo roto",
+    "draftsCount": "{{count}} borrador(es) abierto(s)",
     "category": {
       "SKETCH": "boceto",
       "COPYWRITING": "redacción",
@@ -213,7 +221,6 @@
     "aiAnalysisLabel": "Análisis de IA",
     "aiAnalyzeButton": "Analizar esta reliquia",
     "reviveNow": "Revivir Ahora",
-    "createFork": "Crear Variante",
     "deleteForever": "Eliminar para Siempre",
     "viewOverlay": "Ver",
     "lineage": {
@@ -221,9 +228,30 @@
       "replaces": "Reemplaza a",
       "replacedBy": "Reemplazada por",
       "inspiredBy": "Inspirada en",
-      "inspired": "Inspiró a",
-      "forkedFrom": "Bifurcada de",
-      "forks": "Bifurcaciones"
+      "inspired": "Inspiró a"
+    },
+    "drafts": {
+      "title": "Borradores",
+      "new": "Nuevo",
+      "empty": "Todavía no hay borradores de esta idea.",
+      "titlePlaceholder": "Título…",
+      "descriptionPlaceholder": "Descripción…",
+      "notesPlaceholder": "Notas…",
+      "autosaveHint": "Se guarda solo mientras escribís.",
+      "defaultLabel": "Borrador {{n}}",
+      "untitled": "Sin título",
+      "promote": "Promover a versión activa",
+      "archive": "Archivar este borrador",
+      "archivedManually": "Archivado manualmente.",
+      "archivedWithPromotion": "Se promovió otro borrador.",
+      "promotedReason": "Promovida a versión activa.",
+      "archiveOthersTitle": "¿Archivar los demás borradores?",
+      "archiveOthersMessage": "Quedan {{count}} borrador(es) abiertos de esta idea. ¿Los archivamos, o los dejamos abiertos por si querés retomarlos?",
+      "archiveOthersConfirm": "Archivarlos",
+      "archiveOthersCancel": "Dejarlos abiertos",
+      "promoted": "Borrador promovido — es el contenido oficial ahora.",
+      "hideArchived": "Ocultar archivados",
+      "showArchived": "Ver {{count}} archivados"
     },
     "linkedFile": {
       "title": "Archivo Vinculado",
@@ -282,8 +310,7 @@
       "linkedFile": "Archivo Vinculado",
       "linkFile": "Vincular archivo",
       "linkFileChange": "Cambiar",
-      "secureCopy": "Asegurar una copia interna",
-      "forkedFromLabel": "Bifurcada de: «{{title}}»"
+      "secureCopy": "Asegurar una copia interna"
     },
     "editRelic": {
       "title": "Editar Reliquia",

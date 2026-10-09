@@ -125,6 +125,14 @@
       "comingSoon": "Coming soon"
     },
     "activeProject": "active project",
+    "projects": {
+      "new": "New project",
+      "newPlaceholder": "Project name…",
+      "rename": "Rename",
+      "delete": "Delete project",
+      "deleteConfirmTitle": "Delete this project?",
+      "deleteConfirmMessage": "«{{name}}» will be deleted. Its ideas are NOT deleted — they become unassigned, visible in Search."
+    },
     "projectVersion": "v2.4 active",
     "userFallback": "User",
     "freePlan": "Free Plan"
@@ -150,7 +158,7 @@
   "dashboard": {
     "sectionTitle": { "gallery": "The Archive", "search": "Search", "recent": "Recent Relics", "revived": "Revived", "deleted": "Permanently Deleted" },
     "sectionDesc": {
-      "gallery": "Review discarded drafts from '{{project}}' and other projects.",
+      "gallery": "Review discarded ideas from '{{project}}'.",
       "search": "Search by text, category, status or date — across the whole archive at once.",
       "recent": "Your 10 most recently added relics.",
       "revived": "Ideas brought back to life.",
@@ -168,7 +176,6 @@
     "toast": {
       "revived": "Relic revived! 🎉",
       "relicAdded": "Relic added to the archive.",
-      "relicForked": "Variant created — the original stays archived as-is.",
       "sessionExpired": "Your session expired. Please sign in again.",
       "deleteTitle": "Delete relic forever?",
       "deleteMessage": "\"{{title}}\" and all its attachments will be permanently removed.",
@@ -180,6 +187,7 @@
   "relicCard": {
     "revived": "revived",
     "linkBroken": "Broken link",
+    "draftsCount": "{{count}} open draft(s)",
     "category": {
       "SKETCH": "sketch",
       "COPYWRITING": "copywriting",
@@ -213,7 +221,6 @@
     "aiAnalysisLabel": "AI Analysis",
     "aiAnalyzeButton": "Analyze this relic",
     "reviveNow": "Revive Now",
-    "createFork": "Create Variant",
     "deleteForever": "Delete Forever",
     "viewOverlay": "View",
     "lineage": {
@@ -221,9 +228,30 @@
       "replaces": "Replaces",
       "replacedBy": "Replaced by",
       "inspiredBy": "Inspired by",
-      "inspired": "Inspired",
-      "forkedFrom": "Forked from",
-      "forks": "Forks"
+      "inspired": "Inspired"
+    },
+    "drafts": {
+      "title": "Drafts",
+      "new": "New",
+      "empty": "No drafts of this idea yet.",
+      "titlePlaceholder": "Title…",
+      "descriptionPlaceholder": "Description…",
+      "notesPlaceholder": "Notes…",
+      "autosaveHint": "Saves on its own while you type.",
+      "defaultLabel": "Draft {{n}}",
+      "untitled": "Untitled",
+      "promote": "Promote to active version",
+      "archive": "Archive this draft",
+      "archivedManually": "Archived manually.",
+      "archivedWithPromotion": "Another draft was promoted instead.",
+      "promotedReason": "Promoted to active version.",
+      "archiveOthersTitle": "Archive the other drafts?",
+      "archiveOthersMessage": "{{count}} other draft(s) of this idea are still open. Archive them, or leave them open in case you want to come back to them?",
+      "archiveOthersConfirm": "Archive them",
+      "archiveOthersCancel": "Leave them open",
+      "promoted": "Draft promoted — it's the official content now.",
+      "hideArchived": "Hide archived",
+      "showArchived": "Show {{count}} archived"
     },
     "linkedFile": {
       "title": "Linked File",
@@ -282,7 +310,6 @@
       "linkedFile": "Linked File",
       "linkFile": "Link a file",
       "linkFileChange": "Change",
-      "forkedFromLabel": "Forked from: «{{title}}»",
       "secureCopy": "Keep an internal backup copy"
     },
     "editRelic": {

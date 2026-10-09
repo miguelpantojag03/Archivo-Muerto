@@ -1,6 +1,7 @@
 import { Image, Clock, Trash2, RotateCcw, Search } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import UserMenu from './UserMenu.jsx'
+import ProjectSwitcher from './ProjectSwitcher.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { alpha } from '../styles/tokens.js'
 
@@ -12,7 +13,10 @@ const NAV = [
   { id: 'deleted',  Icon: Trash2 },
 ]
 
-export default function Sidebar({ user, activeSection, onSection, onOpenSettings }) {
+export default function Sidebar({
+  user, activeSection, onSection, onOpenSettings,
+  projects, currentProject, onSwitchProject, onAddProject, onRenameProject, onRemoveProject, confirm,
+}) {
   const { t } = useTranslation()
   const { color, radius, font } = useTheme()
   return (
@@ -62,23 +66,14 @@ export default function Sidebar({ user, activeSection, onSection, onOpenSettings
 
       <div style={{flex:1}}/>
 
-      {/* Active Project */}
-      {user?.activeProject && (
-        <div style={{margin:'0 10px 10px',padding:12,borderRadius:radius.card,background:color.bgElevated,border:`1px solid ${color.bgBorder}`}}>
-          <div style={{fontSize:10,color:color.textTertiary,marginBottom:8,fontFamily:font.mono}}>{t('sidebar.activeProject')}</div>
-          <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <div style={{width:32,height:32,background:color.blue500,borderRadius:radius.control,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:11,fontWeight:700,color:color.onPrimary,letterSpacing:'0.02em'}}>
-              {user.activeProjectInitials}
-            </div>
-            <div>
-              <div style={{fontSize:12,fontWeight:600,color:color.textPrimary}}>{user.activeProject}</div>
-              <div style={{display:'flex',alignItems:'center',gap:5,marginTop:2}}>
-                <span style={{width:5,height:5,borderRadius:'50%',background:color.sage500,flexShrink:0}}/>
-                <span style={{fontSize:10,color:color.textSecondary,fontFamily:font.mono}}>{t('sidebar.projectVersion')}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Project switcher */}
+      {projects?.length > 0 && (
+        <ProjectSwitcher
+          projects={projects} currentProject={currentProject}
+          onSwitchProject={onSwitchProject} onAddProject={onAddProject}
+          onRenameProject={onRenameProject} onRemoveProject={onRemoveProject}
+          confirm={confirm}
+        />
       )}
 
       {/* User footer */}

@@ -7,6 +7,7 @@ export const RELICS_KEY     = (userId) => `am_relics_${userId}`
 export const ACTION_LOG_KEY = (userId) => `am_log_${userId}`
 export const THEME_KEY      = 'am_theme'      // 'light' | 'dark' | 'auto'
 export const LANG_KEY       = 'am_lang'       // 'es' | 'en'
+export const CURRENT_PROJECT_KEY = (userId) => `am_current_project_${userId}`
 
 // IndexedDB
 export const IDB_NAME       = 'archivo_muerto_db'

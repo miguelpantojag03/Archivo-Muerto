@@ -6,6 +6,7 @@ import { Archive, RotateCcw, Layers } from 'lucide-react'
 import { useAuth }         from '../auth/AuthProvider.jsx'
 import { useToast }        from '../components/Toast.jsx'
 import { useRelics }       from '../hooks/useRelics.js'
+import { useProjects }     from '../hooks/useProjects.js'
 import { useAI }           from '../hooks/useAI.js'
 import { useConfirm }      from '../components/ConfirmModal.jsx'
 import Sidebar             from '../components/Sidebar.jsx'
@@ -74,13 +75,18 @@ export default function Dashboard() {
   const { analyzeRelic }   = useAI()
 
   const {
+    projects, currentProject, currentProjectId, switchProject, addProject,
+    rename: renameProject, remove: removeProject,
+  } = useProjects(user?.id)
+
+  const {
     relics, visible, selected, selectedId, setSelectedId,
     filter, setFilter, section, setSection,
     search, setSearch, sortField, sortDir, cycleSort,
     searchCategory, setSearchCategory, searchStatus, setSearchStatus,
     searchDateFrom, setSearchDateFrom, searchDateTo, setSearchDateTo,
     stats, add, update, remove, revive,
-  } = useRelics(user?.id)
+  } = useRelics(user?.id, currentProjectId)
 
   const hasSearchActivity = section === 'search'
     ? !!search || searchCategory !== 'all' || searchStatus !== 'all' || !!searchDateFrom || !!searchDateTo
@@ -89,7 +95,6 @@ export default function Dashboard() {
   const [dragOver,      setDragOver]      = useState(false)
   const [justRevived,   setJustRevived]   = useState(false)
   const [showNew,       setShowNew]       = useState(false)
-  const [forkSeed,      setForkSeed]      = useState(null)
   const [editRelic,     setEditRelic]     = useState(null)
   const [showSettings,  setShowSettings]  = useState(false)
   const [aiAnalysis,    setAiAnalysis]    = useState({})  // { [relicId]: string }
@@ -161,17 +166,7 @@ export default function Dashboard() {
 
   async function handleAddRelic(relic) {
     await add(relic)
-    push(relic.forkedFromId ? t('dashboard.toast.relicForked') : t('dashboard.toast.relicAdded'), 'success')
-  }
-
-  function handleForkRelic(relic) {
-    setForkSeed(relic)
-    setShowNew(true)
-  }
-
-  function handleCloseNew() {
-    setShowNew(false)
-    setForkSeed(null)
+    push(t('dashboard.toast.relicAdded'), 'success')
   }
 
   async function handleSaveEdit(id, patch) {
@@ -211,6 +206,13 @@ export default function Dashboard() {
           activeSection={section}
           onSection={setSection}
           onOpenSettings={() => setShowSettings(true)}
+          projects={projects}
+          currentProject={currentProject}
+          onSwitchProject={switchProject}
+          onAddProject={addProject}
+          onRenameProject={renameProject}
+          onRemoveProject={removeProject}
+          confirm={confirm}
         />
 
         {/* Center */}
@@ -237,7 +239,7 @@ export default function Dashboard() {
                 </h1>
                 <p style={{fontSize:12,color:color.textSecondary,marginTop:4,marginBottom:0}}>
                   {section==='gallery'
-                    ? t('dashboard.sectionDesc.gallery', { project: user?.activeProject || t('sidebar.nav.archive') })
+                    ? t('dashboard.sectionDesc.gallery', { project: currentProject?.name || t('sidebar.nav.archive') })
                     : t(`dashboard.sectionDesc.${section}`)}
                 </p>
               </div>
@@ -291,7 +293,6 @@ export default function Dashboard() {
           onRevive={handleRevive}
           onDelete={handleDelete}
           onEdit={relic=>setEditRelic(relic)}
-          onFork={handleForkRelic}
           onAnalyze={handleAnalyze}
           aiAnalysis={selected ? aiAnalysis[selected.id] : null}
           aiLoading={aiLoadingId === selected?.id}
@@ -301,11 +302,12 @@ export default function Dashboard() {
       {/* Modals */}
       {showNew && (
         <NewRelicModal
-          onClose={handleCloseNew}
+          onClose={()=>setShowNew(false)}
           onAdd={handleAddRelic}
           relics={relics}
           onViewExisting={setSelectedId}
-          forkFrom={forkSeed}
+          projectId={currentProjectId}
+          projectName={currentProject?.name}
         />
       )}
       {editRelic && (
