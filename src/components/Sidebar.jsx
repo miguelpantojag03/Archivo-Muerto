@@ -77,7 +77,7 @@ export default function Sidebar({
         </div>
         <div style={{flex:1,minWidth:0}}>
           <div style={{fontSize:12,fontWeight:600,color:color.textPrimary,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.fullName||t('sidebar.userFallback')}</div>
-          <div style={{fontSize:10,color:color.textSecondary}}>{user?.plan||t('sidebar.freePlan')}</div>
+          <div style={{fontSize:10,color:color.textSecondary,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{user?.email}</div>
         </div>
         <UserMenu user={user} onOpenSettings={onOpenSettings}/>
       </div>

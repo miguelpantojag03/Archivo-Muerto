@@ -3,6 +3,7 @@
 // has configured an API key.  Manages loading, error and abort.
 
 import { useState, useCallback, useRef } from 'react'
+import { useTranslation }        from 'react-i18next'
 import { getAIKey, hasAIKey }    from '../lib/aiKeyStorage.js'
 import MockAIService              from '../services/ai/MockAIService.js'
 import makeClaudeService          from '../services/ai/ClaudeService.js'
@@ -13,6 +14,7 @@ function getService() {
 }
 
 export function useAI() {
+  const { t, i18n } = useTranslation()
   const [loading, setLoading] = useState(false)
   const [error,   setError]   = useState(null)
   const abortRef = useRef(null)
@@ -28,38 +30,41 @@ export function useAI() {
     setLoading(true)
     setError(null)
     try {
-      const result = await fn(getService(), ctrl.signal)
+      const result = await fn(getService(), i18n.language, ctrl.signal)
       return result
     } catch (err) {
       if (err.name === 'AbortError') return null
       const msg = err.message?.includes('API error 401')
-        ? 'Invalid API key. Check your settings.'
+        ? t('ai.errorInvalidKey')
         : err.message?.includes('API error 429')
-        ? 'Rate limit reached. Try again in a moment.'
-        : err.message ?? 'AI request failed. Try again.'
+        ? t('ai.errorRateLimit')
+        : err.message ?? t('ai.errorGeneric')
       setError(msg)
       return null
     } finally {
       setLoading(false)
       abortRef.current = null
     }
-  }, [])
+  }, [i18n.language, t])
 
   // ── Feature helpers ───────────────────────────────────────────
+  // Every service call gets the current UI language so AI-generated
+  // text (real or mocked) matches it instead of always coming back
+  // in English.
   const suggestTags = useCallback((title, description, category) =>
-    run((svc, sig) => svc.suggestTags(title, description, category, sig)),
+    run((svc, lang, sig) => svc.suggestTags(title, description, category, lang, sig)),
   [run])
 
   const enhanceDescription = useCallback((title, description) =>
-    run((svc, sig) => svc.enhanceDescription(title, description, sig)),
+    run((svc, lang, sig) => svc.enhanceDescription(title, description, lang, sig)),
   [run])
 
   const analyzeRelic = useCallback((relic) =>
-    run((svc, sig) => svc.analyzeRelic(relic, sig)),
+    run((svc, lang, sig) => svc.analyzeRelic(relic, lang, sig)),
   [run])
 
   const archiveInsights = useCallback((relics) =>
-    run((svc, sig) => svc.archiveInsights(relics, sig)),
+    run((svc, lang, sig) => svc.archiveInsights(relics, lang, sig)),
   [run])
 
   return { loading, error, abort, suggestTags, enhanceDescription, analyzeRelic, archiveInsights }

@@ -7,7 +7,6 @@
  * @property {string} id
  * @property {string} email
  * @property {string} fullName
- * @property {string} plan
  * @property {string} avatarInitials
  * @property {string} activeProject
  * @property {string} activeProjectInitials

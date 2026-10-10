@@ -142,8 +142,7 @@
       "deleteConfirmMessage": "«{{name}}» will be deleted. Its ideas are NOT deleted — they become unassigned, visible in Search."
     },
     "projectVersion": "v2.4 active",
-    "userFallback": "User",
-    "freePlan": "Free Plan"
+    "userFallback": "User"
   },
   "topbar": {
     "searchPlaceholder": "Search your museum of ideas…",
@@ -398,7 +397,10 @@
     "topCandidates": "Top Revival Candidates",
     "tip": "Tip",
     "regenerate": "Regenerate insights",
-    "regenerating": "Regenerating…"
+    "regenerating": "Regenerating…",
+    "errorInvalidKey": "Invalid API key. Check your settings.",
+    "errorRateLimit": "Rate limit reached. Try again in a moment.",
+    "errorGeneric": "AI request failed. Try again."
   },
   "userMenu": {
     "profile": "Profile",

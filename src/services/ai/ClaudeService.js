@@ -42,13 +42,22 @@ async function callClaude(apiKey, systemPrompt, userMessage, signal) {
 }
 
 // ── System prompt shared by all features ──────────────────────────
-const SYSTEM = `You are an assistant for "Vestigio", a creative archive app where teams store discarded ideas (called relics). Your tone is thoughtful, concise and slightly poetic — never corporate. Respond ONLY with valid JSON, no markdown fences, no extra text.`
+// Lang-aware: without this, Claude defaults to English regardless of
+// the app's own UI language — the JSON *keys* stay in English (the
+// app parses them by name), only the natural-language *values* inside
+// should switch.
+const LANG_NAME = { es: 'Spanish', en: 'English' }
+
+function systemPrompt(lang) {
+  const languageName = LANG_NAME[lang?.slice(0, 2)] ?? LANG_NAME.en
+  return `You are an assistant for "Vestigio", a creative archive app where teams store discarded ideas (called relics). Your tone is thoughtful, concise and slightly poetic — never corporate. Respond ONLY with valid JSON, no markdown fences, no extra text. Keep every JSON key in English exactly as given in the prompt, but write all natural-language text inside the JSON string values in ${languageName}.`
+}
 
 // ── Public API ────────────────────────────────────────────────────
 function makeClaudeService(apiKey) {
   return {
-    async suggestTags(title, description, category = 'NOTES', signal) {
-      return callClaude(apiKey, SYSTEM,
+    async suggestTags(title, description, category = 'NOTES', lang, signal) {
+      return callClaude(apiKey, systemPrompt(lang),
         `Suggest 3 to 5 lowercase tags for this archived creative relic.
 Title: "${title}"
 Description: "${description}"
@@ -57,8 +66,8 @@ Return JSON: { "tags": ["tag1","tag2","tag3"] }`,
         signal)
     },
 
-    async enhanceDescription(title, description, signal) {
-      return callClaude(apiKey, SYSTEM,
+    async enhanceDescription(title, description, lang, signal) {
+      return callClaude(apiKey, systemPrompt(lang),
         `Improve this description for an archived creative relic. Keep it under 200 characters. Be specific about why it was discarded and what value it retains.
 Title: "${title}"
 Current description: "${description || 'No description yet.'}"
@@ -66,8 +75,8 @@ Return JSON: { "description": "improved text here" }`,
         signal)
     },
 
-    async analyzeRelic(relic, signal) {
-      return callClaude(apiKey, SYSTEM,
+    async analyzeRelic(relic, lang, signal) {
+      return callClaude(apiKey, systemPrompt(lang),
         `Analyze this discarded creative relic and assess its revival potential.
 Title: "${relic.title}"
 Category: ${relic.category}
@@ -82,14 +91,14 @@ Return JSON: {
         signal)
     },
 
-    async archiveInsights(relics, signal) {
+    async archiveInsights(relics, lang, signal) {
       // Send lightweight summaries (no blobs, no base64)
       const summaries = relics.slice(0, 30).map(r => ({
         id: r.id, title: r.title, category: r.category,
         description: r.description?.slice(0, 80),
         revived: r.revived, discardedAt: r.discardedAt,
       }))
-      return callClaude(apiKey, SYSTEM,
+      return callClaude(apiKey, systemPrompt(lang),
         `Analyze this team's creative archive and provide insights.
 Archive (${relics.length} relics): ${JSON.stringify(summaries)}
 Return JSON: {

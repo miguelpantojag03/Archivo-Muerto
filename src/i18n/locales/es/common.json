@@ -142,8 +142,7 @@
       "deleteConfirmTitle": "¿Eliminar este proyecto?",
       "deleteConfirmMessage": "«{{name}}» se va a eliminar. Sus ideas NO se borran — quedan sin proyecto, visibles en Buscar."
     },
-    "userFallback": "Usuario",
-    "freePlan": "Plan Gratuito"
+    "userFallback": "Usuario"
   },
   "topbar": {
     "searchPlaceholder": "Busca en tu museo de ideas…",
@@ -398,7 +397,10 @@
     "topCandidates": "Mejores Candidatas a Revivir",
     "tip": "Consejo",
     "regenerate": "Regenerar perspectivas",
-    "regenerating": "Regenerando…"
+    "regenerating": "Regenerando…",
+    "errorInvalidKey": "Clave API inválida. Revisá tus ajustes.",
+    "errorRateLimit": "Se alcanzó el límite de uso. Probá de nuevo en un momento.",
+    "errorGeneric": "Falló el pedido a la IA. Probá de nuevo."
   },
   "userMenu": {
     "profile": "Perfil",
