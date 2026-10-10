@@ -13,7 +13,7 @@
 // doesn't need to know which model is actually answering — only this
 // file needs to change if the model is swapped again later.
 
-const MODEL = '@cf/meta/llama-3.1-8b-instruct'
+const MODEL = '@cf/meta/llama-3.1-8b-instruct-fp8'
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
