@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { alpha } from '../styles/tokens.js'
+import logo from '../assets/vestigio-logo.svg'
 
 // Abstract night-museum atmosphere: fog, a moonlight glow, and a few
 // blurred silhouettes suggesting distant vitrines — never literal icons.
@@ -86,18 +87,7 @@ export default function AuthLayout({ children }) {
           }}>
           {/* Wordmark */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28 }}>
-            <div style={{
-              width: 30, height: 30, borderRadius: radius.control, flexShrink: 0,
-              background: `linear-gradient(135deg, ${color.blue500}, ${color.blue800})`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <svg viewBox="0 0 20 20" width="16" height="16" fill="none">
-                <rect x="3" y="3" width="6" height="6" rx="1.5" fill="white" opacity="0.9" />
-                <rect x="11" y="3" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
-                <rect x="3" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.6" />
-                <rect x="11" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.3" />
-              </svg>
-            </div>
+            <img src={logo} alt="" width={30} height={30} style={{ borderRadius: radius.control, flexShrink: 0 }} />
             <span style={{ fontWeight: 600, fontSize: 14, color: color.textPrimary, fontFamily: font.ui, letterSpacing: '-0.01em' }}>
               Vestigio
             </span>

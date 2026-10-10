@@ -4,6 +4,7 @@ import UserMenu from './UserMenu.jsx'
 import ProjectSwitcher from './ProjectSwitcher.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { alpha } from '../styles/tokens.js'
+import logo from '../assets/vestigio-logo.svg'
 
 const NAV = [
   { id: 'gallery',  Icon: Image },
@@ -26,14 +27,7 @@ export default function Sidebar({
     }}>
       {/* Logo */}
       <div style={{display:'flex',alignItems:'center',gap:10,padding:'18px 16px 14px'}}>
-        <div style={{width:30,height:30,background:color.blue500,borderRadius:radius.control,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-          <svg viewBox="0 0 20 20" width="18" height="18" fill="none">
-            <rect x="3" y="3" width="6" height="6" rx="1.5" fill="white" opacity="0.9"/>
-            <rect x="11" y="3" width="6" height="6" rx="1.5" fill="white" opacity="0.6"/>
-            <rect x="3" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.6"/>
-            <rect x="11" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.3"/>
-          </svg>
-        </div>
+        <img src={logo} alt="" width={30} height={30} style={{borderRadius:radius.control,flexShrink:0}}/>
         <span style={{fontWeight:700,fontSize:13,color:color.textPrimary,letterSpacing:'-0.02em'}}>Vestigio</span>
       </div>
 
