@@ -1,4 +1,4 @@
-# Archivo Muerto — Documentación técnica
+# Vestigio — Documentación técnica
 
 > Versión: 0.0.0 · Stack: React 19 + Vite 8 + Tauri 2 · Fecha: Oct 2026
 
@@ -6,7 +6,7 @@
 
 ## Descripción general
 
-**Archivo Muerto** es una app de escritorio (Windows/macOS, empaquetada con Tauri) para equipos creativos que permite guardar, organizar y revivir ideas descartadas (borradores, paletas, bocetos, copies, notas) como *Relics* (reliquias). Funciona como un museo de ideas: lo que se descarta no se pierde, se archiva y puede volver a un proyecto activo en cualquier momento. No depende de ningún servidor remoto — todo corre localmente dentro del WebView.
+**Vestigio** es una app de escritorio (Windows/macOS, empaquetada con Tauri) para equipos creativos que permite guardar, organizar y revivir ideas descartadas (borradores, paletas, bocetos, copies, notas) como *Relics* (reliquias). Funciona como un museo de ideas: lo que se descarta no se pierde, se archiva y puede volver a un proyecto activo en cualquier momento. No depende de ningún servidor remoto — todo corre localmente dentro del WebView.
 
 ---
 

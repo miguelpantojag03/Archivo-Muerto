@@ -1,4 +1,4 @@
-# Archivo Muerto — Mapa de navegación
+# Vestigio — Mapa de navegación
 
 ---
 

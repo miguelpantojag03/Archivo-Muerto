@@ -42,7 +42,7 @@ async function callClaude(apiKey, systemPrompt, userMessage, signal) {
 }
 
 // ── System prompt shared by all features ──────────────────────────
-const SYSTEM = `You are an assistant for "Archivo Muerto", a creative archive app where teams store discarded ideas (called relics). Your tone is thoughtful, concise and slightly poetic — never corporate. Respond ONLY with valid JSON, no markdown fences, no extra text.`
+const SYSTEM = `You are an assistant for "Vestigio", a creative archive app where teams store discarded ideas (called relics). Your tone is thoughtful, concise and slightly poetic — never corporate. Respond ONLY with valid JSON, no markdown fences, no extra text.`
 
 // ── Public API ────────────────────────────────────────────────────
 function makeClaudeService(apiKey) {

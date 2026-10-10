@@ -14,7 +14,7 @@ import { invoke } from '@tauri-apps/api/core'
 import { appLocalDataDir, join } from '@tauri-apps/api/path'
 import { getDb } from './db.js'
 
-const BACKUP_FILTERS = [{ name: 'Archivo Muerto Backup', extensions: ['zip'] }]
+const BACKUP_FILTERS = [{ name: 'Vestigio Backup', extensions: ['zip'] }]
 
 /**
  * Exports a full backup (db + attachments + covers) as a .zip the user
@@ -23,7 +23,7 @@ const BACKUP_FILTERS = [{ name: 'Archivo Muerto Backup', extensions: ['zip'] }]
  */
 export async function exportBackup() {
   const destPath = await save({
-    defaultPath: `archivo-muerto-backup-${new Date().toISOString().slice(0, 10)}.zip`,
+    defaultPath: `vestigio-backup-${new Date().toISOString().slice(0, 10)}.zip`,
     filters: BACKUP_FILTERS,
   })
   if (!destPath) return null

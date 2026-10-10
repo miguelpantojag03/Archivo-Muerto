@@ -348,7 +348,7 @@
       "backupRestore": "Restaurar desde un archivo",
       "backupRestoring": "Restaurando…",
       "backupRestoreError": "No se pudo restaurar esa copia de seguridad.",
-      "backupRestoreInvalid": "Ese archivo no es una copia de seguridad válida de Archivo Muerto.",
+      "backupRestoreInvalid": "Ese archivo no es una copia de seguridad válida de Vestigio.",
       "backupRestoreConfirmTitle": "¿Restaurar esta copia de seguridad?",
       "backupRestoreConfirmMessage": "Esto va a reemplazar TODAS las ideas y adjuntos actuales por los de la copia elegida, y va a reiniciar la aplicación. Esta acción no se puede deshacer.",
       "backupRestoreConfirmAction": "Restaurar y reiniciar"

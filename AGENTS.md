@@ -1,6 +1,8 @@
 # AGENTS.md
 
-This repository is a React + Vite app packaged as a native desktop app with Tauri (see `src-tauri/`) for Archivo Muerto, a local-first archival dashboard for creative artifacts (“Relics”). Use the project docs as the source of truth for behavior and architecture.
+This repository is a React + Vite app packaged as a native desktop app with Tauri (see `src-tauri/`) for Vestigio, a local-first archival dashboard for creative artifacts (“Relics”). Use the project docs as the source of truth for behavior and architecture.
+
+Note: the app was rebranded from "Archivo Muerto" to "Vestigio" in the UI/docs only — the Tauri `identifier` (`com.archivomuerto.app`), the SQLite filename (`archivo_muerto.db`), and the repo/folder name stayed unchanged on purpose, since changing them would move or orphan the app's real on-disk data directory.
 
 ## High-level guidance
 

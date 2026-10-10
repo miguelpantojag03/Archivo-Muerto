@@ -1,4 +1,4 @@
-# Archivo Muerto — Jerarquía del proyecto
+# Vestigio — Jerarquía del proyecto
 
 ```
 archivo-muerto/

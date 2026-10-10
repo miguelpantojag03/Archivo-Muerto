@@ -34,7 +34,7 @@ export default function Sidebar({
             <rect x="11" y="11" width="6" height="6" rx="1.5" fill="white" opacity="0.3"/>
           </svg>
         </div>
-        <span style={{fontWeight:700,fontSize:13,color:color.textPrimary,letterSpacing:'-0.02em'}}>Archivo Muerto</span>
+        <span style={{fontWeight:700,fontSize:13,color:color.textPrimary,letterSpacing:'-0.02em'}}>Vestigio</span>
       </div>
 
       {/* Nav */}

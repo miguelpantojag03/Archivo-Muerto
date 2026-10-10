@@ -348,7 +348,7 @@
       "backupRestore": "Restore from a file",
       "backupRestoring": "Restoring…",
       "backupRestoreError": "Could not restore that backup.",
-      "backupRestoreInvalid": "That file isn't a valid Archivo Muerto backup.",
+      "backupRestoreInvalid": "That file isn't a valid Vestigio backup.",
       "backupRestoreConfirmTitle": "Restore this backup?",
       "backupRestoreConfirmMessage": "This will replace ALL current ideas and attachments with the ones from the chosen backup, and restart the app. This action can't be undone.",
       "backupRestoreConfirmAction": "Restore and restart"

@@ -99,7 +99,7 @@ export default function AuthLayout({ children }) {
               </svg>
             </div>
             <span style={{ fontWeight: 600, fontSize: 14, color: color.textPrimary, fontFamily: font.ui, letterSpacing: '-0.01em' }}>
-              Archivo Muerto
+              Vestigio
             </span>
           </div>
 
