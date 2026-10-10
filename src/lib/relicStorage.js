@@ -97,7 +97,7 @@ async function insertRelicRow(db, userId, relic, coverImagePath) {
     `INSERT INTO relics (id,user_id,category,title,description,notes,responsible,project,
        filter,thumbnail,cover_image_path,tags,status,revived_at,created_at,discarded_at,updated_at,
        linked_file_path,linked_file_mtime,linked_file_copied_path,project_id)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21)`,
     [row.id, row.user_id, row.category, row.title, row.description, row.notes, row.responsible,
      row.project, row.filter, row.thumbnail, coverImagePath, row.tags, row.status, row.revived_at,
      row.created_at, row.discarded_at, row.updated_at,
