@@ -378,7 +378,7 @@
     "allAdded": "All suggested tags already added.",
     "archiveIntelligence": "Archive Intelligence",
     "analyzingArchive": "Analyzing your archive…",
-    "poweredByClaude": "Powered by Claude AI",
+    "poweredByAI": "Powered by AI",
     "mockMode": "Smart insights · Mock mode",
     "relicsCount_one": "{{count}} relic",
     "relicsCount_other": "{{count}} relics",
@@ -388,7 +388,7 @@
     "tip": "Tip",
     "regenerate": "Regenerate insights",
     "regenerating": "Regenerating…",
-    "errorInvalidKey": "The AI service isn't available right now.",
+    "errorUnavailable": "The AI service isn't available right now.",
     "errorRateLimit": "Rate limit reached. Try again in a moment.",
     "errorGeneric": "AI request failed. Try again."
   },

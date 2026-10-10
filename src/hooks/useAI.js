@@ -1,5 +1,5 @@
 // ─── useAI ────────────────────────────────────────────────────────
-// Selects ClaudeService or MockAIService based on whether the AI
+// Selects RealAIService or MockAIService based on whether the AI
 // proxy (backend/) is configured for this build. Manages loading,
 // error and abort.
 
@@ -7,10 +7,10 @@ import { useState, useCallback, useRef } from 'react'
 import { useTranslation }        from 'react-i18next'
 import { hasAIProxy }            from '../lib/aiConfig.js'
 import MockAIService              from '../services/ai/MockAIService.js'
-import makeClaudeService          from '../services/ai/ClaudeService.js'
+import makeRealAIService          from '../services/ai/RealAIService.js'
 
 function getService() {
-  if (hasAIProxy()) return makeClaudeService()
+  if (hasAIProxy()) return makeRealAIService()
   return MockAIService
 }
 
@@ -35,11 +35,11 @@ export function useAI() {
       return result
     } catch (err) {
       if (err.name === 'AbortError') return null
-      const msg = err.message?.includes('API error 401')
-        ? t('ai.errorInvalidKey')
-        : err.message?.includes('API error 429')
+      const msg = err.message?.includes('API error 403')
+        ? t('ai.errorUnavailable')
+        : /429|rate.?limit/i.test(err.message ?? '')
         ? t('ai.errorRateLimit')
-        : err.message ?? t('ai.errorGeneric')
+        : t('ai.errorGeneric')
       setError(msg)
       return null
     } finally {

@@ -1,6 +1,6 @@
 // ─── AIService interface ──────────────────────────────────────────
 // All AI features go through this contract.
-// Swap ClaudeService for any other provider without touching the UI.
+// Swap RealAIService for any other provider without touching the UI.
 //
 // @typedef {Object} TagSuggestion
 // @property {string[]} tags

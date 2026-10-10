@@ -378,7 +378,7 @@
     "allAdded": "Todas las etiquetas sugeridas ya fueron añadidas.",
     "archiveIntelligence": "Inteligencia del Archivo",
     "analyzingArchive": "Analizando tu archivo…",
-    "poweredByClaude": "Impulsado por Claude AI",
+    "poweredByAI": "Impulsado por IA",
     "mockMode": "Perspectivas inteligentes · Modo simulado",
     "relicsCount_one": "{{count}} reliquia",
     "relicsCount_other": "{{count}} reliquias",
@@ -388,7 +388,7 @@
     "tip": "Consejo",
     "regenerate": "Regenerar perspectivas",
     "regenerating": "Regenerando…",
-    "errorInvalidKey": "El servicio de IA no está disponible en este momento.",
+    "errorUnavailable": "El servicio de IA no está disponible en este momento.",
     "errorRateLimit": "Se alcanzó el límite de uso. Probá de nuevo en un momento.",
     "errorGeneric": "Falló el pedido a la IA. Probá de nuevo."
   },

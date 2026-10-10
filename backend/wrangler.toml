@@ -2,6 +2,10 @@ name = "vestigio-ai-proxy"
 main = "src/index.js"
 compatibility_date = "2026-10-09"
 
-# Secrets (ANTHROPIC_API_KEY, APP_SHARED_SECRET) are set via
-# `wrangler secret put <NAME>` after deploying — never stored here,
-# never committed.
+# Cloudflare Workers AI — free tier (10,000 Neurons/day, resets daily),
+# runs in-account, no separate API key to protect.
+[ai]
+binding = "AI"
+
+# APP_SHARED_SECRET is set via `wrangler secret put APP_SHARED_SECRET`
+# after deploying — never stored here, never committed.

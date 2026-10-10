@@ -1,18 +1,19 @@
-// ─── ClaudeService ────────────────────────────────────────────────
-// Calls Anthropic's Messages API through our own proxy (backend/),
-// never directly — the real API key lives only as a Cloudflare secret
-// server-side. VITE_AI_PROXY_URL/VITE_APP_SHARED_SECRET come from
-// .env.local (gitignored), same pattern as googleOAuth.js's client
-// secret. See backend/src/index.js for the other half of this.
+// ─── RealAIService ────────────────────────────────────────────────
+// Calls our own proxy (backend/) for real AI output, never a provider
+// directly — the proxy runs Cloudflare Workers AI in-account, no API
+// key to ship in the client. VITE_AI_PROXY_URL/VITE_APP_SHARED_SECRET
+// come from .env.local (gitignored), same pattern as googleOAuth.js's
+// client secret. See backend/src/index.js for the other half of this.
 //
-// Model: claude-sonnet-4-5 (fast, cost-effective for short prompts)
+// Named generically (not after a specific model) because the model
+// behind the proxy can change without this file changing — only
+// backend/src/index.js needs to know which one is actually running.
 
 const API_URL = import.meta.env.VITE_AI_PROXY_URL
-const MODEL   = 'claude-sonnet-4-5'
 const MAX_TOKENS = 512
 
 // ── Core request helper ───────────────────────────────────────────
-async function callClaude(systemPrompt, userMessage, signal) {
+async function callAI(systemPrompt, userMessage, signal) {
   const res = await fetch(API_URL, {
     method: 'POST',
     signal,
@@ -21,7 +22,6 @@ async function callClaude(systemPrompt, userMessage, signal) {
       'x-app-secret': import.meta.env.VITE_APP_SHARED_SECRET,
     },
     body: JSON.stringify({
-      model:      MODEL,
       max_tokens: MAX_TOKENS,
       system:     systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
@@ -41,8 +41,8 @@ async function callClaude(systemPrompt, userMessage, signal) {
 }
 
 // ── System prompt shared by all features ──────────────────────────
-// Lang-aware: without this, Claude defaults to English regardless of
-// the app's own UI language — the JSON *keys* stay in English (the
+// Lang-aware: without this, the model defaults to English regardless
+// of the app's own UI language — the JSON *keys* stay in English (the
 // app parses them by name), only the natural-language *values* inside
 // should switch.
 const LANG_NAME = { es: 'Spanish', en: 'English' }
@@ -53,10 +53,10 @@ function systemPrompt(lang) {
 }
 
 // ── Public API ────────────────────────────────────────────────────
-function makeClaudeService() {
+function makeRealAIService() {
   return {
     async suggestTags(title, description, category = 'NOTES', lang, signal) {
-      return callClaude(systemPrompt(lang),
+      return callAI(systemPrompt(lang),
         `Suggest 3 to 5 lowercase tags for this archived creative relic.
 Title: "${title}"
 Description: "${description}"
@@ -66,7 +66,7 @@ Return JSON: { "tags": ["tag1","tag2","tag3"] }`,
     },
 
     async enhanceDescription(title, description, lang, signal) {
-      return callClaude(systemPrompt(lang),
+      return callAI(systemPrompt(lang),
         `Improve this description for an archived creative relic. Keep it under 200 characters. Be specific about why it was discarded and what value it retains.
 Title: "${title}"
 Current description: "${description || 'No description yet.'}"
@@ -75,7 +75,7 @@ Return JSON: { "description": "improved text here" }`,
     },
 
     async analyzeRelic(relic, lang, signal) {
-      return callClaude(systemPrompt(lang),
+      return callAI(systemPrompt(lang),
         `Analyze this discarded creative relic and assess its revival potential.
 Title: "${relic.title}"
 Category: ${relic.category}
@@ -97,7 +97,7 @@ Return JSON: {
         description: r.description?.slice(0, 80),
         revived: r.revived, discardedAt: r.discardedAt,
       }))
-      return callClaude(systemPrompt(lang),
+      return callAI(systemPrompt(lang),
         `Analyze this team's creative archive and provide insights.
 Archive (${relics.length} relics): ${JSON.stringify(summaries)}
 Return JSON: {
@@ -111,4 +111,4 @@ Return JSON: {
   }
 }
 
-export default makeClaudeService
+export default makeRealAIService

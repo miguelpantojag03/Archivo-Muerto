@@ -49,7 +49,7 @@ export default function AIInsightsPanel({ relics, onHighlight }) {
               {loading ? t('ai.analyzingArchive') : t('ai.archiveIntelligence')}
             </div>
             <div style={{fontSize:10,color:color.textSecondary,marginTop:1}}>
-              {hasAIProxy() ? t('ai.poweredByClaude') : t('ai.mockMode')} · {t('ai.relicsCount', { count: relics.length })}
+              {hasAIProxy() ? t('ai.poweredByAI') : t('ai.mockMode')} · {t('ai.relicsCount', { count: relics.length })}
             </div>
           </div>
         </div>

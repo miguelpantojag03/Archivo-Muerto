@@ -1,8 +1,8 @@
 // ─── MockAIService ────────────────────────────────────────────────
-// Used when no API key is configured or during development.
+// Used when no AI proxy is configured or during development.
 // Returns realistic-looking responses with a simulated delay.
 // Never makes network calls. Lang-aware — same reasoning as
-// ClaudeService's systemPrompt(): nothing here should default to
+// RealAIService's systemPrompt(): nothing here should default to
 // English when the app's UI language is Spanish.
 
 function delay(ms = 800) { return new Promise(r => setTimeout(r, ms)) }
