@@ -30,7 +30,7 @@ function StatsBar({ stats }) {
     { icon: <Archive size={13}/>,   label: t('dashboard.stats.archived'), value: stats.archived },
   ]
   return (
-    <div style={{display:'flex',gap:20,marginTop:8,marginBottom:16}}>
+    <div style={{display:'flex',gap:20,marginTop:8,marginBottom:16,flexWrap:'wrap'}}>
       {items.map(({icon,label,value})=>(
         <div key={label} style={{display:'flex',alignItems:'center',gap:6}}>
           <span style={{color:color.blue500}}>{icon}</span>
