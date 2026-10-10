@@ -120,6 +120,8 @@
     "nav": {
       "archive": "El Archivo",
       "archiveDesc": "Todas las reliquias",
+      "gallery": "El Archivo",
+      "galleryDesc": "Todas las reliquias",
       "search": "Buscar",
       "searchDesc": "En todo el archivo, cualquier estado",
       "recent": "Reliquias Recientes",

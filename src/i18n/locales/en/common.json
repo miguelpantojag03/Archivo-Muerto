@@ -120,6 +120,8 @@
     "nav": {
       "archive": "The Archive",
       "archiveDesc": "All relics",
+      "gallery": "The Archive",
+      "galleryDesc": "All relics",
       "search": "Search",
       "searchDesc": "Across the whole archive, any status",
       "recent": "Recent Relics",

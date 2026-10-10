@@ -192,13 +192,6 @@ export default function Dashboard() {
     <div style={{display:'flex',flexDirection:'column',height:'100vh',background:color.bgBase,overflow:'hidden'}}>
       <ConfirmModalUI/>
 
-      {/* macOS chrome */}
-      <div style={{height:36,background:color.bgBase,borderBottom:`1px solid ${color.bgBorder}`,display:'flex',alignItems:'center',gap:6,padding:'0 16px',flexShrink:0}}>
-        <div style={{width:12,height:12,borderRadius:'50%',background:'#FF5F57'}}/>
-        <div style={{width:12,height:12,borderRadius:'50%',background:'#FEBC2E'}}/>
-        <div style={{width:12,height:12,borderRadius:'50%',background:'#28C840'}}/>
-      </div>
-
       {/* 3-column layout */}
       <div style={{display:'flex',flex:1,overflow:'hidden'}}>
         <Sidebar
