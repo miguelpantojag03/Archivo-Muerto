@@ -1,11 +1,10 @@
 // ─── SettingsModal ────────────────────────────────────────────────
-// User settings: language, theme, AI API key, export.
+// User settings: language, theme, backup, export.
 
 import { useState }     from 'react'
 import { useTranslation } from 'react-i18next'
-import { Key, Download, Trash2, Eye, EyeOff, CheckCircle, Archive, Upload } from 'lucide-react'
+import { Download, Archive, Upload } from 'lucide-react'
 import Modal             from './Modal.jsx'
-import { getAIKey, setAIKey, clearAIKey, hasAIKey } from '../lib/aiKeyStorage.js'
 import { getRelics }     from '../lib/relicStorage.js'
 import { exportBackup, importBackup } from '../lib/backup.js'
 import { useToast }      from './Toast.jsx'
@@ -152,16 +151,7 @@ function BackupSection() {
 
 export default function SettingsModal({ userId, onClose }) {
   const { t }       = useTranslation()
-  const { color, radius, font } = useTheme()
-  const { push }    = useToast()
-  const [key,  setKey]  = useState(getAIKey())
-  const [show, setShow] = useState(false)
-  const [saved,setSaved] = useState(false)
-
-  function handleSaveKey() {
-    if (key.trim()) { setAIKey(key.trim()); setSaved(true); setTimeout(()=>setSaved(false),2000); push(t('modals.settings.apiKeySaved'),'success') }
-    else            { clearAIKey(); push(t('modals.settings.apiKeyCleared'),'info') }
-  }
+  const { color }   = useTheme()
 
   return (
     <Modal title={t('modals.settings.title')} onClose={onClose}>
@@ -171,55 +161,6 @@ export default function SettingsModal({ userId, onClose }) {
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <PreferenceRow label={t('modals.settings.language')}><LanguageControl/></PreferenceRow>
           <PreferenceRow label={t('modals.settings.theme')}><ThemeControl/></PreferenceRow>
-        </div>
-
-        <div style={{height:1,background:color.bgBorder}}/>
-
-        {/* AI API Key */}
-        <div style={{display:'flex',flexDirection:'column',gap:10}}>
-          <div style={{display:'flex',alignItems:'center',gap:7}}>
-            <Key size={14} style={{color:color.blue300}}/>
-            <span style={{fontSize:13,fontWeight:700,color:color.textPrimary}}>{t('modals.settings.apiKeyLabel')}</span>
-            {hasAIKey() && <span style={{fontSize:9,fontWeight:700,color:color.sage500,background:'rgba(53,112,72,0.12)',borderRadius:99,padding:'2px 8px'}}>{t('modals.settings.active')}</span>}
-          </div>
-          <p style={{fontSize:11,color:color.textSecondary,lineHeight:1.6,margin:0}}>
-            {t('modals.settings.apiKeyDescription')}
-          </p>
-          <p style={{fontSize:10,color:color.terracotta500,lineHeight:1.5,margin:0}}>
-            {t('modals.settings.apiKeyWarning')}
-          </p>
-          <div style={{display:'flex',gap:8}}>
-            <div style={{flex:1,position:'relative'}}>
-              <input
-                type={show?'text':'password'}
-                value={key}
-                onChange={e=>setKey(e.target.value)}
-                placeholder={t('modals.settings.apiKeyPlaceholder')}
-                style={{width:'100%',padding:'8px 36px 8px 10px',borderRadius:radius.control,background:color.bgBase,border:`1px solid ${color.bgBorder}`,color:color.textPrimary,fontSize:12,fontFamily:font.mono,outline:'none'}}
-                onFocus={e=>e.target.style.borderColor=color.blue500}
-                onBlur={e=>e.target.style.borderColor=color.bgBorder}
-                onKeyDown={e=>e.key==='Enter'&&handleSaveKey()}
-              />
-              <button type="button" onClick={()=>setShow(s=>!s)}
-                style={{position:'absolute',right:8,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:color.textSecondary,padding:2}}>
-                {show?<EyeOff size={14}/>:<Eye size={14}/>}
-              </button>
-            </div>
-            <button onClick={handleSaveKey}
-              style={{padding:'8px 14px',borderRadius:radius.control,border:'none',background:saved?color.sage600:color.blue500,color:color.onPrimary,fontSize:12,fontWeight:600,fontFamily:font.ui,cursor:'pointer',transition:'background 0.15s',display:'flex',alignItems:'center',gap:5}}
-              onMouseEnter={e=>{if(!saved)e.currentTarget.style.background=color.blue600}}
-              onMouseLeave={e=>{if(!saved)e.currentTarget.style.background=saved?color.sage600:color.blue500}}>
-              {saved?<><CheckCircle size={13}/>{t('modals.settings.saved')}</>:t('modals.settings.save')}
-            </button>
-          </div>
-          {key && (
-            <button onClick={()=>{clearAIKey();setKey('');push(t('modals.settings.apiKeyCleared'),'info')}}
-              style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:color.textSecondary,background:'none',border:'none',cursor:'pointer',padding:0,fontFamily:font.ui,width:'fit-content'}}
-              onMouseEnter={e=>{e.currentTarget.style.color=color.terracotta500}}
-              onMouseLeave={e=>{e.currentTarget.style.color=color.textSecondary}}>
-              <Trash2 size={11}/>{t('modals.settings.removeKey')}
-            </button>
-          )}
         </div>
 
         <div style={{height:1,background:color.bgBorder}}/>

@@ -1,13 +1,13 @@
 // ─── AIBadge ──────────────────────────────────────────────────────
 // Small reusable indicator for AI-powered buttons and result blocks.
 import { Sparkles } from 'lucide-react'
-import { hasAIKey } from '../lib/aiKeyStorage.js'
+import { hasAIProxy } from '../lib/aiConfig.js'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { alpha } from '../styles/tokens.js'
 
 export default function AIBadge({ label = 'AI', size = 'sm' }) {
   const { color } = useTheme()
-  const isReal = hasAIKey()
+  const isReal = hasAIProxy()
   const fs = size === 'xs' ? 9 : 10
   return (
     <span style={{

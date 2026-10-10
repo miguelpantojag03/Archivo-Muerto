@@ -1,15 +1,16 @@
 // ─── useAI ────────────────────────────────────────────────────────
-// Selects ClaudeService or MockAIService based on whether the user
-// has configured an API key.  Manages loading, error and abort.
+// Selects ClaudeService or MockAIService based on whether the AI
+// proxy (backend/) is configured for this build. Manages loading,
+// error and abort.
 
 import { useState, useCallback, useRef } from 'react'
 import { useTranslation }        from 'react-i18next'
-import { getAIKey, hasAIKey }    from '../lib/aiKeyStorage.js'
+import { hasAIProxy }            from '../lib/aiConfig.js'
 import MockAIService              from '../services/ai/MockAIService.js'
 import makeClaudeService          from '../services/ai/ClaudeService.js'
 
 function getService() {
-  if (hasAIKey()) return makeClaudeService(getAIKey())
+  if (hasAIProxy()) return makeClaudeService()
   return MockAIService
 }
 

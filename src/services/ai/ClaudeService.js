@@ -1,25 +1,24 @@
 // ─── ClaudeService ────────────────────────────────────────────────
-// Calls the Anthropic Claude API directly from the browser.
-// ⚠️  PRODUCTION WARNING: Never expose API keys in client-side code.
-//     In production, route these calls through your own backend proxy.
+// Calls Anthropic's Messages API through our own proxy (backend/),
+// never directly — the real API key lives only as a Cloudflare secret
+// server-side. VITE_AI_PROXY_URL/VITE_APP_SHARED_SECRET come from
+// .env.local (gitignored), same pattern as googleOAuth.js's client
+// secret. See backend/src/index.js for the other half of this.
 //
 // Model: claude-sonnet-4-5 (fast, cost-effective for short prompts)
 
-const API_URL = 'https://api.anthropic.com/v1/messages'
+const API_URL = import.meta.env.VITE_AI_PROXY_URL
 const MODEL   = 'claude-sonnet-4-5'
 const MAX_TOKENS = 512
 
 // ── Core request helper ───────────────────────────────────────────
-async function callClaude(apiKey, systemPrompt, userMessage, signal) {
+async function callClaude(systemPrompt, userMessage, signal) {
   const res = await fetch(API_URL, {
     method: 'POST',
     signal,
     headers: {
-      'Content-Type':         'application/json',
-      'x-api-key':            apiKey,
-      'anthropic-version':    '2023-06-01',
-      // Required for direct browser calls (Anthropic allows this for prototypes)
-      'anthropic-dangerous-direct-browser-access': 'true',
+      'Content-Type': 'application/json',
+      'x-app-secret': import.meta.env.VITE_APP_SHARED_SECRET,
     },
     body: JSON.stringify({
       model:      MODEL,
@@ -54,10 +53,10 @@ function systemPrompt(lang) {
 }
 
 // ── Public API ────────────────────────────────────────────────────
-function makeClaudeService(apiKey) {
+function makeClaudeService() {
   return {
     async suggestTags(title, description, category = 'NOTES', lang, signal) {
-      return callClaude(apiKey, systemPrompt(lang),
+      return callClaude(systemPrompt(lang),
         `Suggest 3 to 5 lowercase tags for this archived creative relic.
 Title: "${title}"
 Description: "${description}"
@@ -67,7 +66,7 @@ Return JSON: { "tags": ["tag1","tag2","tag3"] }`,
     },
 
     async enhanceDescription(title, description, lang, signal) {
-      return callClaude(apiKey, systemPrompt(lang),
+      return callClaude(systemPrompt(lang),
         `Improve this description for an archived creative relic. Keep it under 200 characters. Be specific about why it was discarded and what value it retains.
 Title: "${title}"
 Current description: "${description || 'No description yet.'}"
@@ -76,7 +75,7 @@ Return JSON: { "description": "improved text here" }`,
     },
 
     async analyzeRelic(relic, lang, signal) {
-      return callClaude(apiKey, systemPrompt(lang),
+      return callClaude(systemPrompt(lang),
         `Analyze this discarded creative relic and assess its revival potential.
 Title: "${relic.title}"
 Category: ${relic.category}
@@ -98,7 +97,7 @@ Return JSON: {
         description: r.description?.slice(0, 80),
         revived: r.revived, discardedAt: r.discardedAt,
       }))
-      return callClaude(apiKey, systemPrompt(lang),
+      return callClaude(systemPrompt(lang),
         `Analyze this team's creative archive and provide insights.
 Archive (${relics.length} relics): ${JSON.stringify(summaries)}
 Return JSON: {

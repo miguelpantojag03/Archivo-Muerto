@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sparkles, ChevronDown, ChevronUp, Lightbulb, TrendingUp, Star } from 'lucide-react'
 import { useAI }     from '../hooks/useAI.js'
-import { hasAIKey }  from '../lib/aiKeyStorage.js'
+import { hasAIProxy } from '../lib/aiConfig.js'
 import { useTheme }  from '../context/ThemeContext.jsx'
 import { alpha }     from '../styles/tokens.js'
 
@@ -49,7 +49,7 @@ export default function AIInsightsPanel({ relics, onHighlight }) {
               {loading ? t('ai.analyzingArchive') : t('ai.archiveIntelligence')}
             </div>
             <div style={{fontSize:10,color:color.textSecondary,marginTop:1}}>
-              {hasAIKey() ? t('ai.poweredByClaude') : t('ai.mockMode')} · {t('ai.relicsCount', { count: relics.length })}
+              {hasAIProxy() ? t('ai.poweredByClaude') : t('ai.mockMode')} · {t('ai.relicsCount', { count: relics.length })}
             </div>
           </div>
         </div>

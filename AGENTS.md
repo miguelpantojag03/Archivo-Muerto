@@ -8,6 +8,7 @@ Note: the app was rebranded from "Archivo Muerto" to "Vestigio" in the UI/docs o
 
 - Prefer small, idiomatic React components and keep UI logic close to the feature being edited.
 - The app is deliberately local-first: authentication and relic data are stored in browser storage, not a backend.
+- One deliberate, narrow exception: `backend/` is a stateless Cloudflare Worker that proxies calls to Anthropic's API so the real API key never ships in the public client/repo. It holds zero user data, has no database, and knows nothing about accounts — it exists solely to keep one secret off the client. Don't treat its existence as license to add a general-purpose backend for anything else; that would still need the same explicit justification this one got.
 - Keep route behavior aligned with the auth guards defined in [src/AppRouter.jsx](src/AppRouter.jsx) and the guard flow documented in [docs/NAVIGATION.md](docs/NAVIGATION.md).
 - Follow the existing design tokens and styling conventions from [src/index.css](src/index.css) instead of introducing unrelated CSS systems.
 
