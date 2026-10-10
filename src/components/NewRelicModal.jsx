@@ -20,7 +20,6 @@ import { ImagePlus }                 from 'lucide-react'
 import AITagSuggester                from './AITagSuggester.jsx'
 import DejaVuWarning                 from './DejaVuWarning.jsx'
 import { findSimilarRelics }         from '../lib/similarity.js'
-import RelicPicker                   from './RelicPicker.jsx'
 import LinkedFilePicker              from './LinkedFilePicker.jsx'
 import { pickFileToLink, secureCopy } from '../lib/fileLinks.js'
 import { useTheme }                  from '../context/ThemeContext.jsx'
@@ -171,8 +170,6 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
   const [responsible, setResponsible] = useState(user?.fullName??'')
   const [tags,        setTags]        = useState([])
   const [coverImage,  setCoverImage]  = useState(null)
-  const [replacesId,   setReplacesId]   = useState(null)
-  const [inspiredById, setInspiredById] = useState(null)
   const [linkedFile,     setLinkedFile]     = useState(null) // {path, mtime} | null
   const [secureCopyFlag, setSecureCopyFlag] = useState(false)
   const [titleError,  setTitleError]  = useState('')
@@ -204,8 +201,7 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
   // Let the native window-close guard know this form has unsaved content
   const isDirty = Boolean(
     title.trim() || description.trim() || notes.trim() ||
-    tags.length > 0 || coverImage || attachments.length > 0 ||
-    replacesId || inspiredById || linkedFile
+    tags.length > 0 || coverImage || attachments.length > 0 || linkedFile
   )
   useEffect(() => {
     registerUnsavedChanges(isDirty)
@@ -255,7 +251,6 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
         projectId,
         filter:      CATEGORY_FILTER_MAP[category],
         thumbnail:   CATEGORY_THUMB_MAP[category],
-        replacesId, inspiredById,
         linkedFilePath: linkedFile?.path ?? null,
         linkedFileMtime: linkedFile?.mtime ?? null,
         linkedFileCopiedPath,
@@ -361,19 +356,6 @@ export default function NewRelicModal({ onClose, onAdd, relics = [], onViewExist
             linkedFile={linkedFile} onPick={handlePickFile} onClear={()=>{setLinkedFile(null);setSecureCopyFlag(false)}}
             secureCopy={secureCopyFlag} onSecureCopyChange={setSecureCopyFlag}
           />
-        </div>
-
-        {/* Lineage */}
-        <div style={{borderTop:`1px solid ${color.bgBorder}`,paddingTop:14,display:'flex',flexDirection:'column',gap:10}}>
-          <div style={S.sec}>{t('modals.newRelic.lineage')}</div>
-          <div>
-            <label style={S.label}>{t('modals.newRelic.replaces')}</label>
-            <RelicPicker relics={relics} value={replacesId} onChange={setReplacesId} placeholder={t('modals.newRelic.lineagePlaceholder')}/>
-          </div>
-          <div>
-            <label style={S.label}>{t('modals.newRelic.inspiredBy')}</label>
-            <RelicPicker relics={relics} value={inspiredById} onChange={setInspiredById} placeholder={t('modals.newRelic.lineagePlaceholder')}/>
-          </div>
         </div>
 
         {/* Attachments */}

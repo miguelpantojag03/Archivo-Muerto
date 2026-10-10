@@ -48,6 +48,12 @@ pub fn run() {
       sql: include_str!("../migrations/0007_remove_fork.sql"),
       kind: MigrationKind::Up,
     },
+    Migration {
+      version: 8,
+      description: "remove_lineage_columns",
+      sql: include_str!("../migrations/0008_remove_lineage.sql"),
+      kind: MigrationKind::Up,
+    },
   ];
 
   tauri::Builder::default()

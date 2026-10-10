@@ -229,13 +229,6 @@
     "reviveNow": "Revivir Ahora",
     "deleteForever": "Eliminar para Siempre",
     "viewOverlay": "Ver",
-    "lineage": {
-      "title": "Linaje",
-      "replaces": "Reemplaza a",
-      "replacedBy": "Reemplazada por",
-      "inspiredBy": "Inspirada en",
-      "inspired": "Inspiró a"
-    },
     "drafts": {
       "title": "Borradores",
       "new": "Nuevo",
@@ -309,10 +302,6 @@
         "statusArchived": "archivada",
         "statusRevived": "revivida"
       },
-      "lineage": "Linaje",
-      "replaces": "Reemplaza a",
-      "inspiredBy": "Inspirada en",
-      "lineagePlaceholder": "Buscar por título… (opcional)",
       "linkedFile": "Archivo Vinculado",
       "linkFile": "Vincular archivo",
       "linkFileChange": "Cambiar",

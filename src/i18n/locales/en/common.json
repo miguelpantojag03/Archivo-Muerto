@@ -229,13 +229,6 @@
     "reviveNow": "Revive Now",
     "deleteForever": "Delete Forever",
     "viewOverlay": "View",
-    "lineage": {
-      "title": "Lineage",
-      "replaces": "Replaces",
-      "replacedBy": "Replaced by",
-      "inspiredBy": "Inspired by",
-      "inspired": "Inspired"
-    },
     "drafts": {
       "title": "Drafts",
       "new": "New",
@@ -309,10 +302,6 @@
         "statusArchived": "archived",
         "statusRevived": "revived"
       },
-      "lineage": "Lineage",
-      "replaces": "Replaces",
-      "inspiredBy": "Inspired by",
-      "lineagePlaceholder": "Search by title… (optional)",
       "linkedFile": "Linked File",
       "linkFile": "Link a file",
       "linkFileChange": "Change",
