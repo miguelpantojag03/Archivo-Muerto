@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   RotateCcw, Trash2, Pencil, Paperclip, Expand,
@@ -73,19 +73,15 @@ function ImageViewer({ src, title, onClose }) {
 /* ─── thumbnail of an image attachment ───────────────────────────── */
 function AttachmentThumb({ att, getPreviewURL, onOpen }) {
   const { color } = useTheme()
-  const [src, setSrc] = useState(null)
   const [hov, setHov] = useState(false)
-  const urlRef = useRef(null)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally keyed on att.id only, same as the effect this replaced
+  const src = useMemo(() => getPreviewURL(att), [att.id])
 
+  // Object URLs aren't memory-managed by the browser — revoke the previous
+  // one whenever src changes or this thumbnail unmounts.
   useEffect(() => {
-    let cancelled = false
-    const url = getPreviewURL(att)
-    if (url && !cancelled) { urlRef.current = url; setSrc(url) }
-    return () => {
-      cancelled = true
-      if (urlRef.current) { URL.revokeObjectURL(urlRef.current); urlRef.current = null }
-    }
-  }, [att.id])
+    return () => { if (src) URL.revokeObjectURL(src) }
+  }, [src])
 
   if (!src) return null
   return (
@@ -375,8 +371,15 @@ export default function RelicDetails({ relic, onUpdateRelic, onRevive, onDelete,
   const [viewer,  setViewer]  = useState(null)  // { src, title }
   const [showAll, setShowAll] = useState(false)
 
-  // reset viewer when relic changes
-  useEffect(() => { setViewer(null); setShowAll(false) }, [relic?.id])
+  // Reset viewer when relic changes — adjusted during render (React's
+  // recommended pattern for this) rather than in an effect, so switching
+  // relics doesn't cost an extra render pass.
+  const [prevRelicId, setPrevRelicId] = useState(relic?.id)
+  if (relic?.id !== prevRelicId) {
+    setPrevRelicId(relic?.id)
+    setViewer(null)
+    setShowAll(false)
+  }
 
   const imageAtts  = attachments.filter(a => isImage(a.extension))
   const visibleImg = showAll ? imageAtts : imageAtts.slice(0, 6)

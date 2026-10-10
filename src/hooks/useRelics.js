@@ -35,18 +35,19 @@ export function useRelics(userId, currentProjectId) {
   const [searchDateTo,   setSearchDateTo]   = useState('')
   const [sortField,  setSortField]  = useState('date')     // 'date'|'title'|'category'|'status'
   const [sortDir,    setSortDir]    = useState('desc')     // 'asc'|'desc'
-  const [loading,    setLoading]    = useState(true)
+  const [loadedUserId, setLoadedUserId] = useState(null)
+  const loading = Boolean(userId) && userId !== loadedUserId
 
   useEffect(() => {
     if (!userId) return
     let cancelled = false
-    setLoading(true)
     getRelics(userId).then(data => {
       if (cancelled) return
       setRelics(data)
       const revived = data.find(r => r.revived)
       setSelectedId(revived?.id ?? data[0]?.id ?? null)
-    }).finally(() => { if (!cancelled) setLoading(false) })
+      setLoadedUserId(userId)
+    })
     return () => { cancelled = true }
   }, [userId])
 

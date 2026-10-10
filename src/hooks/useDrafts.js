@@ -7,13 +7,18 @@ import { getDrafts, addDraft, updateDraft, deleteDraft } from '../lib/draftStora
 
 export function useDrafts(relicId, userId) {
   const [drafts,  setDrafts]  = useState([])
-  const [loading, setLoading] = useState(false)
+  const [loadedRelicId, setLoadedRelicId] = useState(null)
+  const loading = Boolean(relicId) && relicId !== loadedRelicId
+  const visibleDrafts = relicId ? drafts : []
 
   useEffect(() => {
-    if (!relicId) { setDrafts([]); return }
+    if (!relicId) return
     let cancelled = false
-    setLoading(true)
-    getDrafts(relicId).then(data => { if (!cancelled) setDrafts(data) }).finally(() => { if (!cancelled) setLoading(false) })
+    getDrafts(relicId).then(data => {
+      if (cancelled) return
+      setDrafts(data)
+      setLoadedRelicId(relicId)
+    })
     return () => { cancelled = true }
   }, [relicId])
 
@@ -38,5 +43,5 @@ export function useDrafts(relicId, userId) {
 
   const archive = useCallback((id, reason) => update(id, { status: 'archived', archivedReason: reason ?? null }), [update])
 
-  return { drafts, loading, create, update, remove, archive }
+  return { drafts: visibleDrafts, loading, create, update, remove, archive }
 }

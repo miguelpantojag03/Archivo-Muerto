@@ -9,12 +9,12 @@ import { CURRENT_PROJECT_KEY } from '../constants/storageKeys.js'
 export function useProjects(userId) {
   const [projects, setProjects] = useState([])
   const [currentProjectId, setCurrentProjectId] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loadedUserId, setLoadedUserId] = useState(null)
+  const loading = Boolean(userId) && userId !== loadedUserId
 
   useEffect(() => {
     if (!userId) return
     let cancelled = false
-    setLoading(true)
     getProjects(userId).then(async list => {
       if (cancelled) return
       // Defensive — should never happen given onboarding + the migration's
@@ -27,7 +27,8 @@ export function useProjects(userId) {
       const saved = localStorage.getItem(CURRENT_PROJECT_KEY(userId))
       const valid = list.find(p => p.id === saved)
       setCurrentProjectId((valid ?? list[0]).id)
-    }).finally(() => { if (!cancelled) setLoading(false) })
+      setLoadedUserId(userId)
+    })
     return () => { cancelled = true }
   }, [userId])
 

@@ -16,18 +16,23 @@ import { validateFile } from '../constants/fileTypes.js'
 export function useAttachments(relicId, userId) {
   const { t } = useTranslation()
   const [attachments, setAttachments] = useState([])
+  const [loadedRelicId, setLoadedRelicId] = useState(null)
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState(null)
 
+  const fetching = Boolean(relicId) && relicId !== loadedRelicId
+  const visibleAttachments = relicId ? attachments : []
+  const visibleError = fetching ? null : error
+
   // ── Load attachments when relicId changes ─────────────────────
   useEffect(() => {
-    if (!relicId) { setAttachments([]); return }
-    setLoading(true)
-    setError(null)
+    if (!relicId) return
+    let cancelled = false
     getAttachments(relicId)
-      .then(data => setAttachments(data))
-      .catch(() => setError(t('attachments.errors.loadFailed')))
-      .finally(() => setLoading(false))
+      .then(data => { if (!cancelled) setAttachments(data) })
+      .catch(() => { if (!cancelled) setError(t('attachments.errors.loadFailed')) })
+      .finally(() => { if (!cancelled) setLoadedRelicId(relicId) })
+    return () => { cancelled = true }
   }, [relicId, t])
 
   // ── Add one or more files ─────────────────────────────────────
@@ -104,9 +109,9 @@ export function useAttachments(relicId, userId) {
   }, [t])
 
   return {
-    attachments,
-    loading,
-    error,
+    attachments: visibleAttachments,
+    loading: loading || fetching,
+    error: visibleError,
     setError,
     addFiles,
     remove,
