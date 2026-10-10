@@ -13,4 +13,7 @@ export default defineConfig({
     strictPort: true,   // Tauri apunta a este puerto fijo (devUrl); no debe cambiar si está ocupado
     open: false,         // la ventana de Tauri es la que muestra la app, no un tab de navegador
   },
+  test: {
+    environment: 'jsdom',
+  },
 })

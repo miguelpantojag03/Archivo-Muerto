@@ -1,0 +1,158 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { USERS_KEY, SESSION_KEY } from '../constants/storageKeys.js'
+
+// MockAuthService has module-level state (_demoReady/_demoInit) that only
+// runs its setup once per module instance. Each test needs its own fresh
+// instance — paired with clearing storage below — so tests can't leak
+// into each other via that shared state.
+async function freshService() {
+  vi.resetModules()
+  const mod = await import('./MockAuthService.js')
+  return mod.default
+}
+
+beforeEach(() => {
+  localStorage.clear()
+  sessionStorage.clear()
+})
+
+describe('signUp', () => {
+  it('creates a new account without starting a session', async () => {
+    const svc = await freshService()
+    const user = await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    expect(user.email).toBe('user@example.com')
+    expect(user.fullName).toBe('User One')
+    expect(user.passwordHash).toBeUndefined()
+    expect(localStorage.getItem(SESSION_KEY)).toBeNull()
+  })
+
+  it('rejects a duplicate email', async () => {
+    const svc = await freshService()
+    await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    await expect(svc.signUp('user@example.com', 'Other5678!', 'User Two')).rejects.toThrow()
+  })
+})
+
+describe('signIn', () => {
+  it('rejects a wrong password', async () => {
+    const svc = await freshService()
+    await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    await expect(svc.signIn('user@example.com', 'WrongPass1!')).rejects.toThrow()
+  })
+
+  it('rejects an unknown email', async () => {
+    const svc = await freshService()
+    await expect(svc.signIn('nobody@example.com', 'Abcdefg1!')).rejects.toThrow()
+  })
+
+  it('returns a session without the password hash on success', async () => {
+    const svc = await freshService()
+    await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    const session = await svc.signIn('user@example.com', 'Abcdefg1!')
+    expect(session.user.email).toBe('user@example.com')
+    expect(session.user.passwordHash).toBeUndefined()
+  })
+
+  it('signs into the pre-seeded demo account', async () => {
+    const svc = await freshService()
+    const session = await svc.signIn('julian@archivomuerto.com', 'Demo1234!')
+    expect(session.user.fullName).toBe('Julian Archivo')
+  })
+
+  it('clears the other store so a stale session cannot collide (regression)', async () => {
+    const svc = await freshService()
+    await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+
+    await svc.signIn('user@example.com', 'Abcdefg1!', true) // remember -> localStorage
+    expect(localStorage.getItem(SESSION_KEY)).not.toBeNull()
+    expect(sessionStorage.getItem(SESSION_KEY)).toBeNull()
+
+    await svc.signIn('user@example.com', 'Abcdefg1!', false) // not remember -> sessionStorage
+    expect(sessionStorage.getItem(SESSION_KEY)).not.toBeNull()
+    expect(localStorage.getItem(SESSION_KEY)).toBeNull()
+  })
+})
+
+describe('signOut', () => {
+  it('clears the session from both stores', async () => {
+    const svc = await freshService()
+    await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    await svc.signIn('user@example.com', 'Abcdefg1!', true)
+    await svc.signOut()
+    expect(localStorage.getItem(SESSION_KEY)).toBeNull()
+    expect(sessionStorage.getItem(SESSION_KEY)).toBeNull()
+  })
+})
+
+describe('getSession', () => {
+  it('returns null and clears storage once the session has expired', async () => {
+    const svc = await freshService()
+    await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    await svc.signIn('user@example.com', 'Abcdefg1!', true)
+
+    const stored = JSON.parse(localStorage.getItem(SESSION_KEY))
+    stored.expiresAt = Date.now() - 1000
+    localStorage.setItem(SESSION_KEY, JSON.stringify(stored))
+
+    const session = await svc.getSession()
+    expect(session).toBeNull()
+    expect(localStorage.getItem(SESSION_KEY)).toBeNull()
+  })
+
+  it('returns the session while still valid', async () => {
+    const svc = await freshService()
+    await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    await svc.signIn('user@example.com', 'Abcdefg1!', true)
+    const session = await svc.getSession()
+    expect(session?.user.email).toBe('user@example.com')
+  })
+})
+
+describe('resetPassword', () => {
+  it('rejects an unknown email', async () => {
+    const svc = await freshService()
+    await expect(svc.resetPassword('nobody@example.com', 'NewPass1!')).rejects.toThrow()
+  })
+
+  it('rejects a Google-only account (no password to reset)', async () => {
+    const svc = await freshService()
+    await svc.signInWithGoogle({ email: 'g@example.com', name: 'G User', sub: 'abc123' })
+    await expect(svc.resetPassword('g@example.com', 'NewPass1!')).rejects.toThrow()
+  })
+
+  it('updates the password so the new one works and the old one no longer does', async () => {
+    const svc = await freshService()
+    await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    await svc.resetPassword('user@example.com', 'NewPass1!')
+
+    await expect(svc.signIn('user@example.com', 'Abcdefg1!')).rejects.toThrow()
+    const session = await svc.signIn('user@example.com', 'NewPass1!')
+    expect(session.user.email).toBe('user@example.com')
+  })
+})
+
+describe('signInWithGoogle', () => {
+  it('creates a local account on first sign-in', async () => {
+    const svc = await freshService()
+    const session = await svc.signInWithGoogle({ email: 'g@example.com', name: 'G User', sub: 'abc123' })
+    expect(session.user.email).toBe('g@example.com')
+    expect(session.user.fullName).toBe('G User')
+  })
+
+  it('signs into the same account on a repeat sign-in (no duplicate)', async () => {
+    const svc = await freshService()
+    const first = await svc.signInWithGoogle({ email: 'g@example.com', name: 'G User', sub: 'abc123' })
+    const second = await svc.signInWithGoogle({ email: 'g@example.com', name: 'G User', sub: 'abc123' })
+    expect(second.user.id).toBe(first.user.id)
+
+    const users = JSON.parse(localStorage.getItem(USERS_KEY))
+    expect(Object.keys(users).filter(k => k === 'g@example.com')).toHaveLength(1)
+  })
+
+  it('signs into an existing password account with the same email', async () => {
+    const svc = await freshService()
+    const created = await svc.signUp('user@example.com', 'Abcdefg1!', 'User One')
+    const session = await svc.signInWithGoogle({ email: 'user@example.com', name: 'User One', sub: 'xyz789' })
+    expect(session.user.id).toBe(created.id)
+  })
+})

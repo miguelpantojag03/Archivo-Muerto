@@ -27,6 +27,7 @@ npm run tauri build   # packaged desktop binary
 npm run dev           # frontend only, in a plain browser — no Tauri APIs
 npm run build         # frontend build Tauri bundles into the binary
 npx eslint src/       # project has no type checker; this is the correctness gate
+npm run test          # Vitest — unit tests for lib/auth logic, colocated as *.test.js next to the module
 ```
 
 - `npm run dev` / `npm run build` build the frontend alone — useful for fast iteration, but anything behind a Tauri API (window close guard, single-instance lock) is a no-op outside the native shell.
