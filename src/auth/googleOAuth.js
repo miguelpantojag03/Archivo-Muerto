@@ -20,6 +20,20 @@ import { fetch } from '@tauri-apps/plugin-http'
 // Platform > Clients > a "Desktop app" type OAuth client.
 export const GOOGLE_CLIENT_ID = '275750301241-6te8u9o1d7h6d7rm3abtak31b3lridfj.apps.googleusercontent.com'
 
+// Google's token endpoint rejects "Desktop app" clients that omit this,
+// even though the flow is PKCE — a Google-specific deviation from plain
+// OAuth2 public-client behavior, confirmed by their own installed-app
+// client libraries, which ship this value too. Google's own docs say
+// this value "is not treated as a secret" for this client type: it
+// can't be kept confidential in a distributed native binary (PKCE's
+// code_verifier/code_challenge carries the real protection here, not
+// this) — but since the repo is public, it still lives in .env.local
+// (gitignored via the existing `*.local` rule) rather than source, so
+// it isn't harvestable straight off GitHub by automated secret-scanners.
+// Set VITE_GOOGLE_CLIENT_SECRET there — see Google Cloud Console >
+// Google Auth Platform > Clients > this Desktop app client > Add secret.
+const GOOGLE_CLIENT_SECRET = import.meta.env.VITE_GOOGLE_CLIENT_SECRET
+
 const AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth'
 const TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token'
 const SCOPE = 'openid email profile'
@@ -58,6 +72,9 @@ function oauthError(message, code) {
  * @returns {Promise<{email: string, name: string, picture: string, sub: string}>}
  */
 export async function getGoogleProfile() {
+  if (!GOOGLE_CLIENT_SECRET) {
+    throw oauthError('Missing VITE_GOOGLE_CLIENT_SECRET — see googleOAuth.js for setup.', 'config')
+  }
   const verifier = randomString()
   const challenge = await codeChallengeFor(verifier)
   const state = randomString(32)
@@ -98,10 +115,15 @@ export async function getGoogleProfile() {
         code,
         redirect_uri: redirectUri,
         client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
         code_verifier: verifier,
       }).toString(),
     })
-    if (!tokenRes.ok) throw oauthError('Could not exchange the Google auth code.', 'network')
+    if (!tokenRes.ok) {
+      const body = await tokenRes.text().catch(() => '<unreadable>')
+      console.error('[Google sign-in] token exchange failed', tokenRes.status, body)
+      throw oauthError('Could not exchange the Google auth code.', 'network')
+    }
     const { id_token } = await tokenRes.json()
 
     const payload = decodeIdToken(id_token)
